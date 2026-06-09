@@ -12,5 +12,6 @@ type ServerService struct {
 }
 
 func (s *ServerService) CreateServer(server db.Server, context context.Context) error {
+	//Need validation here before creating the server, but for now just pass it through to the repository
 	return s.ServerRepository.CreateServer(server, context)
 }
