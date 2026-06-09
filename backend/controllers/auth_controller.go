@@ -14,7 +14,7 @@ type AuthController struct {
 
 func (service *AuthController) Register(c *gin.Context) {
 	user := db.User{
-		ID:       "abc",
+		ID:       "",
 		Email:    c.PostForm("email"),
 		Username: c.PostForm("username"),
 		Password: c.PostForm("password"),
