@@ -39,6 +39,18 @@ func main() {
 		AuthService: &authService,
 	}
 
+	serverRepository := repositories.ServerRepositoryImpl{
+		Queries: queries,
+	}
+
+	serverService := services.ServerService{
+		ServerRepository: &serverRepository,
+	}
+
+	serverController := controllers.ServerController{
+		ServerService: &serverService,
+	}
+
 	router.GET("/test", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
 			"message": "Hello, World!",
@@ -47,6 +59,8 @@ func main() {
 
 	router.POST("/account", authController.Register)
 	router.POST("/login", authController.Login)
+
+	router.POST("/servers", serverController.CreateServer)
 
 	router.Run(":8080")
 

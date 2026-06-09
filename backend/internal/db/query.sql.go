@@ -7,7 +7,25 @@ package db
 
 import (
 	"context"
+	"database/sql"
 )
+
+const createServer = `-- name: CreateServer :exec
+INSERT INTO public.servers(
+	id, name, "createdBy")
+	VALUES ($1, $2, $3)
+`
+
+type CreateServerParams struct {
+	ID        string
+	Name      string
+	CreatedBy sql.NullString
+}
+
+func (q *Queries) CreateServer(ctx context.Context, arg CreateServerParams) error {
+	_, err := q.db.ExecContext(ctx, createServer, arg.ID, arg.Name, arg.CreatedBy)
+	return err
+}
 
 const createUser = `-- name: CreateUser :exec
 INSERT INTO public.users(

@@ -11,3 +11,8 @@ INSERT INTO public.users(
 -- name: GetUserByEmail :one
 SELECT id, email, username, password, "profilePricture"
 	FROM public.users WHERE email = $1;
+
+-- name: CreateServer :exec
+INSERT INTO public.servers(
+	id, name, "createdBy")
+	VALUES ($1, $2, $3);
