@@ -2,8 +2,10 @@ package repositories
 
 import (
 	"context"
+	"database/sql"
 
 	"github.com/arifazola/disclone/backend/internal/db"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type MockUserRepository struct {
@@ -16,4 +18,26 @@ func (m *MockUserRepository) CreateUser(user db.User, context context.Context) e
 	}
 
 	return nil
+}
+
+func (m *MockUserRepository) GetUserByEmailAndPassword(email string, password string, context context.Context) (db.User, error) {
+	if m.Err != nil {
+		return db.User{}, m.Err
+	}
+
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte("test1234"), bcrypt.DefaultCost)
+	if err != nil {
+		return db.User{}, err
+	}
+
+	return db.User{
+		ID:       "abc",
+		Email:    "test@gmail.com",
+		Username: "testuser",
+		Password: string(hashedPassword),
+		ProfilePricture: sql.NullString{
+			String: "",
+			Valid:  false,
+		},
+	}, nil
 }

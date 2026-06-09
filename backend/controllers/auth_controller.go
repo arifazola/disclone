@@ -31,3 +31,16 @@ func (service *AuthController) Register(c *gin.Context) {
 	}
 	c.JSON(201, gin.H{"message": "User registered successfully"})
 }
+
+func (service *AuthController) Login(c *gin.Context) {
+	email := c.PostForm("email")
+	password := c.PostForm("password")
+
+	user, err := service.AuthService.LoginUser(email, password, c.Request.Context())
+	if err != nil {
+		c.JSON(401, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(200, gin.H{"message": "Login successful", "user": user})
+}

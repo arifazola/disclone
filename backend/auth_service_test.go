@@ -116,3 +116,35 @@ func TestRegisterRepositoryError(t *testing.T) {
 
 	assert.NotNil(t, err, "Expected error for repository error")
 }
+
+func TestLoginSuccess(t *testing.T) {
+	authService := services.AuthService{
+		UserRepository: &repositories.MockUserRepository{
+			Err: nil,
+		},
+	}
+
+	_, err := authService.LoginUser("test@gmail.com", "test1234", t.Context())
+	assert.Nil(t, err, "Expected error to be nil")
+}
+
+func TestLoginInvalidEmail(t *testing.T) {
+	authService := services.AuthService{
+		UserRepository: &repositories.MockUserRepository{
+			Err: errors.New("user not found"),
+		},
+	}
+
+	_, err := authService.LoginUser("invalid-email@gmail.com", "test1234", t.Context())
+	assert.NotNil(t, err, "Expected error for invalid email")
+}
+
+func TestLoginInvalidPassword(t *testing.T) {
+	authService := services.AuthService{
+		UserRepository: &repositories.MockUserRepository{
+			Err: nil,
+		},
+	}
+	_, err := authService.LoginUser("test@gmail.com", "wrongpassword", t.Context())
+	assert.NotNil(t, err, "Expected error for invalid password")
+}

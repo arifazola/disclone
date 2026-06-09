@@ -18,3 +18,12 @@ func (repo *UserRepositoryImpl) CreateUser(user db.User, context context.Context
 		Password: user.Password,
 	})
 }
+
+func (repo *UserRepositoryImpl) GetUserByEmailAndPassword(email string, password string, context context.Context) (db.User, error) {
+	user, err := repo.Queries.GetUserByEmail(context, email)
+	if err != nil {
+		return db.User{}, err
+	}
+
+	return user, nil
+}

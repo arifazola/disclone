@@ -1,3 +1,4 @@
+// Package services contains the bussiness logic
 package services
 
 import (
@@ -35,4 +36,23 @@ func (s *AuthService) RegisterUser(user db.User, context context.Context) error 
 
 	user.Password = string(bytes)
 	return s.UserRepository.CreateUser(user, context)
+}
+
+func (s *AuthService) LoginUser(email string, password string, context context.Context) (db.User, error) {
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	if err != nil {
+		return db.User{}, err
+	}
+
+	user, err := s.UserRepository.GetUserByEmailAndPassword(email, string(hashedPassword), context)
+
+	if err != nil {
+		return db.User{}, err
+	}
+
+	if !validators.ValidatePasswordHash(password, user.Password) {
+		return db.User{}, errors.New("invalid email or password")
+	}
+
+	return user, nil
 }

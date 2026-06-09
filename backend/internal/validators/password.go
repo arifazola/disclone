@@ -1,6 +1,10 @@
 package validators
 
-import "regexp"
+import (
+	"regexp"
+
+	"golang.org/x/crypto/bcrypt"
+)
 
 func Password(password string) bool {
 	if len(password) < 8 || len(password) > 32 {
@@ -28,4 +32,9 @@ func Password(password string) bool {
 	}
 
 	return true
+}
+
+func ValidatePasswordHash(password, hashedPassword string) bool {
+	err := bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(password))
+	return err == nil
 }

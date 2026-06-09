@@ -46,6 +46,7 @@ func main() {
 	})
 
 	router.POST("/account", authController.Register)
+	router.POST("/login", authController.Login)
 
 	router.Run(":8080")
 
