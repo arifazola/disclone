@@ -35,3 +35,17 @@ CREATE TABLE IF NOT EXISTS public.channels
         ON UPDATE NO ACTION
         ON DELETE NO ACTION
 );
+
+CREATE TABLE IF NOT EXISTS public."userServers"
+(
+    "userId" text COLLATE pg_catalog."default" NOT NULL,
+    "serverId" text COLLATE pg_catalog."default" NOT NULL,
+    CONSTRAINT "serverId_userServers_pk" FOREIGN KEY ("serverId")
+        REFERENCES public.servers (id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION,
+    CONSTRAINT userid_userserver_pk FOREIGN KEY ("userId")
+        REFERENCES public.users (id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION
+)

@@ -6,6 +6,7 @@ import (
 
 	"github.com/arifazola/disclone/backend/controllers"
 	"github.com/arifazola/disclone/backend/database"
+	"github.com/arifazola/disclone/backend/helpers"
 	"github.com/arifazola/disclone/backend/internal/db"
 	"github.com/arifazola/disclone/backend/repositories"
 	"github.com/arifazola/disclone/backend/services"
@@ -39,12 +40,16 @@ func main() {
 		AuthService: &authService,
 	}
 
-	serverRepository := repositories.ServerRepositoryImpl{
+	// serverRepository := repositories.ServerRepositoryImpl{
+	// 	Queries: queries,
+	// }
+
+	store := helpers.Store{
 		Queries: queries,
 	}
 
 	serverService := services.ServerService{
-		ServerRepository: &serverRepository,
+		Store: &store,
 	}
 
 	serverController := controllers.ServerController{

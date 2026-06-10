@@ -16,3 +16,8 @@ SELECT id, email, username, password, "profilePricture"
 INSERT INTO public.servers(
 	id, name, "createdBy")
 	VALUES ($1, $2, $3);
+
+-- name: AddUserToServer :exec
+INSERT INTO public."userServers"(
+	"userId", "serverId")
+	VALUES ($1, $2);

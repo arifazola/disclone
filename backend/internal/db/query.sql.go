@@ -10,6 +10,22 @@ import (
 	"database/sql"
 )
 
+const addUserToServer = `-- name: AddUserToServer :exec
+INSERT INTO public."userServers"(
+	"userId", "serverId")
+	VALUES ($1, $2)
+`
+
+type AddUserToServerParams struct {
+	UserId   string
+	ServerId string
+}
+
+func (q *Queries) AddUserToServer(ctx context.Context, arg AddUserToServerParams) error {
+	_, err := q.db.ExecContext(ctx, addUserToServer, arg.UserId, arg.ServerId)
+	return err
+}
+
 const createServer = `-- name: CreateServer :exec
 INSERT INTO public.servers(
 	id, name, "createdBy")

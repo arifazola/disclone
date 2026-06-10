@@ -28,3 +28,8 @@ type User struct {
 	Password        string
 	ProfilePricture sql.NullString
 }
+
+type UserServer struct {
+	UserId   string
+	ServerId string
+}
