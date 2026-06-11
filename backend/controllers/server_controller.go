@@ -14,10 +14,11 @@ type ServerController struct {
 
 func (c *ServerController) CreateServer(ctx *gin.Context) {
 	server := db.Server{
-		ID:   "",
+		ID:   "abc",
 		Name: ctx.PostForm("name"),
 		CreatedBy: sql.NullString{
 			String: ctx.PostForm("createdBy"),
+			Valid:  true,
 		},
 	}
 	err := c.ServerService.CreateServer(server, ctx)

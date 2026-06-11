@@ -1,6 +1,10 @@
 package repositories
 
-import "github.com/arifazola/disclone/backend/internal/db"
+import (
+	"context"
+
+	"github.com/arifazola/disclone/backend/internal/db"
+)
 
 type UserServerRepositoryImpl struct {
 	Queries *db.Queries
@@ -12,6 +16,9 @@ func NewUserServerRepository(queries *db.Queries) *UserServerRepositoryImpl {
 	}
 }
 
-func (repo *UserServerRepositoryImpl) CreateUserServer(userID string, serverID string) error {
-	return nil
+func (repo *UserServerRepositoryImpl) CreateUserServer(userID string, serverID string, context context.Context) error {
+	return repo.Queries.AddUserToServer(context, db.AddUserToServerParams{
+		UserId:   userID,
+		ServerId: serverID,
+	})
 }

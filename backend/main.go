@@ -46,10 +46,11 @@ func main() {
 
 	store := helpers.Store{
 		Queries: queries,
+		DB:      dbConn,
 	}
 
 	serverService := services.ServerService{
-		Store: &store,
+		TransactionManager: &store,
 	}
 
 	serverController := controllers.ServerController{

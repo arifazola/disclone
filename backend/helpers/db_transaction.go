@@ -10,14 +10,14 @@ import (
 
 type Store struct {
 	Queries *db.Queries
-	db      *sql.DB
+	DB      *sql.DB
 }
 
 func (s *Store) ExecTx(
 	ctx context.Context,
 	fn func(repositories.TxRepositories) error,
 ) error {
-	tx, err := s.db.BeginTx(ctx, nil)
+	tx, err := s.DB.BeginTx(ctx, nil)
 	if err != nil {
 		return err
 	}
