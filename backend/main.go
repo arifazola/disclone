@@ -3,7 +3,9 @@ package main
 import (
 	"log"
 	"net/http"
+	"os"
 
+	"github.com/arifazola/disclone/backend/auth"
 	"github.com/arifazola/disclone/backend/controllers"
 	"github.com/arifazola/disclone/backend/database"
 	"github.com/arifazola/disclone/backend/helpers"
@@ -12,16 +14,23 @@ import (
 	"github.com/arifazola/disclone/backend/services"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
 )
 
 func main() {
+	err := godotenv.Load()
+
+	if err != nil {
+		log.Fatal("Failed to load environtment variable")
+	}
+
 	router := gin.Default()
 	router.Use(cors.New(cors.Config{
 		AllowOrigins:     []string{"http://localhost:5173"},
 		AllowCredentials: true,
 	}))
 
-	dbUrl := "postgres://postgres:test1234@localhost:5432/disclone?sslmode=disable"
+	dbUrl := os.Getenv("DB_URL")
 
 	dbConn, err := database.NewDb(dbUrl)
 
@@ -71,7 +80,7 @@ func main() {
 	router.POST("/account", authController.Register)
 	router.POST("/login", authController.Login)
 
-	router.POST("/servers", serverController.CreateServer)
+	router.POST("/servers", auth.AuthMiddleware(), serverController.CreateServer)
 
 	router.Run(":8080")
 
