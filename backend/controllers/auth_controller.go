@@ -12,7 +12,8 @@ import (
 )
 
 type AuthController struct {
-	AuthService *services.AuthService
+	AuthService         *services.AuthService
+	RefreshTokenService *services.RefreshTokenService
 }
 
 func (service *AuthController) Register(c *gin.Context) {
@@ -46,6 +47,7 @@ func (service *AuthController) Login(c *gin.Context) {
 	}
 
 	accessToken, err := auth.GenerateAccessToken(user.ID)
+	refreshToken := auth.GenerateRefreshToken()
 
 	if err != nil {
 		log.Print("error generating access token", err)
@@ -53,9 +55,26 @@ func (service *AuthController) Login(c *gin.Context) {
 		return
 	}
 
+	errAddingRefreshToken := service.RefreshTokenService.AddRefreshToken(refreshToken, user.ID, c)
+
+	if errAddingRefreshToken != nil {
+		log.Print("error generating refresh token", err)
+		c.JSON(401, gin.H{"error": "Error generating token"})
+		return
+	}
+
 	http.SetCookie(c.Writer, &http.Cookie{
 		Name:     "access_token",
 		Value:    accessToken,
+		HttpOnly: true,
+		Secure:   false,
+		SameSite: http.SameSiteLaxMode,
+		Path:     "/",
+	})
+
+	http.SetCookie(c.Writer, &http.Cookie{
+		Name:     "refresh_token",
+		Value:    refreshToken,
 		HttpOnly: true,
 		Secure:   false,
 		SameSite: http.SameSiteLaxMode,

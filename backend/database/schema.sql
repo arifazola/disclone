@@ -48,4 +48,18 @@ CREATE TABLE IF NOT EXISTS public."userServers"
         REFERENCES public.users (id) MATCH SIMPLE
         ON UPDATE NO ACTION
         ON DELETE NO ACTION
-)
+);
+
+CREATE TABLE IF NOT EXISTS public."refreshTokens"
+(
+    id uuid NOT NULL,
+    "userId" text COLLATE pg_catalog."default" NOT NULL,
+    "createdAt" bigint NOT NULL,
+    "expiresAt" bigint NOT NULL,
+    token text COLLATE pg_catalog."default" NOT NULL,
+    CONSTRAINT "refreshTokens_pkey" PRIMARY KEY (id),
+    CONSTRAINT "refreshToken_userId_pk" FOREIGN KEY ("userId")
+        REFERENCES public.users (id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION
+);

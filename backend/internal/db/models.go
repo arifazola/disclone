@@ -6,6 +6,8 @@ package db
 
 import (
 	"database/sql"
+
+	"github.com/google/uuid"
 )
 
 type Channel struct {
@@ -13,6 +15,14 @@ type Channel struct {
 	ServerId    string
 	ChannelName string
 	Type        string
+}
+
+type RefreshToken struct {
+	ID        uuid.UUID
+	UserId    string
+	CreatedAt int64
+	ExpiresAt int64
+	Token     string
 }
 
 type Server struct {

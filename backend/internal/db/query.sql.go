@@ -8,6 +8,8 @@ package db
 import (
 	"context"
 	"database/sql"
+
+	"github.com/google/uuid"
 )
 
 const addUserToServer = `-- name: AddUserToServer :exec
@@ -82,6 +84,31 @@ func (q *Queries) GetUserByEmail(ctx context.Context, email string) (User, error
 		&i.ProfilePricture,
 	)
 	return i, err
+}
+
+const insertRefreshToken = `-- name: InsertRefreshToken :exec
+INSERT INTO public."refreshTokens"(
+	id, "userId", "createdAt", "expiresAt", token)
+	VALUES ($1, $2, $3, $4, $5)
+`
+
+type InsertRefreshTokenParams struct {
+	ID        uuid.UUID
+	UserId    string
+	CreatedAt int64
+	ExpiresAt int64
+	Token     string
+}
+
+func (q *Queries) InsertRefreshToken(ctx context.Context, arg InsertRefreshTokenParams) error {
+	_, err := q.db.ExecContext(ctx, insertRefreshToken,
+		arg.ID,
+		arg.UserId,
+		arg.CreatedAt,
+		arg.ExpiresAt,
+		arg.Token,
+	)
+	return err
 }
 
 const test = `-- name: Test :exec

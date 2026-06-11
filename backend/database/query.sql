@@ -21,3 +21,8 @@ INSERT INTO public.servers(
 INSERT INTO public."userServers"(
 	"userId", "serverId")
 	VALUES ($1, $2);
+
+-- name: InsertRefreshToken :exec
+INSERT INTO public."refreshTokens"(
+	id, "userId", "createdAt", "expiresAt", token)
+	VALUES ($1, $2, $3, $4, $5);

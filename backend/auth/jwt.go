@@ -1,11 +1,14 @@
 package auth
 
 import (
+	"crypto/sha256"
+	"encoding/hex"
 	"errors"
 	"os"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/google/uuid"
 	"github.com/joho/godotenv"
 )
 
@@ -60,4 +63,12 @@ func ValidateAccessToken(tokenString string) (*Claims, error) {
 	}
 
 	return claims, nil
+}
+
+func GenerateRefreshToken() string {
+	refreshToken := uuid.New().String()
+	hash := sha256.Sum256([]byte(refreshToken))
+	tokenHash := hex.EncodeToString(hash[:])
+
+	return tokenHash
 }
