@@ -63,9 +63,9 @@ func main() {
 		RefreshTokenService: &refreshTokenService,
 	}
 
-	// serverRepository := repositories.ServerRepositoryImpl{
-	// 	Queries: queries,
-	// }
+	serverRepository := repositories.ServerRepositoryImpl{
+		Queries: queries,
+	}
 
 	store := helpers.Store{
 		Queries: queries,
@@ -74,6 +74,7 @@ func main() {
 
 	serverService := services.ServerService{
 		TransactionManager: &store,
+		ServerRepository:   &serverRepository,
 	}
 
 	serverController := controllers.ServerController{
@@ -90,6 +91,7 @@ func main() {
 	router.POST("/login", authController.Login)
 
 	router.POST("/servers", auth.AuthMiddleware(), serverController.CreateServer)
+	router.GET(("/servers"), auth.AuthMiddleware(), serverController.GetUserJoinedServer)
 
 	router.Run(":8080")
 

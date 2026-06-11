@@ -26,3 +26,8 @@ INSERT INTO public."userServers"(
 INSERT INTO public."refreshTokens"(
 	id, "userId", "createdAt", "expiresAt", token)
 	VALUES ($1, $2, $3, $4, $5);
+
+-- name: GetUserJoinedServers :many
+SELECT "servers".name from "userServers" LEFT JOIN
+public."servers" ON "userServers"."serverId" = "servers"."id"
+WHERE "userServers"."userId" = $1;

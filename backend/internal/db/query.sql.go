@@ -86,6 +86,35 @@ func (q *Queries) GetUserByEmail(ctx context.Context, email string) (User, error
 	return i, err
 }
 
+const getUserJoinedServers = `-- name: GetUserJoinedServers :many
+SELECT "servers".name from "userServers" LEFT JOIN
+public."servers" ON "userServers"."serverId" = "servers"."id"
+WHERE "userServers"."userId" = $1
+`
+
+func (q *Queries) GetUserJoinedServers(ctx context.Context, userid string) ([]sql.NullString, error) {
+	rows, err := q.db.QueryContext(ctx, getUserJoinedServers, userid)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []sql.NullString
+	for rows.Next() {
+		var name sql.NullString
+		if err := rows.Scan(&name); err != nil {
+			return nil, err
+		}
+		items = append(items, name)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const insertRefreshToken = `-- name: InsertRefreshToken :exec
 INSERT INTO public."refreshTokens"(
 	id, "userId", "createdAt", "expiresAt", token)

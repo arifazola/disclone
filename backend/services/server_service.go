@@ -2,6 +2,7 @@ package services
 
 import (
 	"context"
+	"database/sql"
 
 	"github.com/arifazola/disclone/backend/internal"
 	"github.com/arifazola/disclone/backend/internal/db"
@@ -9,7 +10,7 @@ import (
 )
 
 type ServerService struct {
-	// ServerRepository     repositories.ServerRepository
+	ServerRepository repositories.ServerRepository
 	// UserServerRepository repositories.UserServerRepository
 	// SQLDB                *sql.DB
 	TransactionManager internal.TransactionManager
@@ -28,4 +29,8 @@ func (s *ServerService) CreateServer(server db.Server, context context.Context) 
 
 		return tr.UserServerRepo.CreateUserServer(server.CreatedBy.String, server.ID, context)
 	})
+}
+
+func (s *ServerService) GetUserJoinedServer(context context.Context, userid string) ([]sql.NullString, error) {
+	return s.ServerRepository.GetUserJoinedServer(context, userid)
 }
