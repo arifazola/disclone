@@ -4,6 +4,7 @@ import viteLogo from './assets/vite.svg'
 import heroImg from './assets/hero.png'
 import './App.css'
 import ServerIcon from './components/ServerIcon'
+import ButtonPrimary from './components/ButtonPrimary'
 
 function App() {
   const [count, setCount] = useState(0)
@@ -112,8 +113,8 @@ function App() {
                     <div className='h-10 py-1 px-3 rounded-lg text-lg'>
                       Pending
                     </div>
-                    <div className='h-10 py-1 px-3 bg-blue-500 rounded-lg text-white text-lg'>
-                      Add Friend
+                    <div className='w-32'>
+                      <ButtonPrimary text='Add Friend' onClick={() => console.log("fds")} />
                     </div>
                   </div>
                   <span>Start New Chat</span>
