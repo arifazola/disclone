@@ -50,8 +50,17 @@ func main() {
 		UserRepository: &userRepository,
 	}
 
+	refreshTokenRepository := repositories.RefreshTokenRepositoryImpl{
+		Queries: queries,
+	}
+
+	refreshTokenService := services.RefreshTokenService{
+		RefreshTokenRepository: &refreshTokenRepository,
+	}
+
 	authController := controllers.AuthController{
-		AuthService: &authService,
+		AuthService:         &authService,
+		RefreshTokenService: &refreshTokenService,
 	}
 
 	// serverRepository := repositories.ServerRepositoryImpl{

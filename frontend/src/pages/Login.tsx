@@ -3,11 +3,13 @@ import ButtonPrimary from '../components/ButtonPrimary'
 import TextLink from '../components/TextLink'
 import RegisterLayout from '../components/RegisterLayout'
 import Input from '../components/Input'
+import { useNavigate } from 'react-router'
 
 const Login = () => {
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
     const [loading, setLoading] = useState(false)
+    const navigate = useNavigate()
 
     const onEmailChanged = (text: string) => {
         setEmail(text)
@@ -30,11 +32,12 @@ const Login = () => {
                 body: formData
             })
 
-            const res = await login.json()
+            if(login.ok){
+                navigate("/")
+            } 
 
-            console.log("login result", res)
         } catch(error: any){
-
+            console.log("error login", error)
         } finally {
             setLoading(false)
         }
