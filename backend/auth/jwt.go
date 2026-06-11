@@ -46,11 +46,18 @@ func GenerateAccessToken(userId string) (string, error) {
 func ValidateAccessToken(tokenString string) (*Claims, error) {
 	claims := &Claims{}
 
+	err := godotenv.Load()
+	if err != nil {
+		return claims, err
+	}
+
+	jwtSecret := []byte(os.Getenv("JWT_TOKEN"))
+
 	token, err := jwt.ParseWithClaims(
 		tokenString,
 		claims,
 		func(t *jwt.Token) (any, error) {
-			return t, nil
+			return jwtSecret, nil
 		},
 	)
 

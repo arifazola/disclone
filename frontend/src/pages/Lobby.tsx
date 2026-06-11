@@ -2,26 +2,45 @@ import React from 'react'
 import ButtonPrimary from '../components/ButtonPrimary'
 import ServerIcon from '../components/ServerIcon'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { useNavigate } from 'react-router'
 
 const Lobby = () => {
     const queryClient = useQueryClient()
-    const query = useQuery({
+    const navigate = useNavigate()
+    const {data, isPending, error, isFetching} = useQuery({
         queryKey: ['servers'],
         queryFn: async () => {
-            const response = await fetch("")
+            const response = await fetch("http://localhost:8080/servers", {
+              method: "GET",
+              credentials: "include"
+            })
+
+            if(!response.ok){
+              throw new Error(response.status.toString())
+            }
+
+            return await response.json()
         }
     })
+
+    if(error?.message === "401"){
+      navigate("/login")
+    }
+
+    console.log("data", data)
+    console.log("error", error)
   return (
     <div id='container' className='min-h-dvh flex bg-slate-200'>
         <div id='server-list' className='w-20 h-dvh bg-slate-200 flex justify-center pt-10'>
           <div className='w-12 h-full flex flex-col gap-5'>
-            <div className='w-full h-10'>
+            {/* <div className='w-full h-10'>
               <ServerIcon />
-            </div>
-
-            <div className='w-full h-10'>
-              <ServerIcon />
-            </div>
+            </div> */}
+            {(data.servers as any[]).map((item) => (
+              <div className='w-full h-10'>
+                <ServerIcon />
+              </div>
+            ))}
           </div>
         </div>
         <div id='main' className='w-full pt-10'>

@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -12,6 +13,7 @@ func AuthMiddleware() gin.HandlerFunc {
 		cookie, err := ctx.Cookie("access_token")
 
 		if err != nil {
+			log.Println("cookie err", err)
 			ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"message": "Unauthorized"})
 			return
 		}
@@ -19,6 +21,7 @@ func AuthMiddleware() gin.HandlerFunc {
 		claims, err := ValidateAccessToken(cookie)
 
 		if err != nil {
+			log.Println("claims err", err)
 			ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"message": "unauthorized"})
 			return
 		}
