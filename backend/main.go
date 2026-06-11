@@ -10,11 +10,16 @@ import (
 	"github.com/arifazola/disclone/backend/internal/db"
 	"github.com/arifazola/disclone/backend/repositories"
 	"github.com/arifazola/disclone/backend/services"
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
 
 func main() {
 	router := gin.Default()
+	router.Use(cors.New(cors.Config{
+		AllowOrigins:     []string{"http://localhost:5173"},
+		AllowCredentials: true,
+	}))
 
 	dbUrl := "postgres://postgres:test1234@localhost:5432/disclone?sslmode=disable"
 
