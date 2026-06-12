@@ -109,7 +109,7 @@ func main() {
 	router.POST("/servers", auth.AuthMiddleware(), serverController.CreateServer)
 	router.GET(("/servers"), auth.AuthMiddleware(), serverController.GetUserJoinedServer)
 
-	router.POST("/upload", uploadController.GenerateUploadUrl)
+	router.POST("/upload", auth.AuthMiddleware(), uploadController.GenerateUploadURL)
 
 	router.Run(":8080")
 

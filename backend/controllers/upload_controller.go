@@ -6,14 +6,18 @@ import (
 
 	"github.com/arifazola/disclone/backend/services"
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 )
 
 type UploadController struct {
 	S3Service *services.S3Service
 }
 
-func (controller *UploadController) GenerateUploadUrl(ctx *gin.Context) {
-	key := "users/test/abc"
+func (controller *UploadController) GenerateUploadURL(ctx *gin.Context) {
+	filename := ctx.PostForm("filename")
+	salt := uuid.New().String()
+	finalFilename := salt + "_" + filename
+	key := "server/icon/" + finalFilename
 	url, err := controller.S3Service.GenerateUploadURL(ctx, "disclone-622232422815-ap-southeast-2-an", key)
 
 	if err != nil {
