@@ -1,6 +1,8 @@
 package main
 
 import (
+	"context"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -19,6 +21,8 @@ import (
 
 func main() {
 	err := godotenv.Load()
+
+	fmt.Printf("region = %q\n", os.Getenv("AWS_REGION"))
 
 	if err != nil {
 		log.Fatal("Failed to load environtment variable")
@@ -81,6 +85,18 @@ func main() {
 		ServerService: &serverService,
 	}
 
+	ctx := context.Background()
+
+	s3Service, err := services.NewS3Service(ctx)
+
+	if err != nil {
+		log.Panic("Failed initializing s3 service")
+	}
+
+	uploadController := controllers.UploadController{
+		S3Service: s3Service,
+	}
+
 	router.GET("/test", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
 			"message": "Hello, World!",
@@ -92,6 +108,8 @@ func main() {
 
 	router.POST("/servers", auth.AuthMiddleware(), serverController.CreateServer)
 	router.GET(("/servers"), auth.AuthMiddleware(), serverController.GetUserJoinedServer)
+
+	router.POST("/upload", uploadController.GenerateUploadUrl)
 
 	router.Run(":8080")
 
