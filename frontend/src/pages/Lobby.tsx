@@ -1,13 +1,18 @@
-import React from 'react'
+import React, { useState } from 'react'
 import ButtonPrimary from '../components/ButtonPrimary'
 import ServerIcon from '../components/ServerIcon'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from 'react-router'
+import DirectMessageIcon from '../components/DirectMessageIcon'
+import AddServerIcon from '../components/AddServerIcon'
+import Input from '../components/Input'
+import CreateServerDialog from '../components/CreateServerDialog'
 
 const Lobby = () => {
+    const [isDialogOpened, setIsDialogOpened] = useState(false)
     const queryClient = useQueryClient()
     const navigate = useNavigate()
-    const {data, isPending, error, isFetching} = useQuery({
+    const {data, isPending, error, isFetched} = useQuery({
         queryKey: ['servers'],
         queryFn: async () => {
             const response = await fetch("http://localhost:8080/servers", {
@@ -33,14 +38,19 @@ const Lobby = () => {
     <div id='container' className='min-h-dvh flex bg-slate-200'>
         <div id='server-list' className='w-20 h-dvh bg-slate-200 flex justify-center pt-10'>
           <div className='w-12 h-full flex flex-col gap-5'>
-            {/* <div className='w-full h-10'>
-              <ServerIcon />
-            </div> */}
-            {(data.servers as any[]).map((item) => (
-              <div className='w-full h-10'>
+            <div className='w-full h-12'>
+              <DirectMessageIcon />
+            </div>
+            
+            {isFetched && data.servers !== null ? (data.servers as any[]).map((item) => (
+              <div className='w-full h-12'>
                 <ServerIcon />
               </div>
-            ))}
+            )) : false}
+
+            <div className='w-full h-12'>
+              <AddServerIcon onAddServerClicked={() => setIsDialogOpened(!isDialogOpened)} />
+            </div>
           </div>
         </div>
         <div id='main' className='w-full pt-10'>
@@ -179,6 +189,7 @@ const Lobby = () => {
             </div>
           </div>
         </div>
+        <CreateServerDialog isOpened={isDialogOpened} closeDialog={() => setIsDialogOpened(false)} />
       </div>
   )
 }
