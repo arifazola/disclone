@@ -93,24 +93,29 @@ func (q *Queries) GetUserByEmail(ctx context.Context, email string) (User, error
 }
 
 const getUserJoinedServers = `-- name: GetUserJoinedServers :many
-SELECT "servers".name from "userServers" LEFT JOIN
+SELECT "servers".name, "servers".picture from "userServers" LEFT JOIN
 public."servers" ON "userServers"."serverId" = "servers"."id"
 WHERE "userServers"."userId" = $1
 `
 
-func (q *Queries) GetUserJoinedServers(ctx context.Context, userid string) ([]sql.NullString, error) {
+type GetUserJoinedServersRow struct {
+	Name    sql.NullString
+	Picture sql.NullString
+}
+
+func (q *Queries) GetUserJoinedServers(ctx context.Context, userid string) ([]GetUserJoinedServersRow, error) {
 	rows, err := q.db.QueryContext(ctx, getUserJoinedServers, userid)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []sql.NullString
+	var items []GetUserJoinedServersRow
 	for rows.Next() {
-		var name sql.NullString
-		if err := rows.Scan(&name); err != nil {
+		var i GetUserJoinedServersRow
+		if err := rows.Scan(&i.Name, &i.Picture); err != nil {
 			return nil, err
 		}
-		items = append(items, name)
+		items = append(items, i)
 	}
 	if err := rows.Close(); err != nil {
 		return nil, err

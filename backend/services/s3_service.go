@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 )
@@ -34,8 +35,9 @@ func (s *S3Service) GenerateUploadURL(
 	req, err := presigner.PresignPutObject(
 		ctx,
 		&s3.PutObjectInput{
-			Bucket: &bucket,
-			Key:    &key,
+			Bucket:      &bucket,
+			Key:         &key,
+			ContentType: aws.String("image/jpeg"),
 		},
 		s3.WithPresignExpires(15*time.Minute),
 	)

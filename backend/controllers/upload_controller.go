@@ -13,10 +13,21 @@ type UploadController struct {
 	S3Service *services.S3Service
 }
 
+type UploadRequestBody struct {
+	Filename string
+}
+
 func (controller *UploadController) GenerateUploadURL(ctx *gin.Context) {
-	filename := ctx.PostForm("filename")
+	var requestBody UploadRequestBody
+
+	if err := ctx.BindJSON(&requestBody); err != nil {
+		log.Println("failed to parse upload request body", err)
+		return
+	}
+
+	// filename := ctx.PostForm("filename")
 	salt := uuid.New().String()
-	finalFilename := salt + "_" + filename
+	finalFilename := salt + "_" + requestBody.Filename
 	key := "server/icon/" + finalFilename
 	url, err := controller.S3Service.GenerateUploadURL(ctx, "disclone-622232422815-ap-southeast-2-an", key)
 

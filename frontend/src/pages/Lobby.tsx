@@ -41,10 +41,12 @@ const Lobby = () => {
             <div className='w-full h-12'>
               <DirectMessageIcon />
             </div>
+
+            <div className='w-10/12 h-1 border-t border-slate-300'/>
             
             {isFetched && data.servers !== null ? (data.servers as any[]).map((item) => (
               <div className='w-full h-12'>
-                <ServerIcon />
+                <ServerIcon path={item.Picture.String} />
               </div>
             )) : false}
 

@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useRef, useState } from 'react'
 import Input from './Input'
 import ButtonPrimary from './ButtonPrimary'
 
@@ -8,8 +8,24 @@ interface CreateServerDialogProps {
 }
 const CreateServerDialog = ({isOpened, closeDialog}: CreateServerDialogProps) => {
     const [serverName, setServerName] = useState("")
+    const uploadedFilename = useRef("")
     const createServer = async () => {
+        try{
+            const formData = new FormData()
+            formData.append("name", serverName)
+            formData.append("picture", uploadedFilename.current)
+            const post = await fetch("http://localhost:8080/servers", {
+                method: "POST",
+                credentials: "include",
+                body: formData
+            })
 
+            if(!post.ok){
+                throw new Error("failed to create server")
+            }
+        } catch(error: any){
+
+        }
     }
 
     const onFileChanged = async (files: FileList | null) => {
@@ -19,15 +35,18 @@ const CreateServerDialog = ({isOpened, closeDialog}: CreateServerDialogProps) =>
 
         const file = files[0]
 
-        const formData = new FormData()
+        // const formData = new FormData()
 
-        formData.append("filename", file.name)
+        // formData.append("filename", file.name)
 
         try {
             const getUploadUrl = await fetch("http://localhost:8080/upload", {
                 method: "POST",
                 credentials: "include",
-                body: formData
+                headers: {
+                    "Content-Type": "image/jpeg",
+                },
+                body: JSON.stringify({"filename": file.name})
 
             })
 
@@ -39,13 +58,18 @@ const CreateServerDialog = ({isOpened, closeDialog}: CreateServerDialogProps) =>
 
             const uploadUrl = res.uploadUrl
 
+            uploadedFilename.current = res.resultUrl
+
             const fileFormData = new FormData()
 
             fileFormData.append("", file)
 
             const uploadImage = await fetch(uploadUrl, {
                 method: "PUT",
-                body: fileFormData
+                body: file,
+                headers: {
+                    "Content-Type": "image/jpeg",
+                },
             })
 
             console.log("is upload success", uploadImage.ok)

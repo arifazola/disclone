@@ -8,6 +8,7 @@ import (
 	"github.com/arifazola/disclone/backend/internal/db"
 	"github.com/arifazola/disclone/backend/services"
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 )
 
 type ServerController struct {
@@ -15,10 +16,17 @@ type ServerController struct {
 }
 
 func (c *ServerController) CreateServer(ctx *gin.Context) {
+	userID, userIDExist := ctx.Get("userID")
+
+	if !userIDExist {
+		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
+		log.Println("Context userid not exist")
+		return
+	}
 	server := db.Server{
-		ID:        "abc",
+		ID:        uuid.New().String(),
 		Name:      ctx.PostForm("name"),
-		CreatedBy: ctx.PostForm("createdBy"),
+		CreatedBy: userID.(string),
 		Picture: sql.NullString{
 			String: ctx.PostForm("picture"),
 			Valid:  true,

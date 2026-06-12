@@ -2,7 +2,6 @@ package services
 
 import (
 	"context"
-	"database/sql"
 
 	"github.com/arifazola/disclone/backend/internal"
 	"github.com/arifazola/disclone/backend/internal/db"
@@ -31,6 +30,6 @@ func (s *ServerService) CreateServer(server db.Server, context context.Context) 
 	})
 }
 
-func (s *ServerService) GetUserJoinedServer(context context.Context, userid string) ([]sql.NullString, error) {
+func (s *ServerService) GetUserJoinedServer(context context.Context, userid string) ([]db.GetUserJoinedServersRow, error) {
 	return s.ServerRepository.GetUserJoinedServer(context, userid)
 }
