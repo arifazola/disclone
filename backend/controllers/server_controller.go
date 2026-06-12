@@ -16,10 +16,11 @@ type ServerController struct {
 
 func (c *ServerController) CreateServer(ctx *gin.Context) {
 	server := db.Server{
-		ID:   "abc",
-		Name: ctx.PostForm("name"),
-		CreatedBy: sql.NullString{
-			String: ctx.PostForm("createdBy"),
+		ID:        "abc",
+		Name:      ctx.PostForm("name"),
+		CreatedBy: ctx.PostForm("createdBy"),
+		Picture: sql.NullString{
+			String: ctx.PostForm("picture"),
 			Valid:  true,
 		},
 	}

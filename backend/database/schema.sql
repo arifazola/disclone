@@ -15,7 +15,8 @@ CREATE TABLE IF NOT EXISTS public.servers
 (
     id text COLLATE pg_catalog."default" NOT NULL,
     name text COLLATE pg_catalog."default" NOT NULL,
-    "createdBy" text COLLATE pg_catalog."default",
+    "createdBy" text COLLATE pg_catalog."default" NOT NULL,
+    picture text COLLATE pg_catalog."default",
     CONSTRAINT servers_pkey PRIMARY KEY (id),
     CONSTRAINT "serversCreatedBy_pk" FOREIGN KEY ("createdBy")
         REFERENCES public.users (id) MATCH SIMPLE

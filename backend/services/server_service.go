@@ -27,7 +27,7 @@ func (s *ServerService) CreateServer(server db.Server, context context.Context) 
 			return err
 		}
 
-		return tr.UserServerRepo.CreateUserServer(server.CreatedBy.String, server.ID, context)
+		return tr.UserServerRepo.CreateUserServer(server.CreatedBy, server.ID, context)
 	})
 }
 

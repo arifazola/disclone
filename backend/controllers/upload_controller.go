@@ -26,6 +26,6 @@ func (controller *UploadController) GenerateUploadURL(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{"uploadUrl": url})
+	ctx.JSON(http.StatusOK, gin.H{"uploadUrl": url, "resultUrl": key})
 
 }

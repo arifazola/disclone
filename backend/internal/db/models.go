@@ -28,7 +28,8 @@ type RefreshToken struct {
 type Server struct {
 	ID        string
 	Name      string
-	CreatedBy sql.NullString
+	CreatedBy string
+	Picture   sql.NullString
 }
 
 type User struct {

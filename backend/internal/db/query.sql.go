@@ -30,18 +30,24 @@ func (q *Queries) AddUserToServer(ctx context.Context, arg AddUserToServerParams
 
 const createServer = `-- name: CreateServer :exec
 INSERT INTO public.servers(
-	id, name, "createdBy")
-	VALUES ($1, $2, $3)
+	id, name, "createdBy", picture)
+	VALUES ($1, $2, $3, $4)
 `
 
 type CreateServerParams struct {
 	ID        string
 	Name      string
-	CreatedBy sql.NullString
+	CreatedBy string
+	Picture   sql.NullString
 }
 
 func (q *Queries) CreateServer(ctx context.Context, arg CreateServerParams) error {
-	_, err := q.db.ExecContext(ctx, createServer, arg.ID, arg.Name, arg.CreatedBy)
+	_, err := q.db.ExecContext(ctx, createServer,
+		arg.ID,
+		arg.Name,
+		arg.CreatedBy,
+		arg.Picture,
+	)
 	return err
 }
 
