@@ -41,7 +41,7 @@ const ServerList = () => {
             <div className='w-10/12 h-1 border-t border-slate-300' />
 
             {isFetched && data.servers !== null ? (data.servers as any[]).map((item, index) => (
-                <div className='w-full h-12' key={index} onClick={() => onServerClicked(item.Name.String)}>
+                <div className='w-full h-12' key={index} onClick={() => onServerClicked(item.ID.String)}>
                     <ServerIcon path={item.Picture.String} />
                 </div>
             )) : false}
