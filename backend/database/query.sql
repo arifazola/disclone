@@ -43,4 +43,4 @@ SELECT id, "serverId", "channelName", type
 
 -- name: CountUserServerByUserId :one
 SELECT COUNT("userId") as "userServer"
-	FROM public."userServers" WHERE "userId" = $1;
+	FROM public."userServers" WHERE "userId" = $1 AND "serverId" = $2;

@@ -30,11 +30,16 @@ func (q *Queries) AddUserToServer(ctx context.Context, arg AddUserToServerParams
 
 const countUserServerByUserId = `-- name: CountUserServerByUserId :one
 SELECT COUNT("userId") as "userServer"
-	FROM public."userServers" WHERE "userId" = $1
+	FROM public."userServers" WHERE "userId" = $1 AND "serverId" = $2
 `
 
-func (q *Queries) CountUserServerByUserId(ctx context.Context, userid string) (int64, error) {
-	row := q.db.QueryRowContext(ctx, countUserServerByUserId, userid)
+type CountUserServerByUserIdParams struct {
+	UserId   string
+	ServerId string
+}
+
+func (q *Queries) CountUserServerByUserId(ctx context.Context, arg CountUserServerByUserIdParams) (int64, error) {
+	row := q.db.QueryRowContext(ctx, countUserServerByUserId, arg.UserId, arg.ServerId)
 	var userServer int64
 	err := row.Scan(&userServer)
 	return userServer, err

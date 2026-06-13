@@ -22,7 +22,15 @@ func (controller *ChannelController) CreateChannel(context *gin.Context) {
 		Type:        "all",
 	}
 
-	err := controller.ChannelService.CreateChannel(context, channelModel)
+	userid, exist := context.Get("userID")
+
+	if !exist {
+		context.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
+		log.Println("Context userid not exist")
+		return
+	}
+
+	err := controller.ChannelService.CreateChannel(context, channelModel, userid.(string))
 
 	if err != nil {
 		log.Println("error creating channel", err)
