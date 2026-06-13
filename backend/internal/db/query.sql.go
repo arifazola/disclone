@@ -28,6 +28,29 @@ func (q *Queries) AddUserToServer(ctx context.Context, arg AddUserToServerParams
 	return err
 }
 
+const createChannel = `-- name: CreateChannel :exec
+INSERT INTO public.channels(
+	id, "serverId", "channelName", type)
+	VALUES ($1, $2, $3, $4)
+`
+
+type CreateChannelParams struct {
+	ID          string
+	ServerId    string
+	ChannelName string
+	Type        string
+}
+
+func (q *Queries) CreateChannel(ctx context.Context, arg CreateChannelParams) error {
+	_, err := q.db.ExecContext(ctx, createChannel,
+		arg.ID,
+		arg.ServerId,
+		arg.ChannelName,
+		arg.Type,
+	)
+	return err
+}
+
 const createServer = `-- name: CreateServer :exec
 INSERT INTO public.servers(
 	id, name, "createdBy", picture)
@@ -93,12 +116,13 @@ func (q *Queries) GetUserByEmail(ctx context.Context, email string) (User, error
 }
 
 const getUserJoinedServers = `-- name: GetUserJoinedServers :many
-SELECT "servers".name, "servers".picture from "userServers" LEFT JOIN
+SELECT "servers".id, "servers".name, "servers".picture from "userServers" LEFT JOIN
 public."servers" ON "userServers"."serverId" = "servers"."id"
 WHERE "userServers"."userId" = $1
 `
 
 type GetUserJoinedServersRow struct {
+	ID      sql.NullString
 	Name    sql.NullString
 	Picture sql.NullString
 }
@@ -112,7 +136,7 @@ func (q *Queries) GetUserJoinedServers(ctx context.Context, userid string) ([]Ge
 	var items []GetUserJoinedServersRow
 	for rows.Next() {
 		var i GetUserJoinedServersRow
-		if err := rows.Scan(&i.Name, &i.Picture); err != nil {
+		if err := rows.Scan(&i.ID, &i.Name, &i.Picture); err != nil {
 			return nil, err
 		}
 		items = append(items, i)

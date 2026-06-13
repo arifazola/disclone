@@ -98,6 +98,18 @@ func main() {
 		S3Service: s3Service,
 	}
 
+	channelRepoImpl := repositories.ChannelRepositoryImpl{
+		Queries: queries,
+	}
+
+	channelService := services.ChannelService{
+		ChannelRepo: &channelRepoImpl,
+	}
+
+	channelController := controllers.ChannelController{
+		ChannelService: &channelService,
+	}
+
 	router.GET("/test", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
 			"message": "Hello, World!",
@@ -109,6 +121,8 @@ func main() {
 
 	router.POST("/servers", auth.AuthMiddleware(), serverController.CreateServer)
 	router.GET(("/servers"), auth.AuthMiddleware(), serverController.GetUserJoinedServer)
+
+	router.POST("/channels", auth.AuthMiddleware(), channelController.CreateChannel)
 
 	router.POST("/upload", auth.AuthMiddleware(), uploadController.GenerateUploadURL)
 
