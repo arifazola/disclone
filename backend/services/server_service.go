@@ -2,6 +2,7 @@ package services
 
 import (
 	"context"
+	"errors"
 
 	"github.com/arifazola/disclone/backend/internal"
 	"github.com/arifazola/disclone/backend/internal/db"
@@ -32,4 +33,19 @@ func (s *ServerService) CreateServer(server db.Server, context context.Context) 
 
 func (s *ServerService) GetUserJoinedServer(context context.Context, userid string) ([]db.GetUserJoinedServersRow, error) {
 	return s.ServerRepository.GetUserJoinedServer(context, userid)
+}
+
+func (s *ServerService) GetServerChannels(context context.Context, serverid, userid string) ([]db.Channel, error) {
+	countUserServerByUserId, err := s.ServerRepository.CountUserServerByUserId(context, userid)
+	if err != nil {
+		return nil, err
+	}
+
+	userHasAccessToThisServer := countUserServerByUserId > 0
+
+	if !userHasAccessToThisServer {
+		return nil, errors.New("unauthorized server access")
+	}
+
+	return s.ServerRepository.GetServerChannels(context, serverid)
 }

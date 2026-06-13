@@ -28,6 +28,18 @@ func (q *Queries) AddUserToServer(ctx context.Context, arg AddUserToServerParams
 	return err
 }
 
+const countUserServerByUserId = `-- name: CountUserServerByUserId :one
+SELECT COUNT("userId") as "userServer"
+	FROM public."userServers" WHERE "userId" = $1
+`
+
+func (q *Queries) CountUserServerByUserId(ctx context.Context, userid string) (int64, error) {
+	row := q.db.QueryRowContext(ctx, countUserServerByUserId, userid)
+	var userServer int64
+	err := row.Scan(&userServer)
+	return userServer, err
+}
+
 const createChannel = `-- name: CreateChannel :exec
 INSERT INTO public.channels(
 	id, "serverId", "channelName", type)
@@ -95,6 +107,39 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) error {
 		arg.Password,
 	)
 	return err
+}
+
+const getServerChannels = `-- name: GetServerChannels :many
+SELECT id, "serverId", "channelName", type
+	FROM public.channels WHERE "serverId" = $1
+`
+
+func (q *Queries) GetServerChannels(ctx context.Context, serverid string) ([]Channel, error) {
+	rows, err := q.db.QueryContext(ctx, getServerChannels, serverid)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Channel
+	for rows.Next() {
+		var i Channel
+		if err := rows.Scan(
+			&i.ID,
+			&i.ServerId,
+			&i.ChannelName,
+			&i.Type,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const getUserByEmail = `-- name: GetUserByEmail :one

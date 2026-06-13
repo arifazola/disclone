@@ -36,3 +36,11 @@ WHERE "userServers"."userId" = $1;
 INSERT INTO public.channels(
 	id, "serverId", "channelName", type)
 	VALUES ($1, $2, $3, $4);
+
+-- name: GetServerChannels :many
+SELECT id, "serverId", "channelName", type
+	FROM public.channels WHERE "serverId" = $1;
+
+-- name: CountUserServerByUserId :one
+SELECT COUNT("userId") as "userServer"
+	FROM public."userServers" WHERE "userId" = $1;

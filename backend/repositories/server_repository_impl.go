@@ -23,3 +23,11 @@ func (repo *ServerRepositoryImpl) CreateServer(server db.Server, context context
 func (repo *ServerRepositoryImpl) GetUserJoinedServer(context context.Context, userid string) ([]db.GetUserJoinedServersRow, error) {
 	return repo.Queries.GetUserJoinedServers(context, userid)
 }
+
+func (repo *ServerRepositoryImpl) GetServerChannels(ctx context.Context, serverid string) ([]db.Channel, error) {
+	return repo.Queries.GetServerChannels(ctx, serverid)
+}
+
+func (repo *ServerRepositoryImpl) CountUserServerByUserId(ctx context.Context, userid string) (int64, error) {
+	return repo.Queries.CountUserServerByUserId(ctx, userid)
+}
