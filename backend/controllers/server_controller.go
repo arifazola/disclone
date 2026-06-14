@@ -79,3 +79,24 @@ func (c *ServerController) GetServerChannels(ctx *gin.Context) {
 
 	ctx.JSON(http.StatusOK, gin.H{"channels": serverChannels})
 }
+
+func (c *ServerController) JoinServer(ctx *gin.Context) {
+	serverID := ctx.PostForm("server_id")
+	userid, exist := ctx.Get("userID")
+
+	if !exist {
+		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
+		log.Println("Context userid not exist")
+		return
+	}
+
+	err := c.ServerService.JoinServer(userid.(string), serverID, ctx)
+
+	if err != nil {
+		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "failed to join server"})
+		log.Println("Error joining server", err)
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{"message": "joined server"})
+}

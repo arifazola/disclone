@@ -5,8 +5,11 @@ import DirectMessageIcon from './DirectMessageIcon'
 import ServerIcon from './ServerIcon'
 import { useQueryClient, useQuery } from '@tanstack/react-query'
 
-const ServerList = () => {
-    const [isDialogOpened, setIsDialogOpened] = useState(false)
+interface ServerListProps {
+    onAddServerClicked: () => void
+}
+
+const ServerList = ({onAddServerClicked}: ServerListProps) => {
     const queryClient = useQueryClient()
     const navigate = useNavigate()
     const { data, isPending, error, isFetched } = useQuery({
@@ -47,7 +50,7 @@ const ServerList = () => {
             )) : false}
 
             <div className='w-full h-12'>
-                <AddServerIcon onAddServerClicked={() => setIsDialogOpened(!isDialogOpened)} />
+                <AddServerIcon onAddServerClicked={onAddServerClicked} />
             </div>
         </div>
     )

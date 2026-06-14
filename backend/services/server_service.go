@@ -54,3 +54,7 @@ func (s *ServerService) GetServerChannels(context context.Context, serverid, use
 
 	return s.ServerRepository.GetServerChannels(context, serverid)
 }
+
+func (service *ServerService) JoinServer(userid, serverid string, context context.Context) error {
+	return service.UserServerRepository.CreateUserServer(userid, serverid, context)
+}
