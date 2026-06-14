@@ -77,9 +77,14 @@ func main() {
 		DB:      dbConn,
 	}
 
+	userServerRepository := repositories.UserServerRepositoryImpl{
+		Queries: queries,
+	}
+
 	serverService := services.ServerService{
-		TransactionManager: &store,
-		ServerRepository:   &serverRepository,
+		TransactionManager:   &store,
+		ServerRepository:     &serverRepository,
+		UserServerRepository: &userServerRepository,
 	}
 
 	serverController := controllers.ServerController{
