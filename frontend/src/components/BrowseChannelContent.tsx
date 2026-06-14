@@ -1,11 +1,14 @@
-import React from 'react'
+import React, { useState } from 'react'
 import ButtonPrimary from './ButtonPrimary'
 import Input from './Input'
+import CreateChannelDialog from './CreateChannelDialog'
 
 interface BrowseChannelContentProps {
     channels: any[]
 }
 const BrowseChannelContent = ({channels}: BrowseChannelContentProps) => {
+    console.log("rendered channels", channels)
+    const [createChannelDialogOpened, setCreateChannelDialogOpened] = useState(false)
   return (
    <div id='content-container' className='w-full h-full py-5 px-7 flex flex-col'>
         <div id='content-nav' className='w-full flex items-center gap-5'>
@@ -13,7 +16,7 @@ const BrowseChannelContent = ({channels}: BrowseChannelContentProps) => {
                 <Input label='' onInputChanged={() => console.log("")} />
             </div>
             <div className='w-[17%]'>
-                <ButtonPrimary text='Create' onClick={() => console.log("")} />
+                <ButtonPrimary text='Create' onClick={() => setCreateChannelDialogOpened(true)} />
             </div>
         </div>
 
@@ -22,12 +25,14 @@ const BrowseChannelContent = ({channels}: BrowseChannelContentProps) => {
                 
                 {channels !== null ? (channels as any[]).map((item) => (
                     <div className='w-full flex justify-between items-center p-5 border-b border-slate-300'>
-                        <span>{item}</span>
+                        <span>{item.ChannelName}</span>
                         <input type='checkbox' />
                     </div>
                 )) : <span>No channels available</span>}
             </div>
         </div>
+
+        <CreateChannelDialog isOpened={createChannelDialogOpened} closeDialog={() => setCreateChannelDialogOpened(false)} />
     </div>
   )
 }

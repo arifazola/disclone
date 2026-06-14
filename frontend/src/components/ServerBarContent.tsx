@@ -21,8 +21,6 @@ const ServerBarContent = () => {
         }
     })
 
-    console.log("channels", data)
-
     const renderContent = () => {
         if(channel === "browser") return <BrowseChannelContent channels={data.channels} />
     }
@@ -57,7 +55,7 @@ const ServerBarContent = () => {
                     <div className='w-full flex flex-col'>
                         {isFetched && data.channels !== null ? (data.channels as any[]).map((item) => (
                             <div className='w-full h-10 flex items-center rounded-lg px-5'>
-                                <span className='font-semibold text-slate-500'>{item}</span>
+                                <span className='font-semibold text-slate-500'>{item.ChannelName}</span>
                             </div>
                         )) : false}
                     </div>

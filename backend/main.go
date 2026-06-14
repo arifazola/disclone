@@ -108,7 +108,8 @@ func main() {
 	}
 
 	channelService := services.ChannelService{
-		ChannelRepo: &channelRepoImpl,
+		ChannelRepo:    &channelRepoImpl,
+		UserServerRepo: &userServerRepository,
 	}
 
 	channelController := controllers.ChannelController{
