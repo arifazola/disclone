@@ -10,7 +10,8 @@ import (
 )
 
 type ServerService struct {
-	ServerRepository repositories.ServerRepository
+	ServerRepository     repositories.ServerRepository
+	UserServerRepository repositories.UserServerRepository
 	// UserServerRepository repositories.UserServerRepository
 	// SQLDB                *sql.DB
 	TransactionManager internal.TransactionManager
@@ -36,12 +37,16 @@ func (s *ServerService) GetUserJoinedServer(context context.Context, userid stri
 }
 
 func (s *ServerService) GetServerChannels(context context.Context, serverid, userid string) ([]db.Channel, error) {
-	countUserServerByUserId, err := s.ServerRepository.CountUserServerByUserId(context, userid)
+	userServerModel := db.UserServer{
+		UserId:   userid,
+		ServerId: serverid,
+	}
+	countUserServerByUserID, err := s.UserServerRepository.CountUserServerByUserID(context, db.CountUserServerByUserIdParams(userServerModel))
 	if err != nil {
 		return nil, err
 	}
 
-	userHasAccessToThisServer := countUserServerByUserId > 0
+	userHasAccessToThisServer := countUserServerByUserID > 0
 
 	if !userHasAccessToThisServer {
 		return nil, errors.New("unauthorized server access")

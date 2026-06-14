@@ -22,3 +22,7 @@ func (repo *UserServerRepositoryImpl) CreateUserServer(userID string, serverID s
 		ServerId: serverID,
 	})
 }
+
+func (repo *UserServerRepositoryImpl) CountUserServerByUserID(ctx context.Context, userServerParam db.CountUserServerByUserIdParams) (int64, error) {
+	return repo.Queries.CountUserServerByUserId(ctx, userServerParam)
+}

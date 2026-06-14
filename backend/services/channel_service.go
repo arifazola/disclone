@@ -9,12 +9,13 @@ import (
 )
 
 type ChannelService struct {
-	ChannelRepo repositories.ChannelRepository
-	ServerRepo  repositories.ServerRepository
+	ChannelRepo    repositories.ChannelRepository
+	UserServerRepo repositories.UserServerRepository
 }
 
-func (service *ChannelService) CreateChannel(context context.Context, channel db.Channel, userid string) error {
-	countUserServer, err := service.ServerRepo.CountUserServerByUserId(context, userid)
+func (service *ChannelService) CreateChannel(context context.Context, channel db.Channel, userServerModel db.UserServer) error {
+
+	countUserServer, err := service.UserServerRepo.CountUserServerByUserID(context, db.CountUserServerByUserIdParams(userServerModel))
 
 	if err != nil {
 		return err

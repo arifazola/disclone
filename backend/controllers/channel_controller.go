@@ -30,7 +30,12 @@ func (controller *ChannelController) CreateChannel(context *gin.Context) {
 		return
 	}
 
-	err := controller.ChannelService.CreateChannel(context, channelModel, userid.(string))
+	userServerModel := db.UserServer{
+		UserId:   userid.(string),
+		ServerId: channelModel.ServerId,
+	}
+
+	err := controller.ChannelService.CreateChannel(context, channelModel, userServerModel)
 
 	if err != nil {
 		log.Println("error creating channel", err)
