@@ -1,11 +1,13 @@
 import React from 'react'
 import ButtonPrimary from './ButtonPrimary'
-import { useParams } from 'react-router'
+import { useNavigate, useParams } from 'react-router'
 import BrowseChannelContent from './BrowseChannelContent'
 import { useQuery } from '@tanstack/react-query'
+import ChannelContent from './ChannelContent'
 
 const ServerBarContent = () => {
     const { channel, server } = useParams()
+    const navigate = useNavigate()
 
     console.log("server id", server)
     const {data, error, isFetched} = useQuery({
@@ -23,39 +25,39 @@ const ServerBarContent = () => {
 
     const renderContent = () => {
         if(channel === "browser") return <BrowseChannelContent channels={data.channels} />
+        if(channel !== "browser") return <ChannelContent channelID={channel!!} />
     }
 
-    // const renderChannelList = () => {
-    //     if(data.channels == null){
-    //         return
-    //     }
+    const onChannelClicked = (channelID: string) => {
+        navigate(`/server/${server}/${channelID}`)
+    }
 
-    //     (data.channels as any[]).map((item) => {
-    //         <div className='w-full h-10 flex items-center rounded-lg px-5'>
-    //             <span className='font-semibold text-slate-500'>Channel 1</span>
-    //         </div>
-    //     })
-    // }
+    console.log("data channels", data)
     
     return (
         <div className='rounded-lg border border-slate-300 flex'>
             <div id='channel-list' className='w-1/4 h-dvh flex justify-center py-5'>
                 <div className='w-11/12 h-full flex flex-col items-center gap-5'>
                     <div className='w-full mt-7 flex flex-col'>
-                        <div className='w-full h-10 bg-slate-300 flex items-center rounded-lg px-5'>
-                            <span className='font-semibold text-slate-900'>Browser Channel</span>
+                        <div 
+                        onClick={() => onChannelClicked("browser")}
+                        className={`w-full h-10 flex items-center rounded-lg px-5 ${channel === "browser" ? "bg-slate-300 text-slate-900" : "text-slate-500"} hover:cursor-pointer hover:bg-slate-300`}>
+                            <span className='font-semibold'>Browser Channel</span>
                         </div>
-                        <div className='w-full h-10 flex items-center rounded-lg px-5'>
-                            <span className='font-semibold text-slate-500'>Members</span>
+                        <div className={`w-full h-10 flex items-center rounded-lg px-5 ${channel === "members" ? "bg-slate-300 text-slate-900" : "text-slate-500"} hover:cursor-pointer hover:bg-slate-300`}>
+                            <span className='font-semibold'>Members</span>
                         </div>
                     </div>
 
                     <div className='w-full border-t border-slate-300'></div>
 
                     <div className='w-full flex flex-col'>
-                        {isFetched && data.channels !== null ? (data.channels as any[]).map((item) => (
-                            <div className='w-full h-10 flex items-center rounded-lg px-5'>
-                                <span className='font-semibold text-slate-500'>{item.ChannelName}</span>
+                        {isFetched && data.channels !== null ? (data.channels as any[]).map((item, index) => (
+                            <div 
+                            className={`w-full h-10 flex items-center rounded-lg px-5 ${channel === item.ID ? "bg-slate-300 text-slate-900" : "text-slate-500"} hover:cursor-pointer hover:bg-slate-300`} 
+                            key={index} 
+                            onClick={() => onChannelClicked(item.ID)}>
+                                <span className='font-semibold'>{item.ChannelName}</span>
                             </div>
                         )) : false}
                     </div>

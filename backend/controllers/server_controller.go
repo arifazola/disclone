@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"database/sql"
+	"fmt"
 	"log"
 	"net/http"
 
@@ -81,7 +82,7 @@ func (c *ServerController) GetServerChannels(ctx *gin.Context) {
 }
 
 func (c *ServerController) JoinServer(ctx *gin.Context) {
-	serverID := ctx.PostForm("server_id")
+	serverID := ctx.Param("server_id")
 	userid, exist := ctx.Get("userID")
 
 	if !exist {
@@ -90,10 +91,12 @@ func (c *ServerController) JoinServer(ctx *gin.Context) {
 		return
 	}
 
+	fmt.Print("Server ID", serverID)
+
 	err := c.ServerService.JoinServer(userid.(string), serverID, ctx)
 
 	if err != nil {
-		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "failed to join server"})
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "failed to join server"})
 		log.Println("Error joining server", err)
 		return
 	}

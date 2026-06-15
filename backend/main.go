@@ -126,13 +126,15 @@ func main() {
 	router.POST("/login", authController.Login)
 
 	router.POST("/servers", auth.AuthMiddleware(), serverController.CreateServer)
-	router.POST("/servers/:server_id/join", auth.AuthMiddleware(), serverController.CreateServer)
+	router.POST("/servers/:server_id/join", auth.AuthMiddleware(), serverController.JoinServer)
 	router.GET("/servers", auth.AuthMiddleware(), serverController.GetUserJoinedServer)
 	router.GET("/servers/:server_id/channels", auth.AuthMiddleware(), serverController.GetServerChannels)
 
 	router.POST("/channels", auth.AuthMiddleware(), channelController.CreateChannel)
 
 	router.POST("/upload", auth.AuthMiddleware(), uploadController.GenerateUploadURL)
+
+	router.GET("/ws/:channel_id", auth.AuthMiddleware(), controllers.HandleWebSocket)
 
 	router.Run(":8080")
 
