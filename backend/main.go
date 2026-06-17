@@ -134,7 +134,7 @@ func main() {
 
 	router.POST("/upload", auth.AuthMiddleware(), uploadController.GenerateUploadURL)
 
-	router.GET("/ws/:channel_id", auth.AuthMiddleware(), controllers.HandleWebSocket)
+	router.GET("/ws/:channel_id/:user_id", auth.AuthMiddleware(), controllers.HandleWebSocket)
 
 	router.Run(":8080")
 

@@ -20,7 +20,7 @@ const Login = () => {
     }
 
     const onLoginClicked = async () => {
-        try{
+        try {
             setLoading(true)
             const formData = new FormData()
 
@@ -32,20 +32,24 @@ const Login = () => {
                 body: formData
             })
 
-            if(login.ok){
+            if (login.ok) {
                 navigate("/")
-            } 
+            }
 
-        } catch(error: any){
+            const res = await login.json()
+            console.log("user", res.user)
+            window.localStorage.setItem("userid", res.user.ID)
+
+        } catch (error: any) {
             console.log("error login", error)
         } finally {
             setLoading(false)
         }
-        
+
     }
-  return (
-    <RegisterLayout>
-        <span className='font-bold text-2xl'>Welcome back</span>
+    return (
+        <RegisterLayout>
+            <span className='font-bold text-2xl'>Welcome back</span>
             <span className=''>We're so excited to see you again</span>
 
             <Input label='Email or phone number' onInputChanged={onEmailChanged} />
@@ -54,10 +58,10 @@ const Login = () => {
             <span className='w-full flex'>
                 <TextLink text='Forgot your password' url='/forgot-password' />
             </span>
-            <ButtonPrimary text='Add Friend' onClick={onLoginClicked} isLoading={loading}/>
-            <span className='w-full flex'>Need an account?<TextLink text='Register' url='/register'/></span>
-    </RegisterLayout>
-  )
+            <ButtonPrimary text='Add Friend' onClick={onLoginClicked} isLoading={loading} />
+            <span className='w-full flex'>Need an account?<TextLink text='Register' url='/register' /></span>
+        </RegisterLayout>
+    )
 }
 
 export default Login
