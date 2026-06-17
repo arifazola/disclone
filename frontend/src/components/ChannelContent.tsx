@@ -54,6 +54,16 @@ const ChannelContent = ({ channelID }: ChannelContentProps) => {
             data: offer
         }))
     }
+
+    const acceptOffer = async () => {
+        role.current = "callee"
+        const answer = await peerConnection.current?.createAnswer();
+        await peerConnection.current?.setLocalDescription(answer);
+        wsRef.current?.send(JSON.stringify({
+            type: "answer",
+            data: answer
+        }))
+    }
     return (
         <video ref={videoRef} />
     )

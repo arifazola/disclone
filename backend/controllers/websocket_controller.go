@@ -21,6 +21,8 @@ var wsupgrader = websocket.Upgrader{
 
 var clients = make(map[string]*models.WebsocketClientModel)
 
+var userMap = make(map[string]*models.Clients)
+
 func HandleWebSocket(c *gin.Context) {
 	channelID := c.Param("channel_id")
 	userID := c.Param("user_id")
@@ -29,7 +31,6 @@ func HandleWebSocket(c *gin.Context) {
 	conn, err := wsupgrader.Upgrade(c.Writer, c.Request, nil)
 	existingClient := clients[channelID]
 
-	var userMap = make(map[string]*models.Clients)
 	client := &models.Clients{
 		Conn: conn,
 		SDPOffeer: "",
@@ -52,8 +53,9 @@ func HandleWebSocket(c *gin.Context) {
 	}
 	defer conn.Close()
 
+	cl := clients[channelID]
 
-
+	fmt.Println("user leng", len(cl.User))
 	for {
 		messageType, p, err := conn.ReadMessage()
 		if err != nil {
@@ -61,13 +63,11 @@ func HandleWebSocket(c *gin.Context) {
 			break
 		}
 
-		fmt.Printf("Message accepted: %s\n", p)
-
 		var websocketMessageModel models.WebsocketMessageModel
 
-		jsonErr := json.Unmarshal(p, &websocketMessageModel)
+		err = json.Unmarshal(p, &websocketMessageModel)
 
-		if jsonErr != nil {
+		if err != nil {
 			fmt.Println("Failed to read message:", err)
 			break
 		}
@@ -76,12 +76,28 @@ func HandleWebSocket(c *gin.Context) {
 
 		cl.User[userID].SDPOffeer = websocketMessageModel.Data.SDP
 
-		fmt.Println("existing user", cl.User[userID].SDPOffeer)
-		
-		err = conn.WriteMessage(messageType, p)
-		if err != nil {
-			fmt.Println("Failed to write message:", err)
-			break
+		for userids, clients := range cl.User {
+			if(userids == userID){
+				break
+			}
+
+			websocketResponseModel := &models.WebsocketResponseModel{
+				Type: websocketMessageModel.Type,
+				SDP: clients.SDPOffeer,
+			}
+
+			stringifyResponse, err := json.Marshal(websocketResponseModel)
+			if err != nil {
+				fmt.Println("Failed to stringify json response")
+				break
+			}
+
+			err = clients.Conn.WriteMessage(messageType, []byte(stringifyResponse)) 
+
+			if err != nil {
+				fmt.Println("Failed to write message to:", userids , err)
+				break
+			}
 		}
 	}
 }
