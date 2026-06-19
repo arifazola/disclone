@@ -1,4 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react'
+import type { WebsocketResponseModel } from '../models/websocketResponseModel'
+import type { IceCandidateModel } from '../models/IceCandidateModel'
 
 interface ChannelContentProps {
     channelID: string
@@ -28,14 +30,63 @@ const ChannelContent = ({ channelID }: ChannelContentProps) => {
 
         const ws = new WebSocket(`ws://localhost:8080/ws/${channelID}/${userid}`)
 
-        ws.onopen = async (event) => {
-            ws.onmessage = (event) => {
+        ws.onopen = (event) => {
+            console.log("websocket connected")
+            ws.onmessage = async (event) => {
                 console.log("init", event.data)
+                const data = JSON.parse(event.data) as WebsocketResponseModel
+
+                if (data.Type === "offer") {
+                    console.log("offer received")
+                    acceptOffer(data)
+                }
+
+                if (data.Type === "answer") {
+                    console.log("setting answer rtc session description")
+                    const descriptionInit = {
+                        sdp: data.SDP,
+                        type: data.Type
+                    } as RTCSessionDescriptionInit
+                    await peerConnection.current?.setRemoteDescription(new RTCSessionDescription(descriptionInit))
+                }
+
+                if (data.Type == "ice_candidate") {
+                    if (data.Data !== null) {
+                        console.log("ice candidate data", data.Data)
+                        const iceCandidate = data.Data as IceCandidateModel
+                        const candidateInit = {
+                            candidate: iceCandidate.Candidate,
+                            sdpMid: iceCandidate.SDPMid,
+                            sdpMLineIndex: iceCandidate.SDPMLineIndex,
+                            usernameFragment: iceCandidate.UserFragment
+                        } as RTCLocalIceCandidateInit
+                        await peerConnection.current?.addIceCandidate(new RTCIceCandidate(candidateInit))
+                    }
+                }
             }
             makeCall()
         }
 
         wsRef.current = ws
+
+        peerConnection.current.onicecandidate = (event) => {
+            // console.log("ice candidate change", event.candidate)
+            wsRef.current?.send(JSON.stringify({
+                userid: userid,
+                type: "ice_candidate",
+                ice_candidate_data: event.candidate
+            }))
+        }
+
+        peerConnection.current.onconnectionstatechange = (event) => {
+            console.log("peer connection state change", peerConnection.current?.connectionState)
+        }
+
+        peerConnection.current.ontrack = async (event) => {
+            console.log("receiving video streams", event.streams)
+            const [remoteStream] = event.streams
+            videoRef.current!.srcObject = remoteStream
+        }
 
     }, [])
 
@@ -47,25 +98,43 @@ const ChannelContent = ({ channelID }: ChannelContentProps) => {
         peerConnection.current?.createDataChannel("chat");
         const offer = await peerConnection.current?.createOffer();
         await peerConnection.current?.setLocalDescription(offer);
+        if (offer === undefined) {
+            return
+        }
+        const remoteDesc = new RTCSessionDescription(offer)
+        await peerConnection.current?.setRemoteDescription(remoteDesc)
         console.log("sending offer")
         wsRef.current?.send(JSON.stringify({
             userid: userid,
             type: "offer",
             data: offer
         }))
+
+        console.log(peerConnection.current?.localDescription);
+        console.log(peerConnection.current?.iceGatheringState);
     }
 
-    const acceptOffer = async () => {
+    const acceptOffer = async (data: WebsocketResponseModel) => {
         role.current = "callee"
+        console.log("accepting offer", data.Type)
+        const descriptionInit = {
+            sdp: data.SDP,
+            type: data.Type
+        } as RTCSessionDescriptionInit
+        await peerConnection.current?.setRemoteDescription(new RTCSessionDescription(descriptionInit))
         const answer = await peerConnection.current?.createAnswer();
         await peerConnection.current?.setLocalDescription(answer);
         wsRef.current?.send(JSON.stringify({
+            userid: userid,
             type: "answer",
             data: answer
         }))
+        console.log("offer accepted")
+        console.log(peerConnection.current?.localDescription);
+        console.log(peerConnection.current?.iceGatheringState);
     }
     return (
-        <video ref={videoRef} />
+        <video id='remoteVideo' ref={videoRef} autoPlay={true}></video>
     )
 }
 

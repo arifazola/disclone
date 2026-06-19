@@ -22,7 +22,7 @@ func GenerateAccessToken(userId string) (string, error) {
 		UserID: userId,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: &jwt.NumericDate{
-				Time: time.Now().Add(15 * time.Minute),
+				Time: time.Now().Add(60 * time.Minute),
 			},
 			IssuedAt: &jwt.NumericDate{
 				Time: time.Now(),

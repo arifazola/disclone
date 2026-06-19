@@ -1,9 +1,10 @@
 package models
 
 type WebsocketMessageModel struct {
-	UserID string  `json:"userid"`
-	Type   string  `json:"type"`
-	Data   SDPData `json:"data"`
+	UserID           string             `json:"userid"`
+	Type             string             `json:"type"`
+	Data             *SDPData           `json:"data"`
+	ICECandidateData *IceCandidateModel `json:"ice_candidate_data"`
 }
 
 type SDPData struct {
