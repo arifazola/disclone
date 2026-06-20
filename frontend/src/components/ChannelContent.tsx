@@ -36,6 +36,10 @@ const ChannelContent = ({ channelID }: ChannelContentProps) => {
                 console.log("init", event.data)
                 const data = JSON.parse(event.data) as WebsocketResponseModel
 
+                if (data.Type == "should_call") {
+                    makeCall()
+                }
+
                 if (data.Type === "offer") {
                     console.log("offer received")
                     acceptOffer(data)
@@ -64,7 +68,7 @@ const ChannelContent = ({ channelID }: ChannelContentProps) => {
                     }
                 }
             }
-            makeCall()
+            // makeCall()
         }
 
         wsRef.current = ws
@@ -101,8 +105,8 @@ const ChannelContent = ({ channelID }: ChannelContentProps) => {
         if (offer === undefined) {
             return
         }
-        const remoteDesc = new RTCSessionDescription(offer)
-        await peerConnection.current?.setRemoteDescription(remoteDesc)
+        // const remoteDesc = new RTCSessionDescription(offer)
+        // await peerConnection.current?.setRemoteDescription(remoteDesc)
         console.log("sending offer")
         wsRef.current?.send(JSON.stringify({
             userid: userid,
@@ -110,8 +114,8 @@ const ChannelContent = ({ channelID }: ChannelContentProps) => {
             data: offer
         }))
 
-        console.log(peerConnection.current?.localDescription);
-        console.log(peerConnection.current?.iceGatheringState);
+        console.log("local desc", peerConnection.current?.localDescription);
+        console.log("ice gathering state", peerConnection.current?.iceGatheringState);
     }
 
     const acceptOffer = async (data: WebsocketResponseModel) => {
@@ -130,8 +134,8 @@ const ChannelContent = ({ channelID }: ChannelContentProps) => {
             data: answer
         }))
         console.log("offer accepted")
-        console.log(peerConnection.current?.localDescription);
-        console.log(peerConnection.current?.iceGatheringState);
+        console.log("local desc", peerConnection.current?.localDescription);
+        console.log("ice gathering state", peerConnection.current?.iceGatheringState);
     }
     return (
         <video id='remoteVideo' ref={videoRef} autoPlay={true}></video>
