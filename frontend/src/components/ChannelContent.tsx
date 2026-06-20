@@ -7,7 +7,8 @@ interface ChannelContentProps {
 }
 const ChannelContent = ({ channelID }: ChannelContentProps) => {
     const wsRef = useRef<WebSocket | null>(null)
-    const peerConnection = useRef<RTCPeerConnection | null>(null)
+    const peerConnectionRecord = useRef<Map<string, RTCPeerConnection>>(new Map())
+    // const peerConnection = useRef<RTCPeerConnection | null>(null)
     const videoRef = useRef<HTMLVideoElement | null>(null)
     const role = useRef("caller")
     const localStream = useRef<MediaStream | null>(null)
@@ -25,9 +26,6 @@ const ChannelContent = ({ channelID }: ChannelContentProps) => {
 
         getLocalStream()
 
-        const configuration = { 'iceServers': [{ 'urls': 'stun:stun.l.google.com:19302' }] }
-        peerConnection.current = new RTCPeerConnection(configuration);
-
         const ws = new WebSocket(`ws://localhost:8080/ws/${channelID}/${userid}`)
 
         ws.onopen = (event) => {
@@ -37,7 +35,9 @@ const ChannelContent = ({ channelID }: ChannelContentProps) => {
                 const data = JSON.parse(event.data) as WebsocketResponseModel
 
                 if (data.Type == "should_call") {
-                    makeCall()
+                    data.Participants.forEach((participant) => {
+                        makeCall(participant)
+                    })
                 }
 
                 if (data.Type === "offer") {
@@ -51,7 +51,9 @@ const ChannelContent = ({ channelID }: ChannelContentProps) => {
                         sdp: data.SDP,
                         type: data.Type
                     } as RTCSessionDescriptionInit
-                    await peerConnection.current?.setRemoteDescription(new RTCSessionDescription(descriptionInit))
+                    const peerConnection = peerConnectionRecord.current.get(data.Sender)
+                    if (peerConnection === undefined) return
+                    await peerConnection.setRemoteDescription(new RTCSessionDescription(descriptionInit))
                 }
 
                 if (data.Type == "ice_candidate") {
@@ -64,7 +66,11 @@ const ChannelContent = ({ channelID }: ChannelContentProps) => {
                             sdpMLineIndex: iceCandidate.SDPMLineIndex,
                             usernameFragment: iceCandidate.UserFragment
                         } as RTCLocalIceCandidateInit
-                        await peerConnection.current?.addIceCandidate(new RTCIceCandidate(candidateInit))
+
+                        for (const [key, value] of peerConnectionRecord.current) {
+                            await value.addIceCandidate(new RTCIceCandidate(candidateInit))
+                        }
+                        // await peerConnection.addIceCandidate(new RTCIceCandidate(candidateInit))
                     }
                 }
             }
@@ -73,35 +79,64 @@ const ChannelContent = ({ channelID }: ChannelContentProps) => {
 
         wsRef.current = ws
 
-        peerConnection.current.onicecandidate = (event) => {
-            // console.log("ice candidate change", event.candidate)
-            wsRef.current?.send(JSON.stringify({
-                userid: userid,
-                type: "ice_candidate",
-                ice_candidate_data: event.candidate
-            }))
-        }
+        peerConnectionRecord.current.forEach((value, key) => {
+            console.log("looping through peer record to send ice candidate")
+            value.onicecandidate = (event) => {
+                console.log(key, " ice candidate change", event.candidate)
+                wsRef.current?.send(JSON.stringify({
+                    userid: userid,
+                    type: "ice_candidate",
+                    ice_candidate_data: event.candidate
+                }))
+            }
+        })
 
-        peerConnection.current.onconnectionstatechange = (event) => {
-            console.log("peer connection state change", peerConnection.current?.connectionState)
-        }
+        // peerConnection.current.onicecandidate = (event) => {
+        //     // console.log("ice candidate change", event.candidate)
+        //     wsRef.current?.send(JSON.stringify({
+        //         userid: userid,
+        //         type: "ice_candidate",
+        //         ice_candidate_data: event.candidate
+        //     }))
+        // }
 
-        peerConnection.current.ontrack = async (event) => {
-            console.log("receiving video streams", event.streams)
-            const [remoteStream] = event.streams
-            videoRef.current!.srcObject = remoteStream
-        }
+
+        peerConnectionRecord.current.forEach((value, key) => {
+            value.onconnectionstatechange = (event) => {
+                console.log(`peer connection state change for ${key}`, value.connectionState)
+            }
+        })
+
+        // peerConnection.current.onconnectionstatechange = (event) => {
+        //     console.log("peer connection state change", peerConnection.current?.connectionState)
+        // }
+
+        peerConnectionRecord.current.forEach((value, key) => {
+            value.ontrack = (event) => {
+                console.log(`receiving video streams from ${key}`, event.streams)
+                // const [remoteStream] = event.streams
+                // videoRef.current!.srcObject = remoteStream
+            }
+        })
+
+        // peerConnection.current.ontrack = async (event) => {
+        //     console.log("receiving video streams", event.streams)
+        //     const [remoteStream] = event.streams
+        //     videoRef.current!.srcObject = remoteStream
+        // }
 
     }, [])
 
-    const makeCall = async () => {
+    const makeCall = async (peerPartner: string) => {
+        const configuration = { 'iceServers': [{ 'urls': 'stun:stun.l.google.com:19302' }] }
+        const peerConnection = new RTCPeerConnection(configuration);
         videoRef.current!.srcObject = localStream.current
         localStream.current?.getTracks().forEach((track) => {
-            peerConnection.current?.addTrack(track, localStream.current!)
+            peerConnection.addTrack(track, localStream.current!)
         })
-        peerConnection.current?.createDataChannel("chat");
-        const offer = await peerConnection.current?.createOffer();
-        await peerConnection.current?.setLocalDescription(offer);
+        peerConnection.createDataChannel("chat");
+        const offer = await peerConnection.createOffer();
+        await peerConnection.setLocalDescription(offer);
         if (offer === undefined) {
             return
         }
@@ -114,8 +149,10 @@ const ChannelContent = ({ channelID }: ChannelContentProps) => {
             data: offer
         }))
 
-        console.log("local desc", peerConnection.current?.localDescription);
-        console.log("ice gathering state", peerConnection.current?.iceGatheringState);
+        peerConnectionRecord.current.set(peerPartner, peerConnection)
+
+        console.log("local desc", peerConnection.localDescription);
+        console.log("ice gathering state", peerConnection.iceGatheringState);
     }
 
     const acceptOffer = async (data: WebsocketResponseModel) => {
@@ -125,17 +162,22 @@ const ChannelContent = ({ channelID }: ChannelContentProps) => {
             sdp: data.SDP,
             type: data.Type
         } as RTCSessionDescriptionInit
-        await peerConnection.current?.setRemoteDescription(new RTCSessionDescription(descriptionInit))
-        const answer = await peerConnection.current?.createAnswer();
-        await peerConnection.current?.setLocalDescription(answer);
+        const configuration = { 'iceServers': [{ 'urls': 'stun:stun.l.google.com:19302' }] }
+        const peerConnection = new RTCPeerConnection(configuration);
+        await peerConnection.setRemoteDescription(new RTCSessionDescription(descriptionInit))
+        const answer = await peerConnection.createAnswer();
+        await peerConnection.setLocalDescription(answer);
         wsRef.current?.send(JSON.stringify({
             userid: userid,
             type: "answer",
-            data: answer
+            data: answer,
+            sender: data.Sender
         }))
+
+        peerConnectionRecord.current.set(data.Sender, peerConnection)
         console.log("offer accepted")
-        console.log("local desc", peerConnection.current?.localDescription);
-        console.log("ice gathering state", peerConnection.current?.iceGatheringState);
+        console.log("local desc", peerConnection.localDescription);
+        console.log("ice gathering state", peerConnection.iceGatheringState);
     }
     return (
         <video id='remoteVideo' ref={videoRef} autoPlay={true}></video>

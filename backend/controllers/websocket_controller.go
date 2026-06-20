@@ -76,8 +76,17 @@ func HandleWebSocket(c *gin.Context) {
 			return
 		}
 	} else {
+		var participants []string
+
+		for user, _ := range clients[channelID].User{
+			if user == userID {
+				continue
+			}
+			participants = append(participants, user)
+		}
 		websocketResponseModel := &models.WebsocketIceCandidateResponseModel{
 			Type: "should_call",
+			Participants: &participants,
 		}
 
 		stringifyResponse, err := json.Marshal(websocketResponseModel)
@@ -123,7 +132,7 @@ func HandleWebSocket(c *gin.Context) {
 			cl.User[userID].SDPOffeer = sdp
 		}
 
-		if(websocketMessageModel.Type == "offer" || websocketMessageModel.Type == "answer"){
+		if(websocketMessageModel.Type == "offer"){
 			for userids, clients := range cl.User {
 				if(userids == userID){
 					fmt.Println(userids, " is the same. sdp type: ", websocketMessageModel.Type)
@@ -133,6 +142,7 @@ func HandleWebSocket(c *gin.Context) {
 				websocketResponseModel := &models.WebsocketResponseModel{
 					Type: websocketMessageModel.Type,
 					SDP: websocketMessageModel.Data.SDP,
+					Sender: userID,
 				}
 
 				stringifyResponse, err := json.Marshal(websocketResponseModel)
@@ -149,6 +159,31 @@ func HandleWebSocket(c *gin.Context) {
 					fmt.Println("Failed to write message to:", userids , err)
 					break
 				}
+			}
+		}
+
+		if(websocketMessageModel.Type == "answer"){
+			websocketResponseModel := &models.WebsocketResponseModel{
+				Type: websocketMessageModel.Type,
+				SDP: websocketMessageModel.Data.SDP,
+				Sender: userID,
+			}
+
+			stringifyResponse, err := json.Marshal(websocketResponseModel)
+			if err != nil {
+				fmt.Println("Failed to stringify json response")
+				break
+			}
+
+			fmt.Println("sending ", websocketResponseModel.Type, " to", websocketResponseModel.Sender)
+
+			activeChannel := clients[channelID]
+			offerSender := activeChannel.User[websocketMessageModel.Sender]
+			err = offerSender.Conn.WriteMessage(messageType, []byte(stringifyResponse)) 
+
+			if err != nil {
+				fmt.Println("Failed to write message to:", websocketMessageModel.Sender , err)
+				break
 			}
 		}
 
