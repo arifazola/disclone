@@ -133,33 +133,55 @@ func HandleWebSocket(c *gin.Context) {
 		}
 
 		if(websocketMessageModel.Type == "offer"){
-			for userids, clients := range cl.User {
-				if(userids == userID){
-					fmt.Println(userids, " is the same. sdp type: ", websocketMessageModel.Type)
-					continue
-				}
-
-				websocketResponseModel := &models.WebsocketResponseModel{
-					Type: websocketMessageModel.Type,
-					SDP: websocketMessageModel.Data.SDP,
-					Sender: userID,
-				}
-
-				stringifyResponse, err := json.Marshal(websocketResponseModel)
-				if err != nil {
-					fmt.Println("Failed to stringify json response")
-					break
-				}
-
-				fmt.Println("sending ", websocketResponseModel.Type, " to", userids)
-
-				err = clients.Conn.WriteMessage(messageType, []byte(stringifyResponse)) 
-
-				if err != nil {
-					fmt.Println("Failed to write message to:", userids , err)
-					break
-				}
+			websocketResponseModel := &models.WebsocketResponseModel{
+				Type: websocketMessageModel.Type,
+				SDP: websocketMessageModel.Data.SDP,
+				Sender: userID,
 			}
+
+			stringifyResponse, err := json.Marshal(websocketResponseModel)
+			if err != nil {
+				fmt.Println("Failed to stringify json response")
+				break
+			}
+
+			offerRecipient := cl.User[websocketMessageModel.OfferFor]
+
+			fmt.Println("sending ", websocketResponseModel.Type, " to", )
+
+			err = offerRecipient.Conn.WriteMessage(messageType, []byte(stringifyResponse)) 
+
+			if err != nil {
+				fmt.Println("Failed to write message to:", websocketMessageModel.OfferFor , err)
+				break
+			}
+			// for userids, clients := range cl.User {
+			// 	if(userids == userID){
+			// 		fmt.Println(userids, " is the same. sdp type: ", websocketMessageModel.Type)
+			// 		continue
+			// 	}
+
+			// 	websocketResponseModel := &models.WebsocketResponseModel{
+			// 		Type: websocketMessageModel.Type,
+			// 		SDP: websocketMessageModel.Data.SDP,
+			// 		Sender: userID,
+			// 	}
+
+			// 	stringifyResponse, err := json.Marshal(websocketResponseModel)
+			// 	if err != nil {
+			// 		fmt.Println("Failed to stringify json response")
+			// 		break
+			// 	}
+
+			// 	fmt.Println("sending ", websocketResponseModel.Type, " to", userids)
+
+			// 	err = clients.Conn.WriteMessage(messageType, []byte(stringifyResponse)) 
+
+			// 	if err != nil {
+			// 		fmt.Println("Failed to write message to:", userids , err)
+			// 		break
+			// 	}
+			// }
 		}
 
 		if(websocketMessageModel.Type == "answer"){

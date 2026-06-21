@@ -58,7 +58,6 @@ const ChannelContent = ({ channelID }: ChannelContentProps) => {
 
                 if (data.Type == "ice_candidate") {
                     if (data.Data !== null) {
-                        console.log("ice candidate data", data.Data)
                         const iceCandidate = data.Data as IceCandidateModel
                         const candidateInit = {
                             candidate: iceCandidate.Candidate,
@@ -79,57 +78,34 @@ const ChannelContent = ({ channelID }: ChannelContentProps) => {
 
         wsRef.current = ws
 
-        peerConnectionRecord.current.forEach((value, key) => {
-            console.log("looping through peer record to send ice candidate")
-            value.onicecandidate = (event) => {
-                console.log(key, " ice candidate change", event.candidate)
-                wsRef.current?.send(JSON.stringify({
-                    userid: userid,
-                    type: "ice_candidate",
-                    ice_candidate_data: event.candidate
-                }))
-            }
-        })
-
-        // peerConnection.current.onicecandidate = (event) => {
-        //     // console.log("ice candidate change", event.candidate)
-        //     wsRef.current?.send(JSON.stringify({
-        //         userid: userid,
-        //         type: "ice_candidate",
-        //         ice_candidate_data: event.candidate
-        //     }))
-        // }
-
-
-        peerConnectionRecord.current.forEach((value, key) => {
-            value.onconnectionstatechange = (event) => {
-                console.log(`peer connection state change for ${key}`, value.connectionState)
-            }
-        })
-
-        // peerConnection.current.onconnectionstatechange = (event) => {
-        //     console.log("peer connection state change", peerConnection.current?.connectionState)
-        // }
-
-        peerConnectionRecord.current.forEach((value, key) => {
-            value.ontrack = (event) => {
-                console.log(`receiving video streams from ${key}`, event.streams)
-                // const [remoteStream] = event.streams
-                // videoRef.current!.srcObject = remoteStream
-            }
-        })
-
-        // peerConnection.current.ontrack = async (event) => {
-        //     console.log("receiving video streams", event.streams)
-        //     const [remoteStream] = event.streams
-        //     videoRef.current!.srcObject = remoteStream
-        // }
-
     }, [])
 
-    const makeCall = async (peerPartner: string) => {
+    const createPeerConnectionObject = () => {
         const configuration = { 'iceServers': [{ 'urls': 'stun:stun.l.google.com:19302' }] }
         const peerConnection = new RTCPeerConnection(configuration);
+
+        peerConnection.onicecandidate = (event) => {
+            wsRef.current?.send(JSON.stringify({
+                userid: userid,
+                type: "ice_candidate",
+                ice_candidate_data: event.candidate
+            }))
+        }
+
+        peerConnection.onconnectionstatechange = (event) => {
+            console.log(`peer connection state change`, peerConnection.connectionState)
+        }
+
+        peerConnection.ontrack = (event) => {
+            console.log(`receiving video streams`, event.streams)
+            const [remoteStream] = event.streams
+            videoRef.current!.srcObject = remoteStream
+        }
+        return peerConnection
+    }
+
+    const makeCall = async (peerPartner: string) => {
+        const peerConnection = createPeerConnectionObject()
         videoRef.current!.srcObject = localStream.current
         localStream.current?.getTracks().forEach((track) => {
             peerConnection.addTrack(track, localStream.current!)
@@ -146,7 +122,8 @@ const ChannelContent = ({ channelID }: ChannelContentProps) => {
         wsRef.current?.send(JSON.stringify({
             userid: userid,
             type: "offer",
-            data: offer
+            data: offer,
+            offerFor: peerPartner
         }))
 
         peerConnectionRecord.current.set(peerPartner, peerConnection)
@@ -162,8 +139,7 @@ const ChannelContent = ({ channelID }: ChannelContentProps) => {
             sdp: data.SDP,
             type: data.Type
         } as RTCSessionDescriptionInit
-        const configuration = { 'iceServers': [{ 'urls': 'stun:stun.l.google.com:19302' }] }
-        const peerConnection = new RTCPeerConnection(configuration);
+        const peerConnection = createPeerConnectionObject()
         await peerConnection.setRemoteDescription(new RTCSessionDescription(descriptionInit))
         const answer = await peerConnection.createAnswer();
         await peerConnection.setLocalDescription(answer);

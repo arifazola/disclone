@@ -6,6 +6,7 @@ type WebsocketMessageModel struct {
 	Sender           string             `json:"sender"`
 	Data             *SDPData           `json:"data"`
 	ICECandidateData *IceCandidateModel `json:"ice_candidate_data"`
+	OfferFor         string             `json:"offerFor"`
 }
 
 type SDPData struct {
