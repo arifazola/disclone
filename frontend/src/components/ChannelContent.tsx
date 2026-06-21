@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { createRef, useEffect, useRef, useState } from 'react'
 import type { WebsocketResponseModel } from '../models/websocketResponseModel'
 import type { IceCandidateModel } from '../models/IceCandidateModel'
 
@@ -9,24 +9,38 @@ const ChannelContent = ({ channelID }: ChannelContentProps) => {
     const wsRef = useRef<WebSocket | null>(null)
     const peerConnectionRecord = useRef<Map<string, RTCPeerConnection>>(new Map())
     // const peerConnection = useRef<RTCPeerConnection | null>(null)
-    const videoRef = useRef<HTMLVideoElement | null>(null)
+    const localVideoRef = useRef<HTMLVideoElement | null>(null)
+    const remoteVideoRef = useRef<HTMLVideoElement | null>(null)
+    const remoteVideoMap = useRef<Map<HTMLVideoElement, string>>(new Map())
     const role = useRef("caller")
     const localStream = useRef<MediaStream | null>(null)
     const [socketMsg, setSocketMsg] = useState("")
     const userid = window.localStorage.getItem("userid")
+    const participants = useRef<string[]>([])
+
     useEffect(() => {
         const getLocalStream = async () => {
+            console.log("getting local stream");
+
             const constraints = {
                 'video': true,
                 'audio': true
             }
 
             localStream.current = await navigator.mediaDevices.getUserMedia(constraints)
+
+            console.log("local stream ready", localStream.current);
         }
 
         getLocalStream()
+    }, [])
 
-        const ws = new WebSocket(`ws://localhost:8080/ws/${channelID}/${userid}`)
+    const onStart = () => {
+        if (localStream.current === undefined) {
+            console.log("local stream is not ready")
+            return
+        }
+        const ws = new WebSocket(`ws://192.168.1.11:8080/ws/${channelID}/${userid}`)
 
         ws.onopen = (event) => {
             console.log("websocket connected")
@@ -35,6 +49,7 @@ const ChannelContent = ({ channelID }: ChannelContentProps) => {
                 const data = JSON.parse(event.data) as WebsocketResponseModel
 
                 if (data.Type == "should_call") {
+                    participants.current = data.Participants
                     data.Participants.forEach((participant) => {
                         makeCall(participant)
                     })
@@ -73,12 +88,10 @@ const ChannelContent = ({ channelID }: ChannelContentProps) => {
                     }
                 }
             }
-            // makeCall()
         }
 
         wsRef.current = ws
-
-    }, [])
+    }
 
     const createPeerConnectionObject = () => {
         const configuration = { 'iceServers': [{ 'urls': 'stun:stun.l.google.com:19302' }] }
@@ -99,17 +112,23 @@ const ChannelContent = ({ channelID }: ChannelContentProps) => {
         peerConnection.ontrack = (event) => {
             console.log(`receiving video streams`, event.streams)
             const [remoteStream] = event.streams
-            videoRef.current!.srcObject = remoteStream
+            remoteVideoRef.current!.srcObject = remoteStream
+            remoteVideoRef.current!.play()
         }
+
+        localVideoRef.current!.srcObject = localStream.current
+        localVideoRef.current!.play()
+        localStream.current?.getTracks().forEach((track) => {
+            peerConnection.addTrack(track, localStream.current!)
+        })
         return peerConnection
     }
 
     const makeCall = async (peerPartner: string) => {
         const peerConnection = createPeerConnectionObject()
-        videoRef.current!.srcObject = localStream.current
-        localStream.current?.getTracks().forEach((track) => {
-            peerConnection.addTrack(track, localStream.current!)
-        })
+        console.log("local stream", localStream.current)
+        console.log("local stream tracls", localStream.current?.getTracks())
+
         peerConnection.createDataChannel("chat");
         const offer = await peerConnection.createOffer();
         await peerConnection.setLocalDescription(offer);
@@ -156,7 +175,20 @@ const ChannelContent = ({ channelID }: ChannelContentProps) => {
         console.log("ice gathering state", peerConnection.iceGatheringState);
     }
     return (
-        <video id='remoteVideo' ref={videoRef} autoPlay={true}></video>
+        <>
+            <button onClick={onStart}>Startt</button>
+            <div className='flex flex-col gap-5 w-full h-full'>
+                <video autoPlay={true} className='w-1/2 h-full' id='localVideo' ref={localVideoRef}></video>
+                <video autoPlay={true} className='w-1/2 h-full' id='remoteVideo' ref={remoteVideoRef}></video>
+                {/* {participants.current.map((item) => (
+                    <video autoPlay={true} className='w-1/2 h-full' key={item} id='remoteVideo' ref={el => {
+                        if (el) {
+                            remoteVideoMap.current.set(el, item)
+                        }
+                    }}></video>
+                ))} */}
+            </div>
+        </>
     )
 }
 

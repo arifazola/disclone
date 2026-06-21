@@ -9,13 +9,13 @@ interface ServerListProps {
     onAddServerClicked: () => void
 }
 
-const ServerList = ({onAddServerClicked}: ServerListProps) => {
+const ServerList = ({ onAddServerClicked }: ServerListProps) => {
     const queryClient = useQueryClient()
     const navigate = useNavigate()
     const { data, isPending, error, isFetched } = useQuery({
         queryKey: ['servers'],
         queryFn: async () => {
-            const response = await fetch("http://localhost:8080/servers", {
+            const response = await fetch("http://192.168.1.11:8080/servers", {
                 method: "GET",
                 credentials: "include"
             })
