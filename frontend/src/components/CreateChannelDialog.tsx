@@ -19,7 +19,7 @@ const CreateChannelDialog = ({ isOpened, closeDialog }: CreateChannelDialogProps
       const formData = new FormData()
       formData.append("serverId", server!)
       formData.append("channelName", channelName)
-      const create = await fetch("http://192.168.1.11:8080/channels", {
+      const create = await fetch("https://192.168.1.11:8080/channels", {
         method: "POST",
         credentials: "include",
         body: formData

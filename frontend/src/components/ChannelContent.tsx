@@ -40,7 +40,7 @@ const ChannelContent = ({ channelID }: ChannelContentProps) => {
             console.log("local stream is not ready")
             return
         }
-        const ws = new WebSocket(`ws://192.168.1.11:8080/ws/${channelID}/${userid}`)
+        const ws = new WebSocket(`wss://192.168.1.11:8080/ws/${channelID}/${userid}`)
 
         ws.onopen = (event) => {
             console.log("websocket connected")
@@ -178,7 +178,9 @@ const ChannelContent = ({ channelID }: ChannelContentProps) => {
         <>
             <button onClick={onStart}>Startt</button>
             <div className='flex flex-col gap-5 w-full h-full'>
+                <span>This is local</span>
                 <video autoPlay={true} className='w-1/2 h-full' id='localVideo' ref={localVideoRef}></video>
+                <span>This is remote</span>
                 <video autoPlay={true} className='w-1/2 h-full' id='remoteVideo' ref={remoteVideoRef}></video>
                 {/* {participants.current.map((item) => (
                     <video autoPlay={true} className='w-1/2 h-full' key={item} id='remoteVideo' ref={el => {

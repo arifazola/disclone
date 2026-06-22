@@ -67,8 +67,8 @@ func (service *AuthController) Login(c *gin.Context) {
 		Name:     "access_token",
 		Value:    accessToken,
 		HttpOnly: true,
-		Secure:   false,
-		SameSite: http.SameSiteLaxMode,
+		Secure:   true,
+		SameSite: http.SameSiteNoneMode,
 		Path:     "/",
 	})
 
@@ -76,8 +76,8 @@ func (service *AuthController) Login(c *gin.Context) {
 		Name:     "refresh_token",
 		Value:    refreshToken,
 		HttpOnly: true,
-		Secure:   false,
-		SameSite: http.SameSiteLaxMode,
+		Secure:   true,
+		SameSite: http.SameSiteNoneMode,
 		Path:     "/",
 	})
 

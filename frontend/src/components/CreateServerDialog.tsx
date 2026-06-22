@@ -17,7 +17,7 @@ const CreateServerDialog = ({ isOpened, closeDialog }: CreateServerDialogProps) 
             const formData = new FormData()
             formData.append("name", serverName)
             formData.append("picture", uploadedFilename.current)
-            const post = await fetch("http://192.168.1.11:8080/servers", {
+            const post = await fetch("https://192.168.1.11:8080/servers", {
                 method: "POST",
                 credentials: "include",
                 body: formData
@@ -43,7 +43,7 @@ const CreateServerDialog = ({ isOpened, closeDialog }: CreateServerDialogProps) 
         // formData.append("filename", file.name)
 
         try {
-            const getUploadUrl = await fetch("http://192.168.1.11:8080/upload", {
+            const getUploadUrl = await fetch("https://192.168.1.11:8080/upload", {
                 method: "POST",
                 credentials: "include",
                 headers: {

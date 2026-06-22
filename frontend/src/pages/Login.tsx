@@ -26,7 +26,7 @@ const Login = () => {
 
             formData.append("email", email)
             formData.append("password", password)
-            const login = await fetch("http://192.168.1.11:8080/login", {
+            const login = await fetch("https://192.168.1.11:8080/login", {
                 method: "POST",
                 credentials: "include",
                 body: formData

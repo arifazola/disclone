@@ -11,7 +11,7 @@ const JoinServerDialog = ({ closeDialog }: JoinServerDialogProps) => {
     const joinServer = async () => {
         console.log("clicked")
         try {
-            const join = await fetch(`http://192.168.1.11:8080/servers/${serverID}/join`, {
+            const join = await fetch(`https://192.168.1.11:8080/servers/${serverID}/join`, {
                 method: "POST",
                 credentials: "include"
             })

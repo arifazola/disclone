@@ -29,8 +29,9 @@ func main() {
 	}
 
 	router := gin.Default()
+
 	router.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"http://localhost:5173", "http://192.168.1.11:5173"},
+		AllowOrigins:     []string{"http://localhost:5173", "https://localhost:5173", "http://192.168.1.11:5173", "https://192.168.1.11:5173"},
 		AllowHeaders:     []string{"content-type"},
 		AllowCredentials: true,
 	}))
@@ -135,6 +136,16 @@ func main() {
 	router.POST("/upload", auth.AuthMiddleware(), uploadController.GenerateUploadURL)
 
 	router.GET("/ws/:channel_id/:user_id", auth.AuthMiddleware(), controllers.HandleWebSocket)
+
+	err = router.RunTLS(
+		":8080",
+		`C:\Users\ThinkPad\.vite-plugin-mkcert\cert.pem`,
+		`C:\Users\ThinkPad\.vite-plugin-mkcert\dev.pem`,
+	)
+
+	if err != nil {
+		log.Fatal("SSL error", err)
+	}
 
 	router.Run(":8080")
 

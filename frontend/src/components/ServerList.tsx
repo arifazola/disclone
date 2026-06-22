@@ -15,7 +15,7 @@ const ServerList = ({ onAddServerClicked }: ServerListProps) => {
     const { data, isPending, error, isFetched } = useQuery({
         queryKey: ['servers'],
         queryFn: async () => {
-            const response = await fetch("http://192.168.1.11:8080/servers", {
+            const response = await fetch("https://192.168.1.11:8080/servers", {
                 method: "GET",
                 credentials: "include"
             })
