@@ -58,6 +58,8 @@ func HandleWebSocket(c *gin.Context) {
 	}
 	defer conn.Close()
 
+	var participants []string
+
 	if(len(clients[channelID].User) <= 1){
 
 		websocketResponseModel := &models.WebsocketIceCandidateResponseModel{
@@ -76,8 +78,6 @@ func HandleWebSocket(c *gin.Context) {
 			return
 		}
 	} else {
-		var participants []string
-
 		for user, _ := range clients[channelID].User{
 			if user == userID {
 				continue
@@ -101,7 +101,6 @@ func HandleWebSocket(c *gin.Context) {
 			return
 		}
 	}
-
 
 
 	for {
@@ -155,33 +154,6 @@ func HandleWebSocket(c *gin.Context) {
 				fmt.Println("Failed to write message to:", websocketMessageModel.OfferFor , err)
 				break
 			}
-			// for userids, clients := range cl.User {
-			// 	if(userids == userID){
-			// 		fmt.Println(userids, " is the same. sdp type: ", websocketMessageModel.Type)
-			// 		continue
-			// 	}
-
-			// 	websocketResponseModel := &models.WebsocketResponseModel{
-			// 		Type: websocketMessageModel.Type,
-			// 		SDP: websocketMessageModel.Data.SDP,
-			// 		Sender: userID,
-			// 	}
-
-			// 	stringifyResponse, err := json.Marshal(websocketResponseModel)
-			// 	if err != nil {
-			// 		fmt.Println("Failed to stringify json response")
-			// 		break
-			// 	}
-
-			// 	fmt.Println("sending ", websocketResponseModel.Type, " to", userids)
-
-			// 	err = clients.Conn.WriteMessage(messageType, []byte(stringifyResponse)) 
-
-			// 	if err != nil {
-			// 		fmt.Println("Failed to write message to:", userids , err)
-			// 		break
-			// 	}
-			// }
 		}
 
 		if(websocketMessageModel.Type == "answer"){
@@ -250,73 +222,5 @@ func HandleWebSocket(c *gin.Context) {
 				}
 			}
 		}
-
-		// for userids, clients := range cl.User {
-		// 	if(websocketMessageModel.Type == "ice_candidate"){
-		// 		fmt.Println("message is ice candidate")
-		// 		var iceCandidateData models.IceCandidateModel
-		// 		stringifyData, err := json.Marshal(websocketMessageModel.ICECandidateData)
-		// 		if err != nil {
-		// 			fmt.Println("error stringify ice candidate data", err)
-		// 			break
-		// 		}
-
-		// 		fmt.Println("message data", websocketMessageModel.ICECandidateData)
-		// 		fmt.Println("stringify data", string(stringifyData))
-
-
-		// 		err = json.Unmarshal(stringifyData, &iceCandidateData)
-		// 		if err != nil {
-		// 			fmt.Println("error parsing ice candidate model", err)
-		// 			break
-		// 		}
-
-
-
-		// 		websocketResponseModel := &models.WebsocketIceCandidateResponseModel{
-		// 			Type: websocketMessageModel.Type,
-		// 			Data: iceCandidateData,
-		// 		}
-
-		// 		stringifyResponse, err := json.Marshal(websocketResponseModel)
-		// 		if err != nil {
-		// 			fmt.Println("Failed to stringify json response")
-		// 			break
-		// 		}
-
-		// 		err = clients.Conn.WriteMessage(messageType, []byte(stringifyResponse)) 
-
-		// 		if err != nil {
-		// 			fmt.Println("Failed to write message to:", userids , err)
-		// 			break
-		// 		}
-		// 	} else {
-		// 		fmt.Println("message is not ice candidate")
-		// 		if(userids == userID){
-		// 			fmt.Println(userids, " is the same. sdp type: ", websocketMessageModel.Type)
-		// 			continue
-		// 		}
-
-		// 		websocketResponseModel := &models.WebsocketResponseModel{
-		// 			Type: websocketMessageModel.Type,
-		// 			SDP: clients.SDPOffeer,
-		// 		}
-
-		// 		stringifyResponse, err := json.Marshal(websocketResponseModel)
-		// 		if err != nil {
-		// 			fmt.Println("Failed to stringify json response")
-		// 			break
-		// 		}
-
-		// 		fmt.Println("sending ", websocketResponseModel.Type, " to", userids)
-
-		// 		err = clients.Conn.WriteMessage(messageType, []byte(stringifyResponse)) 
-
-		// 		if err != nil {
-		// 			fmt.Println("Failed to write message to:", userids , err)
-		// 			break
-		// 		}
-		// 	}
-		// }
 	}
 }

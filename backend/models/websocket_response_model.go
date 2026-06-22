@@ -1,7 +1,8 @@
 package models
 
 type WebsocketResponseModel struct {
-	Type   string
-	SDP    string
-	Sender string
+	Type         string
+	SDP          string
+	Sender       string
+	Participants []string
 }

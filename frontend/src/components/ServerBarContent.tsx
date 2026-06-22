@@ -13,7 +13,7 @@ const ServerBarContent = () => {
     const { data, error, isFetched } = useQuery({
         queryKey: ['channels'],
         queryFn: async () => {
-            const fetchChannel = await fetch(`https://192.168.1.11:8080/servers/${server}/channels`, {
+            const fetchChannel = await fetch(`https://192.168.1.4:8080/servers/${server}/channels`, {
                 credentials: "include"
             })
 

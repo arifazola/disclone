@@ -1,4 +1,4 @@
-import React, { createRef, useEffect, useRef, useState } from 'react'
+import React, { createRef, use, useEffect, useRef, useState } from 'react'
 import type { WebsocketResponseModel } from '../models/websocketResponseModel'
 import type { IceCandidateModel } from '../models/IceCandidateModel'
 
@@ -11,16 +11,15 @@ const ChannelContent = ({ channelID }: ChannelContentProps) => {
     // const peerConnection = useRef<RTCPeerConnection | null>(null)
     const localVideoRef = useRef<HTMLVideoElement | null>(null)
     const remoteVideoRef = useRef<HTMLVideoElement | null>(null)
-    const remoteVideoMap = useRef<Map<HTMLVideoElement, string>>(new Map())
+    const remoteVideoMap = useRef<Map<string, HTMLVideoElement>>(new Map())
     const role = useRef("caller")
     const localStream = useRef<MediaStream | null>(null)
     const [socketMsg, setSocketMsg] = useState("")
     const userid = window.localStorage.getItem("userid")
-    const participants = useRef<string[]>([])
+    const [participants, setParticipants] = useState<string[]>([])
 
     useEffect(() => {
         const getLocalStream = async () => {
-            console.log("getting local stream");
 
             const constraints = {
                 'video': true,
@@ -29,7 +28,6 @@ const ChannelContent = ({ channelID }: ChannelContentProps) => {
 
             localStream.current = await navigator.mediaDevices.getUserMedia(constraints)
 
-            console.log("local stream ready", localStream.current);
         }
 
         getLocalStream()
@@ -40,28 +38,28 @@ const ChannelContent = ({ channelID }: ChannelContentProps) => {
             console.log("local stream is not ready")
             return
         }
-        const ws = new WebSocket(`wss://192.168.1.11:8080/ws/${channelID}/${userid}`)
+        const ws = new WebSocket(`wss://192.168.1.4:8080/ws/${channelID}/${userid}`)
 
         ws.onopen = (event) => {
-            console.log("websocket connected")
             ws.onmessage = async (event) => {
-                console.log("init", event.data)
                 const data = JSON.parse(event.data) as WebsocketResponseModel
 
                 if (data.Type == "should_call") {
-                    participants.current = data.Participants
+                    // participants.current = data.Participants
+                    setParticipants(data.Participants)
                     data.Participants.forEach((participant) => {
                         makeCall(participant)
                     })
                 }
 
                 if (data.Type === "offer") {
-                    console.log("offer received")
+                    console.log("accept offer data", data)
+
+                    setParticipants([...participants, data.Sender])
                     acceptOffer(data)
                 }
 
                 if (data.Type === "answer") {
-                    console.log("setting answer rtc session description")
                     const descriptionInit = {
                         sdp: data.SDP,
                         type: data.Type
@@ -93,7 +91,7 @@ const ChannelContent = ({ channelID }: ChannelContentProps) => {
         wsRef.current = ws
     }
 
-    const createPeerConnectionObject = () => {
+    const createPeerConnectionObject = (user: string) => {
         const configuration = { 'iceServers': [{ 'urls': 'stun:stun.l.google.com:19302' }] }
         const peerConnection = new RTCPeerConnection(configuration);
 
@@ -105,29 +103,36 @@ const ChannelContent = ({ channelID }: ChannelContentProps) => {
             }))
         }
 
-        peerConnection.onconnectionstatechange = (event) => {
-            console.log(`peer connection state change`, peerConnection.connectionState)
-        }
+        // peerConnection.onconnectionstatechange = (event) => {
+        //     console.log(`peer connection state change`, peerConnection.connectionState)
+        // }
 
         peerConnection.ontrack = (event) => {
-            console.log(`receiving video streams`, event.streams)
+            console.log("remote user", user)
             const [remoteStream] = event.streams
-            remoteVideoRef.current!.srcObject = remoteStream
-            remoteVideoRef.current!.play()
+            const remoteVideo = remoteVideoMap.current.get(user)
+            if (remoteVideo === undefined) {
+                console.log("no remote video for ", user)
+                return
+            }
+
+            remoteVideo.srcObject = remoteStream
+            // remoteVideo.play()
+            // remoteVideoRef.current!.srcObject = remoteStream
+            // remoteVideoRef.current!.play()
         }
 
         localVideoRef.current!.srcObject = localStream.current
-        localVideoRef.current!.play()
+        // localVideoRef.current!.play()
         localStream.current?.getTracks().forEach((track) => {
+            console.log("local track id", track.id)
             peerConnection.addTrack(track, localStream.current!)
         })
         return peerConnection
     }
 
     const makeCall = async (peerPartner: string) => {
-        const peerConnection = createPeerConnectionObject()
-        console.log("local stream", localStream.current)
-        console.log("local stream tracls", localStream.current?.getTracks())
+        const peerConnection = createPeerConnectionObject(peerPartner)
 
         peerConnection.createDataChannel("chat");
         const offer = await peerConnection.createOffer();
@@ -137,7 +142,6 @@ const ChannelContent = ({ channelID }: ChannelContentProps) => {
         }
         // const remoteDesc = new RTCSessionDescription(offer)
         // await peerConnection.current?.setRemoteDescription(remoteDesc)
-        console.log("sending offer")
         wsRef.current?.send(JSON.stringify({
             userid: userid,
             type: "offer",
@@ -146,19 +150,15 @@ const ChannelContent = ({ channelID }: ChannelContentProps) => {
         }))
 
         peerConnectionRecord.current.set(peerPartner, peerConnection)
-
-        console.log("local desc", peerConnection.localDescription);
-        console.log("ice gathering state", peerConnection.iceGatheringState);
     }
 
     const acceptOffer = async (data: WebsocketResponseModel) => {
         role.current = "callee"
-        console.log("accepting offer", data.Type)
         const descriptionInit = {
             sdp: data.SDP,
             type: data.Type
         } as RTCSessionDescriptionInit
-        const peerConnection = createPeerConnectionObject()
+        const peerConnection = createPeerConnectionObject(data.Sender)
         await peerConnection.setRemoteDescription(new RTCSessionDescription(descriptionInit))
         const answer = await peerConnection.createAnswer();
         await peerConnection.setLocalDescription(answer);
@@ -170,9 +170,6 @@ const ChannelContent = ({ channelID }: ChannelContentProps) => {
         }))
 
         peerConnectionRecord.current.set(data.Sender, peerConnection)
-        console.log("offer accepted")
-        console.log("local desc", peerConnection.localDescription);
-        console.log("ice gathering state", peerConnection.iceGatheringState);
     }
     return (
         <>
@@ -181,14 +178,17 @@ const ChannelContent = ({ channelID }: ChannelContentProps) => {
                 <span>This is local</span>
                 <video autoPlay={true} className='w-1/2 h-full' id='localVideo' ref={localVideoRef}></video>
                 <span>This is remote</span>
-                <video autoPlay={true} className='w-1/2 h-full' id='remoteVideo' ref={remoteVideoRef}></video>
-                {/* {participants.current.map((item) => (
-                    <video autoPlay={true} className='w-1/2 h-full' key={item} id='remoteVideo' ref={el => {
-                        if (el) {
-                            remoteVideoMap.current.set(el, item)
-                        }
-                    }}></video>
-                ))} */}
+                {/* <video autoPlay={true} className='w-1/2 h-full' id='remoteVideo' ref={remoteVideoRef}></video> */}
+                {participants.map((item) => (
+                    <>
+                        <span>loop</span>
+                        <video autoPlay={true} className='w-1/2 h-full' key={item} id='remoteVideo' ref={el => {
+                            if (el) {
+                                remoteVideoMap.current.set(item, el)
+                            }
+                        }}></video>
+                    </>
+                ))}
             </div>
         </>
     )
