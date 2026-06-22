@@ -17,6 +17,7 @@ const ChannelContent = ({ channelID }: ChannelContentProps) => {
     const [socketMsg, setSocketMsg] = useState("")
     const userid = window.localStorage.getItem("userid")
     const [participants, setParticipants] = useState<string[]>([])
+    const participantRef = useRef<string[]>([])
 
     useEffect(() => {
         const getLocalStream = async () => {
@@ -43,9 +44,9 @@ const ChannelContent = ({ channelID }: ChannelContentProps) => {
         ws.onopen = (event) => {
             ws.onmessage = async (event) => {
                 const data = JSON.parse(event.data) as WebsocketResponseModel
-
                 if (data.Type == "should_call") {
                     // participants.current = data.Participants
+                    console.log("should call")
                     setParticipants(data.Participants)
                     data.Participants.forEach((participant) => {
                         makeCall(participant)
@@ -54,9 +55,11 @@ const ChannelContent = ({ channelID }: ChannelContentProps) => {
 
                 if (data.Type === "offer") {
                     console.log("accept offer data", data)
-
-                    setParticipants([...participants, data.Sender])
+                    console.log("current participant", participantRef.current)
+                    participantRef.current.push(data.Sender)
+                    setParticipants(participantRef.current)
                     acceptOffer(data)
+                    console.log("total participants", participantRef.current)
                 }
 
                 if (data.Type === "answer") {
