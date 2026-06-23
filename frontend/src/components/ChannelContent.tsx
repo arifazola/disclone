@@ -55,11 +55,11 @@ const ChannelContent = ({ channelID }: ChannelContentProps) => {
 
                 if (data.Type === "offer") {
                     console.log("accept offer data", data)
-                    console.log("current participant", participantRef.current)
+                    console.log("current participant", participants)
                     participantRef.current.push(data.Sender)
-                    setParticipants(participantRef.current)
+                    setParticipants(prev => [...prev, data.Sender])
                     acceptOffer(data)
-                    console.log("total participants", participantRef.current)
+                    console.log("total participants", participants)
                 }
 
                 if (data.Type === "answer") {
