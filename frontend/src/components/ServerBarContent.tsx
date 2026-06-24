@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import ButtonPrimary from './ButtonPrimary'
 import { useNavigate, useParams } from 'react-router'
 import BrowseChannelContent from './BrowseChannelContent'
@@ -10,12 +10,16 @@ const ServerBarContent = () => {
     const navigate = useNavigate()
 
     console.log("server id", server)
-    const { data, error, isFetched } = useQuery({
+    const { data, error, isFetched, isError } = useQuery({
         queryKey: ['channels'],
         queryFn: async () => {
             const fetchChannel = await fetch(`https://192.168.1.4:8080/servers/${server}/channels`, {
                 credentials: "include"
             })
+
+            if (!fetchChannel.ok) {
+                throw new Error(fetchChannel.status.toString())
+            }
 
             const result = await fetchChannel.json()
 
@@ -32,7 +36,13 @@ const ServerBarContent = () => {
         navigate(`/server/${server}/${channelID}`)
     }
 
-    console.log("data channels", data)
+    useEffect(() => {
+        console.log("error", error)
+        if (isError && error && error.message === "401") {
+            console.error(error);
+            navigate('/login');
+        }
+    }, [isError, error, navigate])
 
     return (
         <div className='rounded-lg border border-slate-300 flex'>
@@ -52,7 +62,7 @@ const ServerBarContent = () => {
                     <div className='w-full border-t border-slate-300'></div>
 
                     <div className='w-full flex flex-col'>
-                        {isFetched && data.channels !== null ? (data.channels as any[]).map((item, index) => (
+                        {!isError && isFetched && data.channels !== null ? (data.channels as any[]).map((item, index) => (
                             <div
                                 className={`w-full h-10 flex items-center rounded-lg px-5 ${channel === item.ID ? "bg-slate-300 text-slate-900" : "text-slate-500"} hover:cursor-pointer hover:bg-slate-300`}
                                 key={index}

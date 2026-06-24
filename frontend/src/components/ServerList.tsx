@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useNavigate, type data } from 'react-router'
 import AddServerIcon from './AddServerIcon'
 import DirectMessageIcon from './DirectMessageIcon'
@@ -11,7 +11,7 @@ interface ServerListProps {
 
 const ServerList = ({ onAddServerClicked }: ServerListProps) => {
     const navigate = useNavigate()
-    const { data, isPending, error, isFetched } = useQuery({
+    const { data, isPending, error, isFetched, isError } = useQuery({
         queryKey: ['servers'],
         queryFn: async () => {
             const response = await fetch("https://192.168.1.4:8080/servers", {
@@ -27,22 +27,27 @@ const ServerList = ({ onAddServerClicked }: ServerListProps) => {
         }
     })
 
-    if (error?.message === "401") {
-        navigate("/login")
-    }
-
     const onServerClicked = (serverName: string) => {
         navigate(`/server/${serverName}/browser`)
     }
+
+    useEffect(() => {
+        console.log("error", error)
+        if (isError && error && error.message === "401") {
+            console.error(error);
+            navigate('/login');
+        }
+    }, [isError, error, navigate])
+
     return (
         <div className='w-12 h-full flex flex-col gap-5'>
-            <div className='w-full h-12'>
+            <div className='w-full h-12' onClick={() => navigate("/")}>
                 <DirectMessageIcon />
             </div>
 
             <div className='w-10/12 h-1 border-t border-slate-300' />
 
-            {isFetched && data.servers !== null ? (data.servers as any[]).map((item, index) => (
+            {!isError && isFetched && data.servers !== null ? (data.servers as any[]).map((item, index) => (
                 <div className='w-full h-12' key={index} onClick={() => onServerClicked(item.ID.String)}>
                     <ServerIcon path={item.Picture.String} />
                 </div>
