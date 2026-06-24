@@ -3,14 +3,13 @@ import { useNavigate, type data } from 'react-router'
 import AddServerIcon from './AddServerIcon'
 import DirectMessageIcon from './DirectMessageIcon'
 import ServerIcon from './ServerIcon'
-import { useQueryClient, useQuery } from '@tanstack/react-query'
+import { useQueryClient, useQuery, useSuspenseQuery } from '@tanstack/react-query'
 
 interface ServerListProps {
     onAddServerClicked: () => void
 }
 
 const ServerList = ({ onAddServerClicked }: ServerListProps) => {
-    const queryClient = useQueryClient()
     const navigate = useNavigate()
     const { data, isPending, error, isFetched } = useQuery({
         queryKey: ['servers'],

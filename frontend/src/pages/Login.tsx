@@ -3,7 +3,8 @@ import ButtonPrimary from '../components/ButtonPrimary'
 import TextLink from '../components/TextLink'
 import RegisterLayout from '../components/RegisterLayout'
 import Input from '../components/Input'
-import { useNavigate } from 'react-router'
+import { useNavigate, useNavigation } from 'react-router'
+import Loading from '../components/Loading'
 
 const Login = () => {
     const [email, setEmail] = useState("")
@@ -32,14 +33,14 @@ const Login = () => {
                 body: formData
             })
 
-            if (login.ok) {
-                navigate("/")
-            }
-
             const res = await login.json()
             console.log("user", res.user)
             window.localStorage.setItem("userid", res.user.ID)
 
+            if (login.ok) {
+                console.log("navigating")
+                navigate("/")
+            }
         } catch (error: any) {
             console.log("error login", error)
         } finally {

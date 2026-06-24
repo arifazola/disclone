@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/arifazola/disclone/backend/internal/db"
 	"github.com/arifazola/disclone/backend/services"
@@ -43,7 +44,7 @@ func (c *ServerController) CreateServer(ctx *gin.Context) {
 
 func (c *ServerController) GetUserJoinedServer(ctx *gin.Context) {
 	userID, userIDExist := ctx.Get("userID")
-
+	time.Sleep(5 * time.Second)
 	if !userIDExist {
 		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
 		log.Println("Context userid not exist")
