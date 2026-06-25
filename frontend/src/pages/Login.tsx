@@ -59,7 +59,7 @@ const Login = () => {
             <span className='w-full flex'>
                 <TextLink text='Forgot your password' url='/forgot-password' />
             </span>
-            <ButtonPrimary text='Add Friend' onClick={onLoginClicked} isLoading={loading} />
+            <ButtonPrimary text='Login' onClick={onLoginClicked} isLoading={loading} />
             <span className='w-full flex'>Need an account?<TextLink text='Register' url='/register' /></span>
         </RegisterLayout>
     )
