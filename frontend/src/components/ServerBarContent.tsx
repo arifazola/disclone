@@ -4,6 +4,7 @@ import { useNavigate, useParams } from 'react-router'
 import BrowseChannelContent from './BrowseChannelContent'
 import { useQuery } from '@tanstack/react-query'
 import ChannelContent from './ChannelContent'
+import { apiGet } from '../handlers/apiHandler'
 
 const ServerBarContent = () => {
     const { channel, server } = useParams()
@@ -13,17 +14,8 @@ const ServerBarContent = () => {
     const { data, error, isFetched, isError } = useQuery({
         queryKey: ['channels'],
         queryFn: async () => {
-            const fetchChannel = await fetch(`https://192.168.1.4:8080/servers/${server}/channels`, {
-                credentials: "include"
-            })
-
-            if (!fetchChannel.ok) {
-                throw new Error(fetchChannel.status.toString())
-            }
-
-            const result = await fetchChannel.json()
-
-            return result
+            const channels = await apiGet(`https://192.168.1.4:8080/servers/${server}/channels`)
+            return await channels.json()
         }
     })
 
@@ -35,14 +27,6 @@ const ServerBarContent = () => {
     const onChannelClicked = (channelID: string) => {
         navigate(`/server/${server}/${channelID}`)
     }
-
-    useEffect(() => {
-        console.log("error", error)
-        if (isError && error && error.message === "401") {
-            console.error(error);
-            navigate('/login');
-        }
-    }, [isError, error, navigate])
 
     return (
         <div className='rounded-lg border border-slate-300 flex'>

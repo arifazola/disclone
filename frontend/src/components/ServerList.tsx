@@ -4,6 +4,7 @@ import AddServerIcon from './AddServerIcon'
 import DirectMessageIcon from './DirectMessageIcon'
 import ServerIcon from './ServerIcon'
 import { useQueryClient, useQuery, useSuspenseQuery } from '@tanstack/react-query'
+import { apiGet } from '../handlers/apiHandler'
 
 interface ServerListProps {
     onAddServerClicked: () => void
@@ -14,14 +15,7 @@ const ServerList = ({ onAddServerClicked }: ServerListProps) => {
     const { data, isPending, error, isFetched, isError } = useQuery({
         queryKey: ['servers'],
         queryFn: async () => {
-            const response = await fetch("https://192.168.1.4:8080/servers", {
-                method: "GET",
-                credentials: "include"
-            })
-
-            if (!response.ok) {
-                throw new Error(response.status.toString())
-            }
+            const response = await apiGet("https://192.168.1.4:8080/servers")
 
             return await response.json()
         }
