@@ -41,3 +41,11 @@ func (m *MockUserRepository) GetUserByEmailAndPassword(email string, password st
 		},
 	}, nil
 }
+
+func (m *MockUserRepository) GetUserIDByUsername(ctx context.Context, username string) (string, error){
+	if m.Err != nil {
+		return "", m.Err
+	}
+
+	return "test", nil
+}

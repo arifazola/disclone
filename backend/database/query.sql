@@ -44,3 +44,11 @@ SELECT id, "serverId", "channelName", type
 -- name: CountUserServerByUserId :one
 SELECT COUNT("userId") as "userServer"
 	FROM public."userServers" WHERE "userId" = $1 AND "serverId" = $2;
+
+-- name: AddFriend :exec
+INSERT INTO public.friends(
+	user_id, friend, status)
+	VALUES ($1, $2, $3);
+
+-- name: GetUserIDByUsername :one
+SELECT id FROM public.users WHERE username = $1;

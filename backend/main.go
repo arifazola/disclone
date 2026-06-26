@@ -117,6 +117,19 @@ func main() {
 		ChannelService: &channelService,
 	}
 
+	friendRepository := repositories.FriendRepositoryImpl{
+		Queries: queries,
+	}
+
+	friendService := services.FriendService{
+		Repo: &friendRepository,
+		UserRepo: &userRepository,
+	}
+
+	friendController := controllers.FriendController{
+		FriendService: &friendService,
+	}
+
 	router.GET("/test", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
 			"message": "Hello, World!",
@@ -136,6 +149,8 @@ func main() {
 	router.POST("/upload", auth.AuthMiddleware(), uploadController.GenerateUploadURL)
 
 	router.GET("/ws/:channel_id/:user_id", auth.AuthMiddleware(), controllers.HandleWebSocket)
+
+	router.POST("/friends", auth.AuthMiddleware(), friendController.AddFriend)
 
 	err = router.RunTLS(
 		":8080",

@@ -12,6 +12,23 @@ import (
 	"github.com/google/uuid"
 )
 
+const addFriend = `-- name: AddFriend :exec
+INSERT INTO public.friends(
+	user_id, friend, status)
+	VALUES ($1, $2, $3)
+`
+
+type AddFriendParams struct {
+	UserID string
+	Friend string
+	Status int16
+}
+
+func (q *Queries) AddFriend(ctx context.Context, arg AddFriendParams) error {
+	_, err := q.db.ExecContext(ctx, addFriend, arg.UserID, arg.Friend, arg.Status)
+	return err
+}
+
 const addUserToServer = `-- name: AddUserToServer :exec
 INSERT INTO public."userServers"(
 	"userId", "serverId")
@@ -163,6 +180,17 @@ func (q *Queries) GetUserByEmail(ctx context.Context, email string) (User, error
 		&i.ProfilePricture,
 	)
 	return i, err
+}
+
+const getUserIDByUsername = `-- name: GetUserIDByUsername :one
+SELECT id FROM public.users WHERE username = $1
+`
+
+func (q *Queries) GetUserIDByUsername(ctx context.Context, username string) (string, error) {
+	row := q.db.QueryRowContext(ctx, getUserIDByUsername, username)
+	var id string
+	err := row.Scan(&id)
+	return id, err
 }
 
 const getUserJoinedServers = `-- name: GetUserJoinedServers :many

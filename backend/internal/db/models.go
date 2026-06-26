@@ -17,6 +17,12 @@ type Channel struct {
 	Type        string
 }
 
+type Friend struct {
+	UserID string
+	Friend string
+	Status int16
+}
+
 type RefreshToken struct {
 	ID        uuid.UUID
 	UserId    string

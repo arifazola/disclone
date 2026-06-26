@@ -64,3 +64,18 @@ CREATE TABLE IF NOT EXISTS public."refreshTokens"
         ON UPDATE NO ACTION
         ON DELETE NO ACTION
 );
+
+CREATE TABLE IF NOT EXISTS public.friends
+(
+    user_id text COLLATE pg_catalog."default" NOT NULL,
+    friend text COLLATE pg_catalog."default" NOT NULL,
+    status smallint NOT NULL DEFAULT 0,
+    CONSTRAINT friend_friends_userid_fk FOREIGN KEY (friend)
+        REFERENCES public.users (id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION,
+    CONSTRAINT user_id_friends_fk FOREIGN KEY (user_id)
+        REFERENCES public.users (id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION
+);
