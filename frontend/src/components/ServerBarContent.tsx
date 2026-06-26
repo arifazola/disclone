@@ -12,11 +12,12 @@ const ServerBarContent = () => {
 
     console.log("server id", server)
     const { data, error, isFetched, isError } = useQuery({
-        queryKey: ['channels'],
+        queryKey: [server],
         queryFn: async () => {
             const channels = await apiGet(`https://192.168.1.4:8080/servers/${server}/channels`)
             return await channels.json()
-        }
+        },
+
     })
 
     const renderContent = () => {
