@@ -3,6 +3,7 @@ package controllers
 import (
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/arifazola/disclone/backend/models"
 	"github.com/arifazola/disclone/backend/services"
@@ -34,6 +35,7 @@ func (c *FriendController) AddFriend(context *gin.Context){
 }
 
 func (c *FriendController) GetFriendList(context *gin.Context){
+	time.Sleep(2 * time.Second)
 	userid, exist := context.Get("userID")
 
 	if !exist {

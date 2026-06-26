@@ -1,9 +1,38 @@
-import React from 'react'
 import ButtonPrimary from './ButtonPrimary'
 import Button from './Button'
 import { IoIosAdd } from "react-icons/io";
+import { useQuery } from '@tanstack/react-query';
+import { apiGet } from '../handlers/apiHandler';
+import type { ResponseModel } from '../models/responseModel';
+import type { FriendModel } from '../models/friendModel';
+import AddFriendContent from './AddFriendContent';
+import FriendlistContent from './FriendlistContent';
 
 const DirectMessageBarContent = () => {
+    const { data, error, isFetched } = useQuery({
+        queryKey: ["friends"],
+        queryFn: async () => {
+            const response = await apiGet("https://192.168.1.4:8080/friends")
+
+            return await response.json() as ResponseModel<FriendModel[]>
+        },
+        staleTime: 1000 * 60 * 1
+    })
+
+    console.log("data", data?.Data)
+    console.log("error", error)
+
+    const renderFriendContent = () => {
+        if (data === undefined) {
+            return
+        }
+
+        if (data.Data.length == 0) {
+            return <AddFriendContent />
+        } else {
+            return <FriendlistContent />
+        }
+    }
     return (
         <div className='rounded-lg border border-slate-300 flex'>
             <div id='channel-list' className='w-1/4 h-dvh flex justify-center py-5'>
@@ -27,53 +56,23 @@ const DirectMessageBarContent = () => {
                             <span className='font-semibold text-sm text-gray-500'>Direct Messages</span>
                             <IoIosAdd className='text-2xl text-gray-500' />
                         </div>
-                        <div className='w-full h-10 flex items-center justify-center rounded-lg'>
-                            <div className='w-full h-full flex items-center gap-5'>
-                                <div id='profile-picture' className='w-10 h-10 rounded-full bg-blue-500'>
+                        {isFetched && data?.Data !== undefined && data!.Data.map((item) => (
+                            <div className='w-full h-10 flex items-center justify-center rounded-lg'>
+                                <div className='w-full h-full flex items-center gap-5'>
+                                    <div id='profile-picture' className='w-10 h-10 rounded-full bg-blue-500'>
 
+                                    </div>
+                                    <span className='text-lg'>{item.Username}</span>
                                 </div>
-                                <span className='text-lg'>Friend 1</span>
                             </div>
-                        </div>
-                        <div className='w-full h-10 flex items-center justify-center rounded-lg'>
-                            <div className='w-full h-full flex items-center gap-5'>
-                                <div id='profile-picture' className='w-10 h-10 rounded-full bg-blue-500'>
-
-                                </div>
-                                <span className='text-lg'>Friend 2</span>
-                            </div>
-                        </div>
-                        <div className='w-full h-10 flex items-center justify-center rounded-lg'>
-                            <div className='w-full h-full flex items-center gap-5'>
-                                <div id='profile-picture' className='w-10 h-10 rounded-full bg-blue-500'>
-
-                                </div>
-                                <span className='text-lg'>Friend 3</span>
-                            </div>
-                        </div>
-                        <div className='w-full h-10 flex items-center justify-center rounded-lg'>
-                            <div className='w-full h-full flex items-center gap-5'>
-                                <div id='profile-picture' className='w-10 h-10 rounded-full bg-blue-500'>
-
-                                </div>
-                                <span className='text-lg'>Friend 4</span>
-                            </div>
-                        </div>
-                        <div className='w-full h-10 flex items-center justify-center rounded-lg'>
-                            <div className='w-full h-full flex items-center gap-5'>
-                                <div id='profile-picture' className='w-10 h-10 rounded-full bg-blue-500'>
-
-                                </div>
-                                <span className='text-lg'>Friend 5</span>
-                            </div>
-                        </div>
+                        ))}
                     </div>
                 </div>
             </div>
             <div id='content' className='w-3/4 h-dvh bg-slate-100 flex flex-col'>
                 <div id='content-container' className='w-full h-full py-5 px-7 flex flex-col'>
                     <div id='content-nav' className='w-full flex items-center'>
-                        <div id='nav-list' className='flex gap-5 flex-grow'>
+                        <div id='nav-list' className='flex gap-5 grow'>
                             <div className='h-10 py-1 px-3 rounded-lg text-lg'>
                                 Friends
                             </div>
@@ -90,44 +89,9 @@ const DirectMessageBarContent = () => {
                                 <ButtonPrimary text='Add Friend' onClick={() => console.log("fds")} />
                             </div>
                         </div>
-                        <span>Start New Chat</span>
                     </div>
 
-                    <div id='sub-content-container' className='flex w-full h-full mt-5'>
-                        <div id='left-content' className='w-[70%] h-full border-r border-t border-slate-300 flex flex-col p-3 gap-5'>
-                            <div className='w-full h-12 bg-slate-200 rounded-lg flex items-center p-2'>
-                                <span className='text-slate-500 text-lg'>Search</span>
-                            </div>
-
-                            <span>Online - 2</span>
-
-                            <div className='flex items-center gap-5'>
-                                <div id='profile-picture' className='w-10 h-10 rounded-full bg-blue-500 relative'>
-                                    <div className='w-5 h-5 rounded-full bg-green-500 absolute top-7 right-0 border-3 border-white'></div>
-                                </div>
-                                <span className='text-lg'>Friend 1</span>
-                            </div>
-
-                            <div className='flex items-center gap-5'>
-                                <div id='profile-picture' className='w-10 h-10 rounded-full bg-blue-500 relative'>
-                                    <div className='w-5 h-5 rounded-full bg-green-500 absolute top-7 right-0 border-3 border-white'></div>
-                                </div>
-                                <span className='text-lg'>Friend 1</span>
-                            </div>
-                        </div>
-                        <div id='right-content' className='w-[30%] h-full border-r border-t border-slate-300 flex flex-col p-3 gap-5'>
-                            <span className='font-bold text-xl'>Active Now</span>
-
-                            <div className='w-full h-50 shadow-lg rounded-lg border-1 border-slate-300 p-3'>
-                                <div className='flex items-center gap-5'>
-                                    <div id='profile-picture' className='w-10 h-10 rounded-full bg-blue-500 relative'>
-                                        <div className='w-5 h-5 rounded-full bg-green-500 absolute top-7 right-0 border-3 border-white'></div>
-                                    </div>
-                                    <span className='text-lg'>Friend 1</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    {renderFriendContent()}
                 </div>
             </div>
         </div>
