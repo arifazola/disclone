@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/arifazola/disclone/backend/auth"
 	"github.com/arifazola/disclone/backend/internal/db"
@@ -17,6 +18,7 @@ type AuthController struct {
 }
 
 func (service *AuthController) Register(c *gin.Context) {
+	time.Sleep(500 * time.Millisecond)
 	user := db.User{
 		ID:       "",
 		Email:    c.PostForm("email"),
@@ -37,6 +39,7 @@ func (service *AuthController) Register(c *gin.Context) {
 }
 
 func (service *AuthController) Login(c *gin.Context) {
+	time.Sleep(500 * time.Millisecond)
 	email := c.PostForm("email")
 	password := c.PostForm("password")
 

@@ -44,7 +44,7 @@ func (c *ServerController) CreateServer(ctx *gin.Context) {
 
 func (c *ServerController) GetUserJoinedServer(ctx *gin.Context) {
 	userID, userIDExist := ctx.Get("userID")
-	time.Sleep(5 * time.Second)
+	time.Sleep(1 * time.Second)
 	if !userIDExist {
 		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
 		log.Println("Context userid not exist")

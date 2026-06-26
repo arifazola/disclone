@@ -1,13 +1,16 @@
 import React from 'react'
 import ButtonPrimary from './ButtonPrimary'
+import Button from './Button'
+import { IoIosAdd } from "react-icons/io";
 
 const DirectMessageBarContent = () => {
     return (
         <div className='rounded-lg border border-slate-300 flex'>
             <div id='channel-list' className='w-1/4 h-dvh flex justify-center py-5'>
                 <div className='w-11/12 h-full flex flex-col items-center'>
-                    <div className='w-full h-10 bg-slate-300 flex items-center justify-center rounded-lg'>
-                        <span className='font-semibold'>Find or start a conversation</span>
+                    <div className='w-full h-10 flex items-center justify-center rounded-lg'>
+                        {/* <span className='font-semibold'>Find or start a conversation</span> */}
+                        <Button text='Find or start a conversation' btnClass='border border-slate-300 bg-gray-200 text-sm font-semibold' onClick={() => console.log("")} />
                     </div>
 
                     <div className='w-full mt-7 flex flex-col gap-3'>
@@ -17,21 +20,12 @@ const DirectMessageBarContent = () => {
                         <div className='w-full h-10 flex items-center justify-center rounded-lg'>
                             <span className='font-semibold'>Message Request</span>
                         </div>
-                        <div className='w-full h-10 flex items-center justify-center rounded-lg'>
-                            <span className='font-semibold'>Nitro</span>
-                        </div>
-                        <div className='w-full h-10 flex items-center justify-center rounded-lg'>
-                            <span className='font-semibold'>Shop</span>
-                        </div>
-                        <div className='w-full h-10 flex items-center justify-center rounded-lg'>
-                            <span className='font-semibold'>Quests</span>
-                        </div>
                     </div>
 
                     <div className='w-full mt-7 flex flex-col gap-3'>
-                        <div className='w-full flex justify-between'>
-                            <span>Direct Messages</span>
-                            <span>➕</span>
+                        <div className='w-full flex justify-between items-center'>
+                            <span className='font-semibold text-sm text-gray-500'>Direct Messages</span>
+                            <IoIosAdd className='text-2xl text-gray-500' />
                         </div>
                         <div className='w-full h-10 flex items-center justify-center rounded-lg'>
                             <div className='w-full h-full flex items-center gap-5'>
