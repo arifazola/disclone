@@ -152,6 +152,8 @@ func main() {
 
 	router.POST("/friends", auth.AuthMiddleware(), friendController.AddFriend)
 
+	router.GET("/friends", auth.AuthMiddleware(), friendController.GetFriendList)
+
 	err = router.RunTLS(
 		":8080",
 		`C:\Users\ThinkPad\.vite-plugin-mkcert\cert.pem`,

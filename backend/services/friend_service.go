@@ -46,3 +46,17 @@ func (service *FriendService) AddFriend(context context.Context, requestFromID, 
 
 	return err
 }
+
+func (service *FriendService) GetFriendList(ctx context.Context, userID string) ([]db.GetFriendListRow, error){
+	friendList, err := service.Repo.GetFriendList(ctx, userID)
+
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows){
+			return nil, errors.New("No friends")
+		}
+		log.Println("error getting friend list", err)
+		return nil, errors.New("Something went wrong")
+	}
+
+	return friendList, nil
+}

@@ -8,4 +8,5 @@ import (
 
 type FriendRepository interface {
 	AddFriend(context context.Context, friend db.Friend) error
+	GetFriendList(ctx context.Context, userID string) ([]db.GetFriendListRow, error)
 }

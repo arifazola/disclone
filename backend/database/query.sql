@@ -52,3 +52,8 @@ INSERT INTO public.friends(
 
 -- name: GetUserIDByUsername :one
 SELECT id FROM public.users WHERE username = $1;
+
+-- name: GetFriendList :many
+SELECT "users".username, "friends".* FROM public.friends
+LEFT JOIN "users"
+ON "friends".friend = "users"."id" WHERE "friends"."user_id" = $1;

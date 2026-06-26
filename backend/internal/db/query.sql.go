@@ -131,6 +131,47 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) error {
 	return err
 }
 
+const getFriendList = `-- name: GetFriendList :many
+SELECT "users".username, friends.user_id, friends.friend, friends.status FROM public.friends
+LEFT JOIN "users"
+ON "friends".friend = "users"."id" WHERE "friends"."user_id" = $1
+`
+
+type GetFriendListRow struct {
+	Username sql.NullString
+	UserID   string
+	Friend   string
+	Status   int16
+}
+
+func (q *Queries) GetFriendList(ctx context.Context, userID string) ([]GetFriendListRow, error) {
+	rows, err := q.db.QueryContext(ctx, getFriendList, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetFriendListRow
+	for rows.Next() {
+		var i GetFriendListRow
+		if err := rows.Scan(
+			&i.Username,
+			&i.UserID,
+			&i.Friend,
+			&i.Status,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getServerChannels = `-- name: GetServerChannels :many
 SELECT id, "serverId", "channelName", type
 	FROM public.channels WHERE "serverId" = $1
