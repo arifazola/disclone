@@ -26,12 +26,13 @@ func (service *FriendService) AddFriend(context context.Context, requestFromID, 
 	userid, err := service.UserRepo.GetUserIDByUsername(context, requestToUsername)
 
 	if err != nil {
-		if errors.Is(err, sql.ErrNoRows){
-			return errors.New("User not found")
-		}
+		// if errors.Is(err, sql.ErrNoRows){
+		// 	return errors.New("User not found")
+		// }
 
-		log.Println("error getting userid by username", err)
-		return errors.New("Something went wrong")
+		// log.Println("error getting userid by username", err)
+		// return errors.New("Something went wrong")
+		return err
 	}
 
 	var friendRequestStatus FriendStatus = RequestSent

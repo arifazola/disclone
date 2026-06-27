@@ -1,6 +1,8 @@
 package controllers
 
 import (
+	"database/sql"
+	"errors"
 	"log"
 	"net/http"
 	"time"
@@ -27,7 +29,19 @@ func (c *FriendController) AddFriend(context *gin.Context){
 	err := c.FriendService.AddFriend(context, userid.(string), username)
 
 	if err != nil {
-		context.JSON(http.StatusInternalServerError, gin.H{"error": "unauthorized"})
+		if errors.Is(err, sql.ErrNoRows){
+			responseModel := models.ResponseModel[any]{
+				Message: "User not found",
+				Data: nil,
+			}
+			context.JSON(http.StatusNotFound, responseModel)
+			return	
+		}
+		responseModel := models.ResponseModel[any]{
+			Message: "Something went wrong",
+			Data: nil,
+		}
+		context.JSON(http.StatusInternalServerError, responseModel)
 		return
 	}
 
