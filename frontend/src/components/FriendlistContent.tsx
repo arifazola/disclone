@@ -1,6 +1,12 @@
 import React from 'react'
+import type { FriendModel } from '../models/friendModel'
+import { FriendStatus } from '../enums/friendStatusEnum'
 
-const FriendlistContent = () => {
+interface FriedlistProps {
+    friends: FriendModel[]
+}
+
+const FriendlistContent = ({ friends }: FriedlistProps) => {
     return (
         <div id='sub-content-container' className='flex w-full h-full mt-5'>
             <div id='left-content' className='w-[70%] h-full border-r border-t border-slate-300 flex flex-col p-3 gap-5'>
@@ -8,21 +14,24 @@ const FriendlistContent = () => {
                     <span className='text-slate-500 text-lg'>Search</span>
                 </div>
 
-                <span>Online - 2</span>
+                <span>Sent - {friends.filter(i => i.Status === FriendStatus.PENDING).length}</span>
 
-                <div className='flex items-center gap-5'>
+                {friends.filter(i => i.Status === FriendStatus.PENDING).map((item, index) => (
+                    <div className='flex items-center gap-5' key={index}>
+                        <div id='profile-picture' className='w-10 h-10 rounded-full bg-blue-500 relative'>
+                            <div className='w-5 h-5 rounded-full bg-green-500 absolute top-7 right-0 border-3 border-white'></div>
+                        </div>
+                        <span className='text-lg'>{item.Username}</span>
+                    </div>
+                ))}
+
+
+                {/* <div className='flex items-center gap-5'>
                     <div id='profile-picture' className='w-10 h-10 rounded-full bg-blue-500 relative'>
                         <div className='w-5 h-5 rounded-full bg-green-500 absolute top-7 right-0 border-3 border-white'></div>
                     </div>
                     <span className='text-lg'>Friend 1</span>
-                </div>
-
-                <div className='flex items-center gap-5'>
-                    <div id='profile-picture' className='w-10 h-10 rounded-full bg-blue-500 relative'>
-                        <div className='w-5 h-5 rounded-full bg-green-500 absolute top-7 right-0 border-3 border-white'></div>
-                    </div>
-                    <span className='text-lg'>Friend 1</span>
-                </div>
+                </div> */}
             </div>
             <div id='right-content' className='w-[30%] h-full border-r border-t border-slate-300 flex flex-col p-3 gap-5'>
                 <span className='font-bold text-xl'>Active Now</span>

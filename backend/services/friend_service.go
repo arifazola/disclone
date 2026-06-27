@@ -7,6 +7,7 @@ import (
 	"log"
 
 	"github.com/arifazola/disclone/backend/internal/db"
+	"github.com/arifazola/disclone/backend/models"
 	"github.com/arifazola/disclone/backend/repositories"
 )
 
@@ -48,7 +49,7 @@ func (service *FriendService) AddFriend(context context.Context, requestFromID, 
 	return err
 }
 
-func (service *FriendService) GetFriendList(ctx context.Context, userID string) ([]db.GetFriendListRow, error){
+func (service *FriendService) GetFriendList(ctx context.Context, userID string) ([]models.FriendModel, error){
 	friendList, err := service.Repo.GetFriendList(ctx, userID)
 
 	if err != nil {
@@ -59,5 +60,17 @@ func (service *FriendService) GetFriendList(ctx context.Context, userID string) 
 		return nil, errors.New("Something went wrong")
 	}
 
-	return friendList, nil
+	var friendListModel []models.FriendModel
+
+	for _, value := range friendList{
+		friendModel := models.FriendModel {
+			Username: value.Username.String,
+			FriendID: value.Friend,
+			Status: int(value.Status),
+		}
+
+		friendListModel = append(friendListModel, friendModel)
+	}
+
+	return friendListModel, nil
 }

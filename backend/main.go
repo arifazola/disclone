@@ -153,6 +153,8 @@ func main() {
 	router.POST("/friends", auth.AuthMiddleware(), friendController.AddFriend)
 
 	router.GET("/friends", auth.AuthMiddleware(), friendController.GetFriendList)
+	router.GET("/friends/sent", auth.AuthMiddleware(), friendController.GetFriendList)
+	router.GET("/friends/received", auth.AuthMiddleware(), friendController.GetFriendList)
 
 	err = router.RunTLS(
 		":8080",

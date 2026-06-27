@@ -8,8 +8,11 @@ import type { FriendModel } from '../models/friendModel';
 import AddFriendContent from './AddFriendContent';
 import FriendlistContent from './FriendlistContent';
 import { BASE_URL } from '../consts/const';
+import { useState } from 'react';
+import { BsPersonRaisedHand } from "react-icons/bs";
 
 const DirectMessageBarContent = () => {
+    const [activeSection, setActiveSection] = useState("add")
     const { data, error, isFetched } = useQuery({
         queryKey: ["friends"],
         queryFn: async () => {
@@ -28,10 +31,10 @@ const DirectMessageBarContent = () => {
             return
         }
 
-        if (data.Data.length == 0) {
+        if (data.Data.length == 0 || activeSection == "add") {
             return <AddFriendContent />
         } else {
-            return <FriendlistContent />
+            return <FriendlistContent friends={data.Data} />
         }
     }
     return (
@@ -57,7 +60,7 @@ const DirectMessageBarContent = () => {
                             <span className='font-semibold text-sm text-gray-500'>Direct Messages</span>
                             <IoIosAdd className='text-2xl text-gray-500' />
                         </div>
-                        {isFetched && data?.Data !== undefined && data!.Data.map((item) => (
+                        {isFetched && data?.Data !== undefined && data!.Data.filter(i => i.Status == 1).map((item) => (
                             <div className='w-full h-10 flex items-center justify-center rounded-lg'>
                                 <div className='w-full h-full flex items-center gap-5'>
                                     <div id='profile-picture' className='w-10 h-10 rounded-full bg-blue-500'>
@@ -74,20 +77,15 @@ const DirectMessageBarContent = () => {
                 <div id='content-container' className='w-full h-full py-5 px-7 flex flex-col'>
                     <div id='content-nav' className='w-full flex items-center'>
                         <div id='nav-list' className='flex gap-5 grow'>
-                            <div className='h-10 py-1 px-3 rounded-lg text-lg'>
-                                Friends
+                            <div className='h-10 py-1 px-3 rounded-lg text-lg flex items-center'>
+                                <BsPersonRaisedHand />
+                                <span>Friends</span>
                             </div>
-                            <div className='h-10 py-1 px-3 rounded-lg text-lg'>
-                                Online
-                            </div>
-                            <div className='h-10 py-1 px-3 rounded-lg text-lg'>
-                                All
-                            </div>
-                            <div className='h-10 py-1 px-3 rounded-lg text-lg'>
+                            <div className={`h-10 py-1 px-3 rounded-lg text-md flex items-center ${activeSection == "pending" && "bg-slate-200"} hover:cursor-pointer`} onClick={() => setActiveSection("pending")}>
                                 Pending
                             </div>
                             <div className='w-32'>
-                                <ButtonPrimary text='Add Friend' onClick={() => console.log("fds")} />
+                                <ButtonPrimary text='Add Friend' onClick={() => setActiveSection("add")} />
                             </div>
                         </div>
                     </div>
