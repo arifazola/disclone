@@ -41,9 +41,10 @@ export async function apiPost(params: ApiPostParam) {
         throw new Error("Internal server error. Please try again")
     }
 
-    // if (!response.ok) {
-    //     throw new Error("error")
-    // }
+    if (!response.ok) {
+        const data = await response.json()
+        throw new Error(JSON.stringify(data))
+    }
 
     return response.json() as Promise<ResponseModel<any>>
 }

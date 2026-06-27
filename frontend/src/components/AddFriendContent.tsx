@@ -4,13 +4,21 @@ import Button from './Button'
 import { BASE_URL } from '../consts/const'
 import { useMutation } from '@tanstack/react-query'
 import { apiPost, type ApiPostParam } from '../handlers/apiHandler'
+import { useToast } from '../contexts/ToastContext'
+import type { ResponseModel } from '../models/responseModel'
 
 const AddFriendContent = () => {
+    const { setToastMessage } = useToast()
     const [username, setUsername] = useState("")
     const { mutate, isPending, error, isError, data } = useMutation({
         mutationFn: apiPost,
         onError: (err) => {
             console.log("error fetch", err)
+            const parseData = JSON.parse(err.message) as ResponseModel<any>
+            setToastMessage(parseData.Message)
+        },
+        onSuccess: (data) => {
+
         }
     })
 

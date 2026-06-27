@@ -14,6 +14,7 @@ import ServerBarContent from './components/ServerBarContent.tsx'
 import Loading from './components/Loading.tsx'
 import LoadingProvider from './components/Loading.tsx'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import Toast from './contexts/ToastContext.tsx'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -27,22 +28,24 @@ const queryClient = new QueryClient({
 createRoot(document.getElementById('root')!).render(
   <QueryClientProvider client={queryClient}>
     <BrowserRouter>
-      <Loading />
-      <Routes>
-        <Route element={<LobbyLayout />}>
-          <Route path='/' element={<DirectMessageBarContent />} />
-          <Route path='/server/:server/:channel' element={<ServerBarContent />} />
-        </Route>
+      <Toast>
+        <Loading />
+        <Routes>
+          <Route element={<LobbyLayout />}>
+            <Route path='/' element={<DirectMessageBarContent />} />
+            <Route path='/server/:server/:channel' element={<ServerBarContent />} />
+          </Route>
 
 
-        <Route path='/login' element={<Login />} />
-        <Route path='/register' element={<Register />} />
+          <Route path='/login' element={<Login />} />
+          <Route path='/register' element={<Register />} />
 
-        <Route element={<TestLayout />}>
-          <Route path='/1' element={<Page1 />} />
-          <Route path='/2' element={<Page2 />} />
-        </Route>
-      </Routes>
+          <Route element={<TestLayout />}>
+            <Route path='/1' element={<Page1 />} />
+            <Route path='/2' element={<Page2 />} />
+          </Route>
+        </Routes>
+      </Toast>
     </BrowserRouter>
   </QueryClientProvider>
 )
