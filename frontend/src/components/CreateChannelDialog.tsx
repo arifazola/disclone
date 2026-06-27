@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import Input from './Input'
 import ButtonPrimary from './ButtonPrimary'
 import { useParams } from 'react-router'
+import { BASE_URL } from '../consts/const'
 
 interface CreateChannelDialogProps {
   isOpened: boolean
@@ -19,7 +20,7 @@ const CreateChannelDialog = ({ isOpened, closeDialog }: CreateChannelDialogProps
       const formData = new FormData()
       formData.append("serverId", server!)
       formData.append("channelName", channelName)
-      const create = await fetch("https://192.168.1.4:8080/channels", {
+      const create = await fetch(`${BASE_URL}/channels`, {
         method: "POST",
         credentials: "include",
         body: formData

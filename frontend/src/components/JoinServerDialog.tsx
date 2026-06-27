@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import Input from './Input'
 import ButtonPrimary from './ButtonPrimary'
+import { BASE_URL } from '../consts/const'
 
 interface JoinServerDialogProps {
     closeDialog: () => void
@@ -11,7 +12,7 @@ const JoinServerDialog = ({ closeDialog }: JoinServerDialogProps) => {
     const joinServer = async () => {
         console.log("clicked")
         try {
-            const join = await fetch(`https://192.168.1.4:8080/servers/${serverID}/join`, {
+            const join = await fetch(`${BASE_URL}/servers/${serverID}/join`, {
                 method: "POST",
                 credentials: "include"
             })

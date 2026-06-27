@@ -1,6 +1,7 @@
 import React, { createRef, use, useEffect, useRef, useState } from 'react'
 import type { WebsocketResponseModel } from '../models/websocketResponseModel'
 import type { IceCandidateModel } from '../models/IceCandidateModel'
+import { BASE_WS } from '../consts/const'
 
 interface ChannelContentProps {
     channelID: string
@@ -39,7 +40,7 @@ const ChannelContent = ({ channelID }: ChannelContentProps) => {
             console.log("local stream is not ready")
             return
         }
-        const ws = new WebSocket(`wss://192.168.1.4:8080/ws/${channelID}/${userid}`)
+        const ws = new WebSocket(`${BASE_WS}/ws/${channelID}/${userid}`)
 
         ws.onopen = (event) => {
             ws.onmessage = async (event) => {

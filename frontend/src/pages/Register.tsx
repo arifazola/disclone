@@ -3,6 +3,7 @@ import RegisterLayout from '../components/RegisterLayout'
 import ButtonPrimary from '../components/ButtonPrimary'
 import TextLink from '../components/TextLink'
 import Input from '../components/Input'
+import { BASE_URL } from '../consts/const'
 
 const Register = () => {
     const [email, setEmail] = useState("")
@@ -18,7 +19,7 @@ const Register = () => {
             formData.append("email", email)
             formData.append("username", username)
             formData.append("password", password)
-            const register = await fetch("https://192.168.1.4:8080/account", {
+            const register = await fetch(`${BASE_URL}/account`, {
                 method: "POST",
                 credentials: "include",
                 body: formData

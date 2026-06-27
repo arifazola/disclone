@@ -7,12 +7,13 @@ import type { ResponseModel } from '../models/responseModel';
 import type { FriendModel } from '../models/friendModel';
 import AddFriendContent from './AddFriendContent';
 import FriendlistContent from './FriendlistContent';
+import { BASE_URL } from '../consts/const';
 
 const DirectMessageBarContent = () => {
     const { data, error, isFetched } = useQuery({
         queryKey: ["friends"],
         queryFn: async () => {
-            const response = await apiGet("https://192.168.1.4:8080/friends")
+            const response = await apiGet(`${BASE_URL}/friends`)
 
             return await response.json() as ResponseModel<FriendModel[]>
         },

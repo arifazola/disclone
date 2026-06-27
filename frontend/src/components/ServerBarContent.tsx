@@ -1,10 +1,9 @@
-import React, { useEffect } from 'react'
-import ButtonPrimary from './ButtonPrimary'
 import { useNavigate, useParams } from 'react-router'
 import BrowseChannelContent from './BrowseChannelContent'
 import { useQuery } from '@tanstack/react-query'
 import ChannelContent from './ChannelContent'
 import { apiGet } from '../handlers/apiHandler'
+import { BASE_URL } from '../consts/const'
 
 const ServerBarContent = () => {
     const { channel, server } = useParams()
@@ -14,7 +13,7 @@ const ServerBarContent = () => {
     const { data, error, isFetched, isError } = useQuery({
         queryKey: [server],
         queryFn: async () => {
-            const channels = await apiGet(`https://192.168.1.4:8080/servers/${server}/channels`)
+            const channels = await apiGet(`${BASE_URL}/servers/${server}/channels`)
             return await channels.json()
         },
 

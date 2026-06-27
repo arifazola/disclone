@@ -5,6 +5,7 @@ import RegisterLayout from '../components/RegisterLayout'
 import Input from '../components/Input'
 import { useNavigate, useNavigation } from 'react-router'
 import Loading from '../components/Loading'
+import { BASE_URL } from '../consts/const'
 
 const Login = () => {
     const [email, setEmail] = useState("")
@@ -27,7 +28,7 @@ const Login = () => {
 
             formData.append("email", email)
             formData.append("password", password)
-            const login = await fetch("https://192.168.1.4:8080/login", {
+            const login = await fetch(`${BASE_URL}/login`, {
                 method: "POST",
                 credentials: "include",
                 body: formData
