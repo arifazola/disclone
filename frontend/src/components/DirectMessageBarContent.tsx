@@ -16,14 +16,22 @@ const DirectMessageBarContent = () => {
     const { data, error, isFetched } = useQuery({
         queryKey: ["friends"],
         queryFn: async () => {
-            const response = await apiGet(`${BASE_URL}/friends`)
+            const [friends, friendRequest] = await Promise.all(
+                [
+                    apiGet(`${BASE_URL}/friends`),
+                    apiGet(`${BASE_URL}/friends/received`)
+                ]
+            )
 
-            return await response.json() as ResponseModel<FriendModel[]>
+            const friendsData = await friends.json() as ResponseModel<FriendModel[]>
+            const friendRequestData = await friendRequest.json() as ResponseModel<FriendModel[]>
+
+            return { friendsData, friendRequestData }
         },
         staleTime: 1000 * 60 * 1
     })
 
-    console.log("data", data?.Data)
+    console.log("data", data?.friendsData.Data)
     console.log("error", error)
 
     const renderFriendContent = () => {
@@ -31,10 +39,13 @@ const DirectMessageBarContent = () => {
             return
         }
 
-        if (data.Data.length == 0 || activeSection == "add") {
+        console.log("is data 0", (data.friendsData.Data.length == 0 || data.friendRequestData.Data.length == 0))
+        console.log("is sectionadd", activeSection == "add")
+
+        if ((data.friendsData.Data.length == 0 || data.friendRequestData.Data.length == 0) && activeSection == "add") {
             return <AddFriendContent />
         } else {
-            return <FriendlistContent friends={data.Data} />
+            return <FriendlistContent friends={data.friendsData.Data} friendRequest={data.friendRequestData.Data} />
         }
     }
     return (
@@ -60,7 +71,7 @@ const DirectMessageBarContent = () => {
                             <span className='font-semibold text-sm text-gray-500'>Direct Messages</span>
                             <IoIosAdd className='text-2xl text-gray-500' />
                         </div>
-                        {isFetched && data?.Data !== undefined && data!.Data.filter(i => i.Status == 1).map((item) => (
+                        {isFetched && data?.friendsData.Data !== undefined && data!.friendsData.Data.filter(i => i.Status == 1).map((item) => (
                             <div className='w-full h-10 flex items-center justify-center rounded-lg'>
                                 <div className='w-full h-full flex items-center gap-5'>
                                     <div id='profile-picture' className='w-10 h-10 rounded-full bg-blue-500'>

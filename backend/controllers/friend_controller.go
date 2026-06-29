@@ -89,3 +89,45 @@ func (c *FriendController) GetFriendList(context *gin.Context){
 
 	context.JSON(http.StatusOK, responseModel)
 }
+
+func (c *FriendController) GetFriendRequest(context *gin.Context){
+	time.Sleep(2 * time.Second)
+	userid, exist := context.Get("userID")
+
+	if !exist {
+		context.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
+		log.Println("Context userid not exist")
+		return
+	}
+
+	friendRequest, err := c.FriendService.GetFriendRequest(context, userid.(string))
+
+	if friendRequest == nil {
+		responseModel := models.ResponseModel[[]any]{
+			Message: "No friend request",
+			Data: []any{},
+		} 
+
+		context.JSON(http.StatusOK, responseModel)
+
+		return
+	}
+
+	if err != nil {
+		responseModel := models.ResponseModel[any]{
+			Message: "Something went wrong",
+			Data: nil,
+		} 
+
+		context.JSON(http.StatusInternalServerError, responseModel)
+
+		return
+	}
+
+	responseModel := models.ResponseModel[any]{
+		Message: "Success",
+		Data: friendRequest,
+	} 
+
+	context.JSON(http.StatusOK, responseModel)
+}

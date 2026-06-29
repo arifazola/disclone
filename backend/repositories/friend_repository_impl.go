@@ -17,3 +17,7 @@ func (repo *FriendRepositoryImpl) AddFriend(context context.Context, friend db.F
 func (repo *FriendRepositoryImpl) GetFriendList(ctx context.Context, userID string) ([]db.GetFriendListRow, error){
 	return repo.Queries.GetFriendList(ctx, userID)
 }
+
+func (repo *FriendRepositoryImpl) GetFriendRequest(ctx context.Context, friend string) ([]db.GetFriendRequestRow, error){
+	return repo.Queries.GetFriendRequest(ctx, friend)
+}

@@ -11,11 +11,11 @@ interface ToastProps {
     children: React.ReactNode
 }
 const Toast = ({ children }: ToastProps) => {
-    const [toastMessage, setToastMessage] = useState("kfds")
+    const [toastMessage, setToastMessage] = useState("")
     return (
         <ToastContext.Provider value={{ setToastMessage }}>
             {toastMessage !== "" && (
-                <div className="fixed top-0 left-[50%] pl-3 pr-2 py-3 rounded-lg bg-red-700 text-white font-bold flex items-center justify-between gap-10">
+                <div className="fixed top-0 left-[40%] pl-3 pr-2 py-3 rounded-lg bg-red-700 text-white font-bold flex items-center justify-between gap-10">
                     <div className="flex justify-center">{toastMessage}</div>
                     <IoIosClose className="text-xl mt-1 hover:cursor-pointer" onClick={() => setToastMessage("")} />
                 </div>

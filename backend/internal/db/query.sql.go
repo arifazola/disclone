@@ -172,6 +172,47 @@ func (q *Queries) GetFriendList(ctx context.Context, userID string) ([]GetFriend
 	return items, nil
 }
 
+const getFriendRequest = `-- name: GetFriendRequest :many
+SELECT "users".username, friends.user_id, friends.friend, friends.status FROM public.friends
+LEFT JOIN "users"
+ON "friends"."user_id" = "users"."id" WHERE "friends"."friend" = $1 AND status = 0
+`
+
+type GetFriendRequestRow struct {
+	Username sql.NullString
+	UserID   string
+	Friend   string
+	Status   int16
+}
+
+func (q *Queries) GetFriendRequest(ctx context.Context, friend string) ([]GetFriendRequestRow, error) {
+	rows, err := q.db.QueryContext(ctx, getFriendRequest, friend)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetFriendRequestRow
+	for rows.Next() {
+		var i GetFriendRequestRow
+		if err := rows.Scan(
+			&i.Username,
+			&i.UserID,
+			&i.Friend,
+			&i.Status,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getServerChannels = `-- name: GetServerChannels :many
 SELECT id, "serverId", "channelName", type
 	FROM public.channels WHERE "serverId" = $1

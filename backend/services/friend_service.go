@@ -74,3 +74,29 @@ func (service *FriendService) GetFriendList(ctx context.Context, userID string) 
 
 	return friendListModel, nil
 }
+
+func (service *FriendService) GetFriendRequest(ctx context.Context, friend string) ([]models.FriendModel, error){
+	friendRequest, err := service.Repo.GetFriendRequest(ctx, friend)
+
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows){
+			return nil, errors.New("No friends")
+		}
+		log.Println("error getting friend request", err)
+		return nil, errors.New("Something went wrong")
+	}
+
+	var friendRequestModel []models.FriendModel
+
+	for _, value := range friendRequest{
+		friendModel := models.FriendModel {
+			Username: value.Username.String,
+			FriendID: value.Friend,
+			Status: int(value.Status),
+		}
+
+		friendRequestModel = append(friendRequestModel, friendModel)
+	}
+
+	return friendRequestModel, nil
+}

@@ -1,12 +1,16 @@
 import React from 'react'
 import type { FriendModel } from '../models/friendModel'
 import { FriendStatus } from '../enums/friendStatusEnum'
+import { IoIosClose } from "react-icons/io";
+import { IoIosCheckmark } from "react-icons/io";
+import Tooltip from './Tooltip';
 
 interface FriedlistProps {
     friends: FriendModel[]
+    friendRequest: FriendModel[]
 }
 
-const FriendlistContent = ({ friends }: FriedlistProps) => {
+const FriendlistContent = ({ friends, friendRequest }: FriedlistProps) => {
     return (
         <div id='sub-content-container' className='flex w-full h-full mt-5'>
             <div id='left-content' className='w-[70%] h-full border-r border-t border-slate-300 flex flex-col p-3 gap-5'>
@@ -14,24 +18,48 @@ const FriendlistContent = ({ friends }: FriedlistProps) => {
                     <span className='text-slate-500 text-lg'>Search</span>
                 </div>
 
-                <span>Sent - {friends.filter(i => i.Status === FriendStatus.PENDING).length}</span>
+                <span className='text-sm font-normal text-gray-600'>Received - {friendRequest.filter(i => i.Status === FriendStatus.PENDING).length}</span>
 
-                {friends.filter(i => i.Status === FriendStatus.PENDING).map((item, index) => (
-                    <div className='flex items-center gap-5' key={index}>
-                        <div id='profile-picture' className='w-10 h-10 rounded-full bg-blue-500 relative'>
-                            <div className='w-5 h-5 rounded-full bg-green-500 absolute top-7 right-0 border-3 border-white'></div>
+                {friendRequest.filter(i => i.Status === FriendStatus.PENDING).map((item, index) => (
+                    <div className='flex items-center justify-between gap-5 p-3 border-t border-slate-200 transition-all hover:cursor-pointer hover:bg-slate-200 hover:rounded-lg' key={index}>
+                        <div className='flex items-center gap-5'>
+                            <div id='profile-picture' className='w-10 h-10 rounded-full bg-blue-500 relative'>
+                                <div className='w-5 h-5 rounded-full bg-green-500 absolute top-7 right-0 border-3 border-white'></div>
+                            </div>
+                            <span className='text-lg'>{item.Username}</span>
                         </div>
-                        <span className='text-lg'>{item.Username}</span>
+                        <div className='flex gap-3'>
+
+                            <div className='relative group'>
+                                <Tooltip text='Accept' className='absolute -top-10 right-[-55%] hidden group-has-hover:inline-block' />
+                                <IoIosCheckmark className='text-3xl text-slate-400 hover:text-green-700' />
+                            </div>
+                            <div className='relative group'>
+                                <Tooltip text='Reject' className='absolute -top-10 right-[-55%] hidden group-has-hover:inline-block' />
+                                <IoIosClose className='text-3xl text-slate-400 hover:text-red-700' />
+                            </div>
+
+                        </div>
                     </div>
                 ))}
 
+                <span className='text-sm font-normal text-gray-600'>Sent - {friends.filter(i => i.Status === FriendStatus.PENDING).length}</span>
 
-                {/* <div className='flex items-center gap-5'>
-                    <div id='profile-picture' className='w-10 h-10 rounded-full bg-blue-500 relative'>
-                        <div className='w-5 h-5 rounded-full bg-green-500 absolute top-7 right-0 border-3 border-white'></div>
+                {friends.filter(i => i.Status === FriendStatus.PENDING).map((item, index) => (
+                    <div className='flex items-center justify-between gap-5 p-3 border-t border-slate-200 transition-all hover:cursor-pointer hover:bg-slate-200 hover:rounded-lg' key={index}>
+                        <div className='flex items-center gap-5'>
+                            <div id='profile-picture' className='w-10 h-10 rounded-full bg-blue-500 relative'>
+                                <div className='w-5 h-5 rounded-full bg-green-500 absolute top-7 right-0 border-3 border-white'></div>
+                            </div>
+                            <span className='text-lg'>{item.Username}</span>
+                        </div>
+                        <div className='relative group'>
+                            <Tooltip text='Cancel' className='absolute -top-10 right-[-55%] hidden group-has-hover:inline-block' />
+                            <IoIosClose className='text-3xl text-slate-400 hover:text-red-700' />
+                        </div>
                     </div>
-                    <span className='text-lg'>Friend 1</span>
-                </div> */}
+                ))}
+
             </div>
             <div id='right-content' className='w-[30%] h-full border-r border-t border-slate-300 flex flex-col p-3 gap-5'>
                 <span className='font-bold text-xl'>Active Now</span>
@@ -41,7 +69,7 @@ const FriendlistContent = ({ friends }: FriedlistProps) => {
                         <div id='profile-picture' className='w-10 h-10 rounded-full bg-blue-500 relative'>
                             <div className='w-5 h-5 rounded-full bg-green-500 absolute top-7 right-0 border-3 border-white'></div>
                         </div>
-                        <span className='text-lg'>Friend 1</span>
+                        <span className='text-lg hover:text-red-700'>Friend 1</span>
                     </div>
                 </div>
             </div>

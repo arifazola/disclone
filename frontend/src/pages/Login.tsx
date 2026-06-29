@@ -6,12 +6,15 @@ import Input from '../components/Input'
 import { useNavigate, useNavigation } from 'react-router'
 import Loading from '../components/Loading'
 import { BASE_URL } from '../consts/const'
+import { useToast } from '../contexts/ToastContext'
+import type { ResponseModel } from '../models/responseModel'
 
 const Login = () => {
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
     const [loading, setLoading] = useState(false)
     const navigate = useNavigate()
+    const { setToastMessage } = useToast()
 
     const onEmailChanged = (text: string) => {
         setEmail(text)
@@ -35,15 +38,19 @@ const Login = () => {
             })
 
             const res = await login.json()
-            console.log("user", res.user)
-            window.localStorage.setItem("userid", res.user.ID)
 
             if (login.ok) {
-                console.log("navigating")
+                window.localStorage.setItem("userid", res.user.ID)
                 navigate("/")
+            } else {
+                console.log("error res", res)
+                throw new Error(JSON.stringify(res))
             }
         } catch (error: any) {
-            console.log("error login", error)
+            const err = error as Error
+            const parsedError = JSON.parse(err.message) as ResponseModel<any>
+            console.log("error login", parsedError)
+            setToastMessage(parsedError.Message)
         } finally {
             setLoading(false)
         }

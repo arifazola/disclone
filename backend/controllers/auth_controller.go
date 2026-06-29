@@ -8,6 +8,7 @@ import (
 
 	"github.com/arifazola/disclone/backend/auth"
 	"github.com/arifazola/disclone/backend/internal/db"
+	"github.com/arifazola/disclone/backend/models"
 	"github.com/arifazola/disclone/backend/services"
 	"github.com/gin-gonic/gin"
 )
@@ -45,7 +46,10 @@ func (service *AuthController) Login(c *gin.Context) {
 
 	user, err := service.AuthService.LoginUser(email, password, c.Request.Context())
 	if err != nil {
-		c.JSON(401, gin.H{"error": err.Error()})
+		responseModel := models.ResponseModel[any]{
+			Message: "Invalid username or password",
+		}
+		c.JSON(401, responseModel)
 		return
 	}
 
@@ -54,7 +58,10 @@ func (service *AuthController) Login(c *gin.Context) {
 
 	if err != nil {
 		log.Print("error generating access token", err)
-		c.JSON(401, gin.H{"error": "Error generating token"})
+		responseModel := models.ResponseModel[any]{
+			Message: "Error generating token",
+		}
+		c.JSON(401, responseModel)
 		return
 	}
 
@@ -62,7 +69,10 @@ func (service *AuthController) Login(c *gin.Context) {
 
 	if errAddingRefreshToken != nil {
 		log.Print("error generating refresh token", err)
-		c.JSON(401, gin.H{"error": "Error generating token"})
+		responseModel := models.ResponseModel[any]{
+			Message: "Error generating token",
+		}
+		c.JSON(401, responseModel)
 		return
 	}
 

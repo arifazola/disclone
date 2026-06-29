@@ -31,7 +31,13 @@ func main() {
 	router := gin.Default()
 
 	router.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"http://localhost:5173", "https://localhost:5173", "http://192.168.1.4:5173", "https://192.168.1.4:5173", "https://192.168.1.182:5173"},
+		AllowOrigins:     []string{
+			"http://localhost:5173", 
+			"https://localhost:5173", 
+			"http://192.168.1.4:5173", 
+			"https://192.168.1.4:5173", 
+			"https://192.168.1.182:5173",
+			"https://192.168.1.11:5173"},
 		AllowHeaders:     []string{"content-type"},
 		AllowCredentials: true,
 	}))
@@ -153,8 +159,7 @@ func main() {
 	router.POST("/friends", auth.AuthMiddleware(), friendController.AddFriend)
 
 	router.GET("/friends", auth.AuthMiddleware(), friendController.GetFriendList)
-	router.GET("/friends/sent", auth.AuthMiddleware(), friendController.GetFriendList)
-	router.GET("/friends/received", auth.AuthMiddleware(), friendController.GetFriendList)
+	router.GET("/friends/received", auth.AuthMiddleware(), friendController.GetFriendRequest)
 
 	err = router.RunTLS(
 		":8080",
