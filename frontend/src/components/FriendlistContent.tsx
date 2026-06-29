@@ -4,6 +4,9 @@ import { FriendStatus } from '../enums/friendStatusEnum'
 import { IoIosClose } from "react-icons/io";
 import { IoIosCheckmark } from "react-icons/io";
 import Tooltip from './Tooltip';
+import { useMutation } from '@tanstack/react-query';
+import { apiPost, type ApiPostParam } from '../handlers/apiHandler';
+import { BASE_URL } from '../consts/const';
 
 interface FriedlistProps {
     friends: FriendModel[]
@@ -11,6 +14,25 @@ interface FriedlistProps {
 }
 
 const FriendlistContent = ({ friends, friendRequest }: FriedlistProps) => {
+    const { mutate, data, error, isError } = useMutation({
+        mutationKey: ["accept_friend_request"],
+        mutationFn: apiPost,
+        onError: (err) => {
+            console.log("error accepting friend request", err)
+        }
+    })
+
+    const acceptFriendRequest = (friendID: string) => {
+        const formData = new FormData()
+        formData.append("friend", friendID)
+        formData.append("action", "accept")
+        const apiParam: ApiPostParam = {
+            url: `${BASE_URL}/friends/update`,
+            formData: formData
+        }
+
+        mutate(apiParam)
+    }
     return (
         <div id='sub-content-container' className='flex w-full h-full mt-5'>
             <div id='left-content' className='w-[70%] h-full border-r border-t border-slate-300 flex flex-col p-3 gap-5'>
@@ -32,7 +54,7 @@ const FriendlistContent = ({ friends, friendRequest }: FriedlistProps) => {
 
                             <div className='relative group'>
                                 <Tooltip text='Accept' className='absolute -top-10 right-[-55%] hidden group-has-hover:inline-block' />
-                                <IoIosCheckmark className='text-3xl text-slate-400 hover:text-green-700' />
+                                <IoIosCheckmark className='text-3xl text-slate-400 hover:text-green-700' onClick={() => acceptFriendRequest(item.UserID)} />
                             </div>
                             <div className='relative group'>
                                 <Tooltip text='Reject' className='absolute -top-10 right-[-55%] hidden group-has-hover:inline-block' />

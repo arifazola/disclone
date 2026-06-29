@@ -62,3 +62,8 @@ ON "friends".friend = "users"."id" WHERE "friends"."user_id" = $1;
 SELECT "users".username, "friends".* FROM public.friends
 LEFT JOIN "users"
 ON "friends"."user_id" = "users"."id" WHERE "friends"."friend" = $1 AND status = 0;
+
+-- name: UpdateFriendRequestStatus :exec
+UPDATE public.friends
+	SET status=$1
+	WHERE user_id = $2 AND friend = $3;

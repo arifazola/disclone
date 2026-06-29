@@ -29,6 +29,7 @@ func (s *Store) ExecTx(
 	repos := repositories.TxRepositories{
 		ServerRepo:     repositories.NewServerRepository(qtx),
 		UserServerRepo: repositories.NewUserServerRepository(qtx),
+		FriendRepository: repositories.NewFriendRepository(qtx),
 	}
 
 	if err := fn(repos); err != nil {

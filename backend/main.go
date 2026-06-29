@@ -130,6 +130,7 @@ func main() {
 	friendService := services.FriendService{
 		Repo: &friendRepository,
 		UserRepo: &userRepository,
+		TransactionManager: &store,
 	}
 
 	friendController := controllers.FriendController{
@@ -157,9 +158,9 @@ func main() {
 	router.GET("/ws/:channel_id/:user_id", auth.AuthMiddleware(), controllers.HandleWebSocket)
 
 	router.POST("/friends", auth.AuthMiddleware(), friendController.AddFriend)
-
 	router.GET("/friends", auth.AuthMiddleware(), friendController.GetFriendList)
 	router.GET("/friends/received", auth.AuthMiddleware(), friendController.GetFriendRequest)
+	router.POST("/friends/update", auth.AuthMiddleware(), friendController.UpdateFriendRequest)
 
 	err = router.RunTLS(
 		":8080",

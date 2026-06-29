@@ -345,3 +345,20 @@ func (q *Queries) Test(ctx context.Context) error {
 	_, err := q.db.ExecContext(ctx, test)
 	return err
 }
+
+const updateFriendRequestStatus = `-- name: UpdateFriendRequestStatus :exec
+UPDATE public.friends
+	SET status=$1
+	WHERE user_id = $2 AND friend = $3
+`
+
+type UpdateFriendRequestStatusParams struct {
+	Status int16
+	UserID string
+	Friend string
+}
+
+func (q *Queries) UpdateFriendRequestStatus(ctx context.Context, arg UpdateFriendRequestStatusParams) error {
+	_, err := q.db.ExecContext(ctx, updateFriendRequestStatus, arg.Status, arg.UserID, arg.Friend)
+	return err
+}

@@ -1,6 +1,7 @@
 package repositories
 
 type TxRepositories struct {
-	ServerRepo     ServerRepository
-	UserServerRepo UserServerRepository
+	ServerRepo       ServerRepository
+	UserServerRepo   UserServerRepository
+	FriendRepository FriendRepository
 }

@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/arifazola/disclone/backend/internal/db"
 	"github.com/arifazola/disclone/backend/models"
 	"github.com/arifazola/disclone/backend/services"
 	"github.com/gin-gonic/gin"
@@ -127,6 +128,70 @@ func (c *FriendController) GetFriendRequest(context *gin.Context){
 	responseModel := models.ResponseModel[any]{
 		Message: "Success",
 		Data: friendRequest,
+	} 
+
+	context.JSON(http.StatusOK, responseModel)
+}
+
+func (c *FriendController) UpdateFriendRequest(context *gin.Context){
+	userid, exist := context.Get("userID")
+	friend := context.PostForm("friend")
+	action := context.PostForm("action");
+	if !exist {
+		context.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
+		log.Println("Context userid not exist")
+		return
+	}
+
+	status := -1
+
+	switch action{
+	case "accept":
+		status = int(services.RequestAccepted)
+	case "reject":
+		status = int(services.RequestRejected)
+	default:
+		responseModel := models.ResponseModel[any]{
+			Message: "Unknown action",
+			Data: nil,
+		} 
+
+		context.JSON(http.StatusBadRequest, responseModel)
+
+		return
+	}
+
+	/**
+	why friend is userid and user id is friend?
+	its because from sender perspective, when sending friend request, the data is store as:
+	user_id: the user_id who inisiates the friend request
+	friend: the user_id who receives the friend request
+
+	so, when accepting friend request, from the user who receives the request perspective, the "friend" property is the user who accepts the request,
+	and the user id comes from the request body
+	*/
+	arg := db.UpdateFriendRequestStatusParams{
+		Status: int16(status),
+		Friend: userid.(string),
+		UserID: friend,
+	}
+
+	err := c.FriendService.UpdateFriendRequestStatus(context, arg)
+
+	if err != nil {
+		responseModel := models.ResponseModel[any]{
+			Message: "Something went wrong",
+			Data: nil,
+		} 
+
+		context.JSON(http.StatusInternalServerError, responseModel)
+
+		return
+	}
+
+	responseModel := models.ResponseModel[any]{
+		Message: "Accepted",
+		Data: nil,
 	} 
 
 	context.JSON(http.StatusOK, responseModel)

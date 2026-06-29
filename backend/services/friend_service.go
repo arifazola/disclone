@@ -6,6 +6,7 @@ import (
 	"errors"
 	"log"
 
+	"github.com/arifazola/disclone/backend/internal"
 	"github.com/arifazola/disclone/backend/internal/db"
 	"github.com/arifazola/disclone/backend/models"
 	"github.com/arifazola/disclone/backend/repositories"
@@ -14,6 +15,7 @@ import (
 type FriendService struct {
 	Repo repositories.FriendRepository
 	UserRepo repositories.UserRepository
+	TransactionManager internal.TransactionManager
 }
 
 type FriendStatus int
@@ -21,6 +23,7 @@ type FriendStatus int
 const (
 	RequestSent FriendStatus = iota
 	RequestAccepted
+	RequestRejected
 )
 
 func (service *FriendService) AddFriend(context context.Context, requestFromID, requestToUsername string) error {
@@ -67,6 +70,7 @@ func (service *FriendService) GetFriendList(ctx context.Context, userID string) 
 			Username: value.Username.String,
 			FriendID: value.Friend,
 			Status: int(value.Status),
+			UserID: value.UserID,
 		}
 
 		friendListModel = append(friendListModel, friendModel)
@@ -93,10 +97,29 @@ func (service *FriendService) GetFriendRequest(ctx context.Context, friend strin
 			Username: value.Username.String,
 			FriendID: value.Friend,
 			Status: int(value.Status),
+			UserID: value.UserID,
 		}
 
 		friendRequestModel = append(friendRequestModel, friendModel)
 	}
 
 	return friendRequestModel, nil
+}
+
+func (service *FriendService) UpdateFriendRequestStatus(ctx context.Context, arg db.UpdateFriendRequestStatusParams) error{
+	return service.TransactionManager.ExecTx(ctx, func(tr repositories.TxRepositories) error {
+		// err := tr.ServerRepo.CreateServer(server, context)
+		err := tr.FriendRepository.UpdateFriendRequestStatus(ctx, arg)
+
+		if err != nil {
+			return err
+		}
+		
+		friendModel := db.Friend {
+			UserID: arg.Friend,
+			Friend: arg.UserID,
+			Status: int16(RequestAccepted),
+		}
+		return tr.FriendRepository.AddFriend(ctx, friendModel)
+	})
 }
