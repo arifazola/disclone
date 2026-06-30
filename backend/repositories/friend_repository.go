@@ -11,4 +11,5 @@ type FriendRepository interface {
 	GetFriendList(ctx context.Context, userID string) ([]db.GetFriendListRow, error)
 	GetFriendRequest(ctx context.Context, friend string) ([]db.GetFriendRequestRow, error)
 	UpdateFriendRequestStatus(ctx context.Context, arg db.UpdateFriendRequestStatusParams) error
+	DeleteFriendRequest(ctx context.Context, arg db.DeleteFriendRequestParams) error
 }

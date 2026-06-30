@@ -6,6 +6,7 @@ import (
 	"errors"
 	"log"
 
+	"github.com/arifazola/disclone/backend/factories"
 	"github.com/arifazola/disclone/backend/internal"
 	"github.com/arifazola/disclone/backend/internal/db"
 	"github.com/arifazola/disclone/backend/models"
@@ -107,19 +108,9 @@ func (service *FriendService) GetFriendRequest(ctx context.Context, friend strin
 }
 
 func (service *FriendService) UpdateFriendRequestStatus(ctx context.Context, arg db.UpdateFriendRequestStatusParams) error{
-	return service.TransactionManager.ExecTx(ctx, func(tr repositories.TxRepositories) error {
-		// err := tr.ServerRepo.CreateServer(server, context)
-		err := tr.FriendRepository.UpdateFriendRequestStatus(ctx, arg)
+	friendRequestHandler := factories.NewFriendRequestFactory(service.Repo, service.TransactionManager, int(arg.Status))
 
-		if err != nil {
-			return err
-		}
-		
-		friendModel := db.Friend {
-			UserID: arg.Friend,
-			Friend: arg.UserID,
-			Status: int16(RequestAccepted),
-		}
-		return tr.FriendRepository.AddFriend(ctx, friendModel)
-	})
+	err := friendRequestHandler.Handle(ctx, arg)
+
+	return err
 }

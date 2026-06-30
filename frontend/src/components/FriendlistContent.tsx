@@ -22,7 +22,7 @@ const FriendlistContent = ({ friends, friendRequest }: FriedlistProps) => {
         }
     })
 
-    const acceptFriendRequest = (friendID: string) => {
+    const acceptFriendRequest = (friendID: string, action: string) => {
         const formData = new FormData()
         formData.append("friend", friendID)
         formData.append("action", "accept")
@@ -54,11 +54,11 @@ const FriendlistContent = ({ friends, friendRequest }: FriedlistProps) => {
 
                             <div className='relative group'>
                                 <Tooltip text='Accept' className='absolute -top-10 right-[-55%] hidden group-has-hover:inline-block' />
-                                <IoIosCheckmark className='text-3xl text-slate-400 hover:text-green-700' onClick={() => acceptFriendRequest(item.UserID)} />
+                                <IoIosCheckmark className='text-3xl text-slate-400 hover:text-green-700' onClick={() => acceptFriendRequest(item.UserID, "accept")} />
                             </div>
                             <div className='relative group'>
                                 <Tooltip text='Reject' className='absolute -top-10 right-[-55%] hidden group-has-hover:inline-block' />
-                                <IoIosClose className='text-3xl text-slate-400 hover:text-red-700' />
+                                <IoIosClose className='text-3xl text-slate-400 hover:text-red-700' onClick={() => acceptFriendRequest(item.UserID, "reject")} />
                             </div>
 
                         </div>
@@ -77,7 +77,7 @@ const FriendlistContent = ({ friends, friendRequest }: FriedlistProps) => {
                         </div>
                         <div className='relative group'>
                             <Tooltip text='Cancel' className='absolute -top-10 right-[-55%] hidden group-has-hover:inline-block' />
-                            <IoIosClose className='text-3xl text-slate-400 hover:text-red-700' />
+                            <IoIosClose className='text-3xl text-slate-400 hover:text-red-700' onClick={() => acceptFriendRequest(item.UserID, "reject")} />
                         </div>
                     </div>
                 ))}

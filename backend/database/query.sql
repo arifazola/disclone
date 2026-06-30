@@ -67,3 +67,7 @@ ON "friends"."user_id" = "users"."id" WHERE "friends"."friend" = $1 AND status =
 UPDATE public.friends
 	SET status=$1
 	WHERE user_id = $2 AND friend = $3;
+
+-- name: DeleteFriendRequest :exec
+DELETE FROM public.friends
+	WHERE user_id = $1 AND friend = $2;

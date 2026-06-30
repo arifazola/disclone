@@ -131,6 +131,21 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) error {
 	return err
 }
 
+const deleteFriendRequest = `-- name: DeleteFriendRequest :exec
+DELETE FROM public.friends
+	WHERE user_id = $1 AND friend = $2
+`
+
+type DeleteFriendRequestParams struct {
+	UserID string
+	Friend string
+}
+
+func (q *Queries) DeleteFriendRequest(ctx context.Context, arg DeleteFriendRequestParams) error {
+	_, err := q.db.ExecContext(ctx, deleteFriendRequest, arg.UserID, arg.Friend)
+	return err
+}
+
 const getFriendList = `-- name: GetFriendList :many
 SELECT "users".username, friends.user_id, friends.friend, friends.status FROM public.friends
 LEFT JOIN "users"
