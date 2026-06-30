@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/arifazola/disclone/backend/internal"
 	"github.com/arifazola/disclone/backend/internal/db"
@@ -14,6 +15,7 @@ type AcceptFriendRequest struct {
 }
 
 func (handler *AcceptFriendRequest) Handle(ctx context.Context, arg db.UpdateFriendRequestStatusParams) error{
+	fmt.Println("Handle accept", arg.Status)
 	return handler.TransactionManager.ExecTx(ctx, func(tr repositories.TxRepositories) error {
 		// err := tr.ServerRepo.CreateServer(server, context)
 		// err := tr.FriendRepository.UpdateFriendRequestStatus(ctx, arg)

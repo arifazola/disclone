@@ -3,9 +3,11 @@ package main
 import (
 	"context"
 	"fmt"
+	"io"
 	"log"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/arifazola/disclone/backend/auth"
 	"github.com/arifazola/disclone/backend/controllers"
@@ -161,6 +163,27 @@ func main() {
 	router.GET("/friends", auth.AuthMiddleware(), friendController.GetFriendList)
 	router.GET("/friends/received", auth.AuthMiddleware(), friendController.GetFriendRequest)
 	router.POST("/friends/update", auth.AuthMiddleware(), friendController.UpdateFriendRequest)
+
+	router.GET("/stream", func(c *gin.Context) {
+		// 1. Set SSE headers explicitly
+		c.Writer.Header().Set("Content-Type", "text/event-stream")
+		c.Writer.Header().Set("Cache-Control", "no-cache")
+		c.Writer.Header().Set("Connection", "keep-alive")
+		c.Writer.Header().Set("Transfer-Encoding", "chunked")
+
+		// 2. Start the infinite loop event stream
+		c.Stream(func(w io.Writer) bool {
+			// Stream an event every 2 seconds
+			time.Sleep(2 * time.Second)
+			
+			// Format must match the SSE specification: "data: <message>\n\n"
+			c.SSEvent("message", gin.H{
+				"status":    "active",
+				"timestamp": time.Now().Unix(),
+			})
+			return true // Return true to keep the stream alive
+		})
+	})
 
 	err = router.RunTLS(
 		":8080",

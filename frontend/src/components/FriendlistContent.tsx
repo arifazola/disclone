@@ -25,7 +25,7 @@ const FriendlistContent = ({ friends, friendRequest }: FriedlistProps) => {
     const acceptFriendRequest = (friendID: string, action: string) => {
         const formData = new FormData()
         formData.append("friend", friendID)
-        formData.append("action", "accept")
+        formData.append("action", action)
         const apiParam: ApiPostParam = {
             url: `${BASE_URL}/friends/update`,
             formData: formData
