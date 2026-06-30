@@ -14,12 +14,14 @@ import (
 
 type Claims struct {
 	UserID string `json:"user_id"`
+	Username string `json:"username"`
 	jwt.RegisteredClaims
 }
 
-func GenerateAccessToken(userId string) (string, error) {
+func GenerateAccessToken(userId string, username string) (string, error) {
 	claims := Claims{
 		UserID: userId,
+		Username: username,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: &jwt.NumericDate{
 				Time: time.Now().Add(60 * time.Minute),

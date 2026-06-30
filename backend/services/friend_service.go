@@ -27,7 +27,7 @@ const (
 	RequestRejected
 )
 
-func (service *FriendService) AddFriend(context context.Context, requestFromID, requestToUsername string) error {
+func (service *FriendService) AddFriend(context context.Context, requestFromID, requestToUsername string) (string, error) {
 	userid, err := service.UserRepo.GetUserIDByUsername(context, requestToUsername)
 
 	if err != nil {
@@ -37,7 +37,7 @@ func (service *FriendService) AddFriend(context context.Context, requestFromID, 
 
 		// log.Println("error getting userid by username", err)
 		// return errors.New("Something went wrong")
-		return err
+		return "", err
 	}
 
 	var friendRequestStatus FriendStatus = RequestSent
@@ -50,7 +50,7 @@ func (service *FriendService) AddFriend(context context.Context, requestFromID, 
 
 	err = service.Repo.AddFriend(context, friend)
 
-	return err
+	return userid, err
 }
 
 func (service *FriendService) GetFriendList(ctx context.Context, userID string) ([]models.FriendModel, error){

@@ -167,15 +167,18 @@ func main() {
 	router.GET("/friends/received", auth.AuthMiddleware(), friendController.GetFriendRequest)
 	router.POST("/friends/update", auth.AuthMiddleware(), friendController.UpdateFriendRequest)
 
-	router.GET("/stream", func(c *gin.Context) {
-		// 1. Set SSE headers explicitly
+	router.GET("/stream/:user_id", func(c *gin.Context) {
+		fmt.Println("SSE connected")
+
+		userid := c.Param("user_id")
+
 		c.Writer.Header().Set("Content-Type", "text/event-stream")
 		c.Writer.Header().Set("Cache-Control", "no-cache")
 		c.Writer.Header().Set("Connection", "keep-alive")
 		c.Writer.Header().Set("Transfer-Encoding", "chunked")
 
 		client := &handlers.Client{
-			ID: "test",
+			ID: userid,
 			Events: make(chan any, 10),
 		}
 		hub.Add(client)

@@ -3,6 +3,7 @@ package controllers
 import (
 	"database/sql"
 	"errors"
+	"fmt"
 	"log"
 	"net/http"
 	"time"
@@ -29,7 +30,7 @@ func (c *FriendController) AddFriend(context *gin.Context){
 		return
 	}
 
-	err := c.FriendService.AddFriend(context, userid.(string), username)
+	_, err := c.FriendService.AddFriend(context, userid.(string), username)
 
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows){
@@ -47,8 +48,6 @@ func (c *FriendController) AddFriend(context *gin.Context){
 		context.JSON(http.StatusInternalServerError, responseModel)
 		return
 	}
-
-	c.Hub.Clients["test"].Events <- "Hello!"
 
 	context.JSON(http.StatusOK, gin.H {"message": "Added"})
 }
@@ -197,6 +196,18 @@ func (c *FriendController) UpdateFriendRequest(context *gin.Context){
 		Message: "Accepted",
 		Data: nil,
 	} 
+
+	client := c.Hub.Clients[friend]
+
+	if client != nil {
+		username, exist := context.Get("username")
+		if !exist {
+			fmt.Println("username doesn't exist")
+			return
+		}
+
+		client.Events <- username.(string)
+	}
 
 	context.JSON(http.StatusOK, responseModel)
 }

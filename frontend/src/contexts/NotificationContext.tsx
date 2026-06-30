@@ -1,9 +1,9 @@
-import React, { createContext, useContext, useState } from "react";
+import React, { createContext, useContext, useEffect, useState } from "react";
 import { IoIosClose } from "react-icons/io";
 import { BASE_URL } from "../consts/const";
 
 interface NotificationContextType {
-    setToastMessage: React.Dispatch<React.SetStateAction<string>>
+    setNotificationMessage: React.Dispatch<React.SetStateAction<string>>
 }
 
 const NotificationContext = createContext<NotificationContextType | undefined>(undefined)
@@ -12,10 +12,12 @@ interface ContextProps {
     children: React.ReactNode
 }
 const Notification = ({ children }: ContextProps) => {
-    const [toastMessage, setToastMessage] = useState("")
-    const eventSource = new EventSource(`${BASE_URL}/stream`)
+    const [notificationMessage, setNotificationMessage] = useState("")
+    const userid = window.localStorage.getItem("userid")
+    const eventSource = new EventSource(`${BASE_URL}/stream/${userid}`)
 
     eventSource.onmessage = (event) => {
+        setNotificationMessage(event.data)
         console.log("event message", event.data)
     }
 
@@ -26,14 +28,29 @@ const Notification = ({ children }: ContextProps) => {
     eventSource.onopen = (event) => {
         console.log("SSE OPENED")
     }
+
+    useEffect(() => {
+        if (notificationMessage === "") {
+            return
+        }
+
+        const timerID = setTimeout(() => {
+            setNotificationMessage("")
+        }, 5000)
+
+        return () => clearTimeout(timerID)
+    }, [notificationMessage])
     return (
-        <NotificationContext.Provider value={{ setToastMessage }}>
-            {toastMessage !== "" && (
-                <div className="fixed top-0 left-[40%] pl-3 pr-2 py-3 rounded-lg bg-red-700 text-white font-bold flex items-center justify-between gap-10">
-                    <div className="flex justify-center">{toastMessage}</div>
-                    <IoIosClose className="text-xl mt-1 hover:cursor-pointer" onClick={() => setToastMessage("")} />
+        <NotificationContext.Provider value={{ setNotificationMessage }}>
+            {notificationMessage !== "" && (
+                <div className="fixed bottom-3 right-3 pl-3 pr-2 py-3 rounded-lg bg-slate-400 text-white flex items-center justify-between gap-10">
+                    <div className="flex flex-col justify-center">
+                        <span className="font-bold">New Friend!</span>
+                        <span>{notificationMessage} just accepted your friend request</span>
+                    </div>
                 </div>
             )}
+
             {children}
         </NotificationContext.Provider>
     )

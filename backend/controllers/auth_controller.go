@@ -53,7 +53,7 @@ func (service *AuthController) Login(c *gin.Context) {
 		return
 	}
 
-	accessToken, err := auth.GenerateAccessToken(user.ID)
+	accessToken, err := auth.GenerateAccessToken(user.ID, user.Username)
 	refreshToken := auth.GenerateRefreshToken()
 
 	if err != nil {
