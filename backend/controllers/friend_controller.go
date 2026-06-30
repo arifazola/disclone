@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/arifazola/disclone/backend/handlers"
 	"github.com/arifazola/disclone/backend/internal/db"
 	"github.com/arifazola/disclone/backend/models"
 	"github.com/arifazola/disclone/backend/services"
@@ -15,6 +16,7 @@ import (
 
 type FriendController struct {
 	FriendService *services.FriendService
+	Hub *handlers.Hub
 }
 
 func (c *FriendController) AddFriend(context *gin.Context){
@@ -45,6 +47,8 @@ func (c *FriendController) AddFriend(context *gin.Context){
 		context.JSON(http.StatusInternalServerError, responseModel)
 		return
 	}
+
+	c.Hub.Clients["test"].Events <- "Hello!"
 
 	context.JSON(http.StatusOK, gin.H {"message": "Added"})
 }

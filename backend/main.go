@@ -7,11 +7,11 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"time"
 
 	"github.com/arifazola/disclone/backend/auth"
 	"github.com/arifazola/disclone/backend/controllers"
 	"github.com/arifazola/disclone/backend/database"
+	"github.com/arifazola/disclone/backend/handlers"
 	"github.com/arifazola/disclone/backend/helpers"
 	"github.com/arifazola/disclone/backend/internal/db"
 	"github.com/arifazola/disclone/backend/repositories"
@@ -55,6 +55,8 @@ func main() {
 	defer dbConn.Close()
 
 	queries := db.New(dbConn)
+
+	hub := handlers.NewHub()
 
 	userRepository := repositories.UserRepositoryImpl{
 		Queries: queries,
@@ -137,6 +139,7 @@ func main() {
 
 	friendController := controllers.FriendController{
 		FriendService: &friendService,
+		Hub: hub,
 	}
 
 	router.GET("/test", func(c *gin.Context) {
@@ -171,17 +174,23 @@ func main() {
 		c.Writer.Header().Set("Connection", "keep-alive")
 		c.Writer.Header().Set("Transfer-Encoding", "chunked")
 
+		client := &handlers.Client{
+			ID: "test",
+			Events: make(chan any, 10),
+		}
+		hub.Add(client)
+		defer hub.Remove(client.ID)
+
 		// 2. Start the infinite loop event stream
 		c.Stream(func(w io.Writer) bool {
-			// Stream an event every 2 seconds
-			time.Sleep(2 * time.Second)
-			
-			// Format must match the SSE specification: "data: <message>\n\n"
-			c.SSEvent("message", gin.H{
-				"status":    "active",
-				"timestamp": time.Now().Unix(),
-			})
-			return true // Return true to keep the stream alive
+			select{
+			case <- c.Request.Context().Done():
+				return false
+			case event := <-client.Events:
+				fmt.Println("sending message stream")
+				c.SSEvent("message", event)
+				return true
+			}
 		})
 	})
 
