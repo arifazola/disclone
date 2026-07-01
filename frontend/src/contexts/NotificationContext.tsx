@@ -34,11 +34,11 @@ const Notification = ({ children }: ContextProps) => {
             return
         }
 
+        setShowLoading(false)
+
         queryClient.invalidateQueries({
             queryKey: ["friends"]
         })
-
-        setShowLoading(false)
 
         const timerID = setTimeout(() => {
             setNotificationMessage("")

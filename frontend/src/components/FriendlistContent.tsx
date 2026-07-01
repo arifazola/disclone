@@ -4,9 +4,10 @@ import { FriendStatus } from '../enums/friendStatusEnum'
 import { IoIosClose } from "react-icons/io";
 import { IoIosCheckmark } from "react-icons/io";
 import Tooltip from './Tooltip';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiPost, type ApiPostParam } from '../handlers/apiHandler';
 import { BASE_URL } from '../consts/const';
+import { useLoading } from './Loading';
 
 interface FriedlistProps {
     friends: FriendModel[]
@@ -14,12 +15,20 @@ interface FriedlistProps {
 }
 
 const FriendlistContent = ({ friends, friendRequest }: FriedlistProps) => {
+    const queryClient = useQueryClient()
+    const { setShowLoading } = useLoading()
     const { mutate, data, error, isError } = useMutation({
         mutationKey: ["accept_friend_request"],
         mutationFn: apiPost,
         onError: (err) => {
             console.log("error accepting friend request", err)
-        }
+        },
+        onSuccess(data, variables, onMutateResult, context) {
+            setShowLoading(false)
+            queryClient.invalidateQueries({
+                queryKey: ["friends"]
+            })
+        },
     })
 
     const acceptFriendRequest = (friendID: string, action: string) => {
