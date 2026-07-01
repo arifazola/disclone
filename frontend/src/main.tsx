@@ -30,27 +30,27 @@ createRoot(document.getElementById('root')!).render(
   <QueryClientProvider client={queryClient}>
     <BrowserRouter>
       <Toast>
+        <Loading>
+          <Routes>
+            <Route element={
+              <Notification>
+                <LobbyLayout />
+              </Notification>
+            }>
+              <Route path='/' element={<DirectMessageBarContent />} />
+              <Route path='/server/:server/:channel' element={<ServerBarContent />} />
+            </Route>
 
-        <Loading />
-        <Routes>
-          <Route element={
-            <Notification>
-              <LobbyLayout />
-            </Notification>
-          }>
-            <Route path='/' element={<DirectMessageBarContent />} />
-            <Route path='/server/:server/:channel' element={<ServerBarContent />} />
-          </Route>
 
+            <Route path='/login' element={<Login />} />
+            <Route path='/register' element={<Register />} />
 
-          <Route path='/login' element={<Login />} />
-          <Route path='/register' element={<Register />} />
-
-          <Route element={<TestLayout />}>
-            <Route path='/1' element={<Page1 />} />
-            <Route path='/2' element={<Page2 />} />
-          </Route>
-        </Routes>
+            <Route element={<TestLayout />}>
+              <Route path='/1' element={<Page1 />} />
+              <Route path='/2' element={<Page2 />} />
+            </Route>
+          </Routes>
+        </Loading>
       </Toast>
     </BrowserRouter>
   </QueryClientProvider>

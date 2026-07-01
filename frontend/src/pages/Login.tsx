@@ -40,6 +40,7 @@ const Login = () => {
             const res = await login.json()
 
             if (login.ok) {
+                setToastMessage("")
                 window.localStorage.setItem("userid", res.user.ID)
                 navigate("/")
             } else {

@@ -1,6 +1,8 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { IoIosClose } from "react-icons/io";
 import { BASE_URL } from "../consts/const";
+import { useQueryClient } from "@tanstack/react-query";
+import { useLoading } from "../components/Loading";
 
 interface NotificationContextType {
     setNotificationMessage: React.Dispatch<React.SetStateAction<string>>
@@ -15,6 +17,8 @@ const Notification = ({ children }: ContextProps) => {
     const [notificationMessage, setNotificationMessage] = useState("")
     const userid = window.localStorage.getItem("userid")
     const eventSource = new EventSource(`${BASE_URL}/stream/${userid}`)
+    const queryClient = useQueryClient()
+    const { setShowLoading } = useLoading()
 
     eventSource.onmessage = (event) => {
         setNotificationMessage(event.data)
@@ -25,14 +29,16 @@ const Notification = ({ children }: ContextProps) => {
         console.log("ERROR SSE", error)
     }
 
-    eventSource.onopen = (event) => {
-        console.log("SSE OPENED")
-    }
-
     useEffect(() => {
         if (notificationMessage === "") {
             return
         }
+
+        queryClient.invalidateQueries({
+            queryKey: ["friends"]
+        })
+
+        setShowLoading(false)
 
         const timerID = setTimeout(() => {
             setNotificationMessage("")
