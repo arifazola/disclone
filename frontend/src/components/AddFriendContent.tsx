@@ -6,6 +6,7 @@ import { useMutation } from '@tanstack/react-query'
 import { apiPost, type ApiPostParam } from '../handlers/apiHandler'
 import { useToast } from '../contexts/ToastContext'
 import type { ResponseModel } from '../models/responseModel'
+import RightContent from './RightContent'
 
 const AddFriendContent = () => {
     const { setToastMessage } = useToast()
@@ -48,14 +49,7 @@ const AddFriendContent = () => {
 
 
             </div>
-            <div id='right-content' className='w-[30%] h-full border-r border-t border-slate-300 flex flex-col p-3 gap-5'>
-                <span className='font-semibold text-lg'>Active Now</span>
-
-                <div className='flex flex-col gap-2'>
-                    <span className='font-semibold text-center text-sm'>It's quite for now...</span>
-                    <span className='text-sm text-center text-gray-500'>When a friends is online, we'll show it here</span>
-                </div>
-            </div>
+            <RightContent />
         </div>
     )
 }

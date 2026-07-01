@@ -8,6 +8,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiPost, type ApiPostParam } from '../handlers/apiHandler';
 import { BASE_URL } from '../consts/const';
 import { useLoading } from './Loading';
+import RightContent from './RightContent';
 
 interface FriedlistProps {
     friends: FriendModel[]
@@ -92,18 +93,7 @@ const FriendlistContent = ({ friends, friendRequest }: FriedlistProps) => {
                 ))}
 
             </div>
-            <div id='right-content' className='w-[30%] h-full border-r border-t border-slate-300 flex flex-col p-3 gap-5'>
-                <span className='font-bold text-xl'>Active Now</span>
-
-                <div className='w-full h-50 shadow-lg rounded-lg border-1 border-slate-300 p-3'>
-                    <div className='flex items-center gap-5'>
-                        <div id='profile-picture' className='w-10 h-10 rounded-full bg-blue-500 relative'>
-                            <div className='w-5 h-5 rounded-full bg-green-500 absolute top-7 right-0 border-3 border-white'></div>
-                        </div>
-                        <span className='text-lg hover:text-red-700'>Friend 1</span>
-                    </div>
-                </div>
-            </div>
+            <RightContent />
         </div>
     )
 }

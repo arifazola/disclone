@@ -16,6 +16,8 @@ import LoadingProvider from './components/Loading.tsx'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import Toast from './contexts/ToastContext.tsx'
 import Notification from './contexts/NotificationContext.tsx'
+import FriendsContent from './components/FriendsContent.tsx'
+import FriendChatContent from './components/FriendChatContent.tsx'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -37,8 +39,13 @@ createRoot(document.getElementById('root')!).render(
                 <LobbyLayout />
               </Notification>
             }>
-              <Route path='/' element={<DirectMessageBarContent />} />
+              <Route path='/' element={<DirectMessageBarContent>
+                <FriendsContent />
+              </DirectMessageBarContent>} />
               <Route path='/server/:server/:channel' element={<ServerBarContent />} />
+              <Route path='/friend/:username' element={<DirectMessageBarContent>
+                <FriendChatContent />
+              </DirectMessageBarContent>} />
             </Route>
 
 
