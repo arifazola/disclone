@@ -35,20 +35,26 @@ const ServerList = ({ onAddServerClicked }: ServerListProps) => {
     }, [isError, error, navigate])
 
     return (
-        <div className='w-12 h-full flex flex-col gap-5'>
-            <div className='w-full h-12' onClick={() => navigate("/")}>
+        <div className='w-12 flex flex-col gap-5 overflow-y-auto scrollbar-none'>
+            <div className='w-full h-12 shrink-0' onClick={() => navigate("/")}>
                 <DirectMessageIcon />
             </div>
 
             <div className='w-10/12 h-1 border-t border-slate-300' />
 
             {!isError && isFetched && data.servers !== null ? (data.servers as any[]).map((item, index) => (
-                <div className='w-full h-12' key={index} onClick={() => onServerClicked(item.ID.String)}>
+                <div className='w-full h-12 shrink-0' key={index} onClick={() => onServerClicked(item.ID.String)}>
                     <ServerIcon path={item.Picture.String} />
                 </div>
             )) : false}
 
-            <div className='w-full h-12'>
+            {[...Array(20)].map((item, index) => (
+                <div className='w-full h-12 shrink-0' key={index} onClick={() => onServerClicked("")}>
+                    <ServerIcon path="/fdsf" />
+                </div>
+            ))}
+
+            <div className='w-full h-12 shrink-0'>
                 <AddServerIcon onAddServerClicked={onAddServerClicked} />
             </div>
         </div>
