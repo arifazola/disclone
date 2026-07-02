@@ -62,9 +62,9 @@ const Login = () => {
             <span className='font-bold text-2xl'>Welcome back</span>
             <span className=''>We're so excited to see you again</span>
 
-            <Input label='Email or phone number' onInputChanged={onEmailChanged} />
+            <Input label='Email or phone number' onInputChanged={onEmailChanged} onEnterButtonPressed={onLoginClicked} />
 
-            <Input label='Password' onInputChanged={onPasswordChanged} type='password' />
+            <Input label='Password' onInputChanged={onPasswordChanged} type='password' onEnterButtonPressed={onLoginClicked} />
             <span className='w-full flex'>
                 <TextLink text='Forgot your password' url='/forgot-password' />
             </span>
