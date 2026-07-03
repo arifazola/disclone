@@ -3,3 +3,9 @@
 @theme {
     --color-primary: #5865f2
 }
+
+@utility hide-scrollbar-buttons {
+  ::-webkit-scrollbar-button {
+    display: none;
+  }
+}
