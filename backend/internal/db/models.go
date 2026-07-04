@@ -44,6 +44,7 @@ type User struct {
 	Username        string
 	Password        string
 	ProfilePricture sql.NullString
+	JoinedDate      int64
 }
 
 type UserServer struct {

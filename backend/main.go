@@ -142,6 +142,14 @@ func main() {
 		Hub: hub,
 	}
 
+	userService := services.UserService {
+		Repo: &userRepository,
+	}
+
+	userController := controllers.UserController{
+		UserService: &userService,
+	}
+
 	router.GET("/test", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
 			"message": "Hello, World!",
@@ -150,6 +158,8 @@ func main() {
 
 	router.POST("/account", authController.Register)
 	router.POST("/login", authController.Login)
+
+	router.GET("/users/:username/profile", auth.AuthMiddleware(), userController.GetUserByUsername)
 
 	router.POST("/servers", auth.AuthMiddleware(), serverController.CreateServer)
 	router.POST("/servers/:server_id/join", auth.AuthMiddleware(), serverController.JoinServer)

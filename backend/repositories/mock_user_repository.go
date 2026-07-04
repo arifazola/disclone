@@ -49,3 +49,11 @@ func (m *MockUserRepository) GetUserIDByUsername(ctx context.Context, username s
 
 	return "test", nil
 }
+
+func (m *MockUserRepository) GetUserByUsername(ctx context.Context, username string) (db.User, error) {
+	if m.Err != nil {
+		return db.User{}, m.Err
+	}
+
+	return db.User{}, nil
+}

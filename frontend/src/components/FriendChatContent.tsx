@@ -1,8 +1,30 @@
 import { IoSend } from "react-icons/io5";
 import RightContent from './RightContent'
 import RightContentChat from "./RightContentChat";
+import { useParams } from "react-router";
+import { useQuery } from "@tanstack/react-query";
+import { apiGet } from "../handlers/apiHandler";
+import { BASE_URL } from "../consts/const";
+import type { ResponseModel } from "../models/responseModel";
+import type { UserModel } from "../models/userModel";
 
 const FriendChatContent = () => {
+    const { username } = useParams()
+
+    const { data, isLoading, error } = useQuery({
+        queryKey: ["friendData"],
+        queryFn: async () => {
+            const [profile] = await Promise.all(
+                [
+                    apiGet(`${BASE_URL}/users/${username}/profile`)
+                ]
+            )
+
+            const profileData = await profile.json() as ResponseModel<UserModel>
+
+            return { profileData }
+        }
+    })
     return (
         <div id='content' className='w-3/4 h-[calc(100vh-40px)] bg-slate-100 flex flex-col'>
             <div id='content-container' className='w-full h-full py-5 px-7 flex flex-col'>
@@ -11,9 +33,9 @@ const FriendChatContent = () => {
                         <div className='flex flex-col h-11/12 gap-5 overflow-y-auto scrollbar-none'>
                             <div className='h-16 w-16 bg-primary rounded-full shrink-0'></div>
 
-                            <span className='font-bold text-3xl'>Username</span>
+                            <span className='font-bold text-3xl'>{username}</span>
 
-                            <span className='font-light'>This is the beginning of your direct message with <span className='font-semibold'>Username</span></span>
+                            <span className='font-light'>This is the beginning of your direct message with <span className='font-semibold'>{username}</span></span>
 
                             <div className='flex gap-14 items-center'>
                                 <div className='flex relative'>
@@ -32,11 +54,11 @@ const FriendChatContent = () => {
                         </div>
 
                         <div className='h-16 bg-slate-100 border border-slate-300 rounded-lg shadow-lg p-3 flex items-center'>
-                            <input placeholder='Message Username' className='w-full h-full outline-0' />
+                            <input placeholder={`Message ${username}`} className='w-full h-full outline-0' />
                             <IoSend />
                         </div>
                     </div>
-                    <RightContentChat />
+                    <RightContentChat userData={data?.profileData.Data} />
                 </div>
             </div>
         </div>

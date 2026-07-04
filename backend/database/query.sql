@@ -9,7 +9,7 @@ INSERT INTO public.users(
 	VALUES ($1, $2, $3, $4);
 
 -- name: GetUserByEmail :one
-SELECT id, email, username, password, "profilePricture"
+SELECT id, email, username, password, "profilePricture", "joinedDate"
 	FROM public.users WHERE email = $1;
 
 -- name: CreateServer :exec
@@ -71,3 +71,6 @@ UPDATE public.friends
 -- name: DeleteFriendRequest :exec
 DELETE FROM public.friends
 	WHERE user_id = $1 AND friend = $2;
+
+-- name: GetUserByUsername :one
+SELECT * FROM public.users WHERE username = $1;

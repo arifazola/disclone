@@ -262,7 +262,7 @@ func (q *Queries) GetServerChannels(ctx context.Context, serverid string) ([]Cha
 }
 
 const getUserByEmail = `-- name: GetUserByEmail :one
-SELECT id, email, username, password, "profilePricture"
+SELECT id, email, username, password, "profilePricture", "joinedDate"
 	FROM public.users WHERE email = $1
 `
 
@@ -275,6 +275,25 @@ func (q *Queries) GetUserByEmail(ctx context.Context, email string) (User, error
 		&i.Username,
 		&i.Password,
 		&i.ProfilePricture,
+		&i.JoinedDate,
+	)
+	return i, err
+}
+
+const getUserByUsername = `-- name: GetUserByUsername :one
+SELECT id, email, username, password, "profilePricture", "joinedDate" FROM public.users WHERE username = $1
+`
+
+func (q *Queries) GetUserByUsername(ctx context.Context, username string) (User, error) {
+	row := q.db.QueryRowContext(ctx, getUserByUsername, username)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.Email,
+		&i.Username,
+		&i.Password,
+		&i.ProfilePricture,
+		&i.JoinedDate,
 	)
 	return i, err
 }

@@ -7,6 +7,7 @@ CREATE TABLE IF NOT EXISTS public.users
     username text COLLATE pg_catalog."default" NOT NULL,
     password text COLLATE pg_catalog."default" NOT NULL,
     "profilePricture" text COLLATE pg_catalog."default",
+    "joinedDate" bigint NOT NULL DEFAULT 0,
     CONSTRAINT users_pkey PRIMARY KEY (id),
     CONSTRAINT "userEmailUnique" UNIQUE (email)
 );

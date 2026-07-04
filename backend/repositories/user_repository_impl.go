@@ -31,3 +31,7 @@ func (repo *UserRepositoryImpl) GetUserByEmailAndPassword(email string, password
 func (repo *UserRepositoryImpl) GetUserIDByUsername(ctx context.Context, username string) (string, error) {
 	return repo.Queries.GetUserIDByUsername(ctx, username)
 }
+
+func (repo *UserRepositoryImpl) GetUserByUsername(ctx context.Context, username string) (db.User, error) {
+	return repo.Queries.GetUserByUsername(ctx, username)
+}
