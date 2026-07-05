@@ -160,6 +160,7 @@ func main() {
 	router.POST("/login", authController.Login)
 
 	router.GET("/users/:username/profile", auth.AuthMiddleware(), userController.GetUserByUsername)
+	router.GET("/users/:username/mutual-friends", auth.AuthMiddleware(), friendController.GetMutualFriends)
 
 	router.POST("/servers", auth.AuthMiddleware(), serverController.CreateServer)
 	router.POST("/servers/:server_id/join", auth.AuthMiddleware(), serverController.JoinServer)

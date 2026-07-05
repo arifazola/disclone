@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"time"
 
+	custom_errors "github.com/arifazola/disclone/backend/errors"
 	"github.com/arifazola/disclone/backend/handlers"
 	"github.com/arifazola/disclone/backend/internal/db"
 	"github.com/arifazola/disclone/backend/models"
@@ -210,4 +211,61 @@ func (c *FriendController) UpdateFriendRequest(context *gin.Context){
 	}
 
 	context.JSON(http.StatusOK, responseModel)
+}
+
+func (controller *FriendController) GetMutualFriends(context *gin.Context){
+	userid, exist := context.Get("userID")
+	username := context.Param("username")
+	if !exist {
+		responseModel := models.ResponseModel[any]{
+			Message: "Unauthorized",
+		}
+
+		context.JSON(http.StatusUnauthorized, responseModel)
+	}
+
+	mutualFriends, err := controller.FriendService.GetMutualFriends(context, userid.(string), username)
+
+	if err != nil {
+		log.Println("error mutual", err)
+
+		if err.Error() == custom_errors.ErrInvalidUsername.Error(){
+			responseModel := models.ResponseModel[[]any]{
+				Message: "Invalid username",
+				Data: []any{},
+			}
+
+			context.JSON(http.StatusBadRequest, responseModel)
+
+			return
+		}
+
+		if errors.Is(err, sql.ErrNoRows){
+			responseModel := models.ResponseModel[[]any]{
+				Message: "No mutual",
+				Data: []any{},
+			}
+
+			context.JSON(http.StatusNoContent, responseModel)
+
+			return
+		}
+
+
+		log.Println("error getting mutual friends", err)
+		responseModel := models.ResponseModel[any]{
+			Message: "Internal server error",
+		}
+
+		context.JSON(http.StatusInternalServerError, responseModel)
+		return
+	}
+
+	responseModel := models.ResponseModel[[]models.FriendModel]{
+		Message: "Success",
+		Data: mutualFriends,
+	}
+
+	context.JSON(http.StatusOK, responseModel)
+
 }

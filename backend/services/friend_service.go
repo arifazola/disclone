@@ -6,6 +6,7 @@ import (
 	"errors"
 	"log"
 
+	custom_errors "github.com/arifazola/disclone/backend/errors"
 	"github.com/arifazola/disclone/backend/factories"
 	"github.com/arifazola/disclone/backend/internal"
 	"github.com/arifazola/disclone/backend/internal/db"
@@ -113,4 +114,39 @@ func (service *FriendService) UpdateFriendRequestStatus(ctx context.Context, arg
 	err := friendRequestHandler.Handle(ctx, arg)
 
 	return err
+}
+
+func (service *FriendService) GetMutualFriends(ctx context.Context, userid, friendUsername string) ([]models.FriendModel, error){
+	friendUserId, err := service.UserRepo.GetUserIDByUsername(ctx, friendUsername)
+	if err != nil {
+		return []models.FriendModel{}, &custom_errors.InvalidUsernameError{
+			Message: "Invalid username",
+			Err: err,
+		}
+	}
+
+	arg := db.GetMutualFriendsParams{
+		Friend: userid,
+		Friend_2: friendUserId,
+	}
+
+	mutuals, err := service.Repo.GetMutualFriends(ctx, arg)
+
+	if err != nil {
+		return []models.FriendModel{}, err
+	}
+
+	var friends []models.FriendModel
+
+	for _, item := range mutuals {
+		friend := models.FriendModel {
+			Username: item.Username,
+			UserID: item.UserID,
+			ProfilePicture: item.ProfilePricture.String,
+		}
+
+		friends = append(friends, friend)
+	}
+	
+	return friends, err
 }

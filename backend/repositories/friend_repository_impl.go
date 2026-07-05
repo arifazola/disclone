@@ -35,3 +35,7 @@ func (repo *FriendRepositoryImpl) UpdateFriendRequestStatus(ctx context.Context,
 func (repo *FriendRepositoryImpl) DeleteFriendRequest(ctx context.Context, arg db.DeleteFriendRequestParams) error{
 	return repo.Queries.DeleteFriendRequest(ctx, arg)
 }
+
+func (repo *FriendRepositoryImpl) GetMutualFriends(ctx context.Context, arg db.GetMutualFriendsParams) ([]db.GetMutualFriendsRow, error){
+	return repo.Queries.GetMutualFriends(ctx, arg)
+}

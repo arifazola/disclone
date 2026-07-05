@@ -1,12 +1,23 @@
 import { IoIosArrowForward } from "react-icons/io";
 import type { UserModel } from "../models/userModel";
 import { unixSecondTimeStampToDate } from "../helpers/timeHelper";
+import type { FriendModel } from "../models/friendModel";
 
 interface RightContentChatProps {
     userData: UserModel | undefined
+    mutualFriends: FriendModel[] | undefined
 }
 
-const RightContentChat = ({ userData }: RightContentChatProps) => {
+const RightContentChat = ({ userData, mutualFriends }: RightContentChatProps) => {
+    const renderMutualFriend = () => {
+        if (mutualFriends === undefined) {
+            return
+        }
+
+        return (
+            <span className='font-semibold text-sm'>Mutual Friends &mdash; {mutualFriends.length}</span>
+        )
+    }
     return (
         <div id='right-content' className='w-[30%] h-full border-r border-t border-slate-300 flex flex-col justify-between gap-5'>
             <div className='flex flex-col gap-5 p-3'>
@@ -27,7 +38,7 @@ const RightContentChat = ({ userData }: RightContentChatProps) => {
                     <div className="h-1 border-t border-slate-300"></div>
 
                     <div className="flex justify-between items-center">
-                        <span className='font-semibold text-sm'>Mutual Friends &mdash; 9</span>
+                        {renderMutualFriend()}
                         <IoIosArrowForward />
                     </div>
                 </div>

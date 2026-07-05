@@ -7,22 +7,27 @@ import { apiGet } from "../handlers/apiHandler";
 import { BASE_URL } from "../consts/const";
 import type { ResponseModel } from "../models/responseModel";
 import type { UserModel } from "../models/userModel";
+import type { FriendModel } from "../models/friendModel";
 
 const FriendChatContent = () => {
     const { username } = useParams()
 
     const { data, isLoading, error } = useQuery({
-        queryKey: ["friendData"],
+        queryKey: ["friendData", "mutualFriendData"],
         queryFn: async () => {
-            const [profile] = await Promise.all(
+            const [profile, mutualFriends] = await Promise.all(
                 [
-                    apiGet(`${BASE_URL}/users/${username}/profile`)
+                    apiGet(`${BASE_URL}/users/${username}/profile`),
+                    apiGet(`${BASE_URL}/users/${username}/mutual-friends`)
                 ]
             )
 
             const profileData = await profile.json() as ResponseModel<UserModel>
+            const mutualFriendData = await mutualFriends.json() as ResponseModel<FriendModel[]>
 
-            return { profileData }
+            console.log("mutual friends", mutualFriendData)
+
+            return { profileData, mutualFriendData }
         }
     })
     return (
@@ -58,7 +63,7 @@ const FriendChatContent = () => {
                             <IoSend />
                         </div>
                     </div>
-                    <RightContentChat userData={data?.profileData.Data} />
+                    <RightContentChat userData={data?.profileData.Data} mutualFriends={data?.mutualFriendData.Data} />
                 </div>
             </div>
         </div>

@@ -1,8 +1,9 @@
 package models
 
 type FriendModel struct {
-	Username string
-	FriendID string
-	Status   int
-	UserID   string
+	Username       string
+	FriendID       string
+	Status         int
+	UserID         string
+	ProfilePicture string
 }

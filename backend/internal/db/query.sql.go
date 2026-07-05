@@ -228,6 +228,49 @@ func (q *Queries) GetFriendRequest(ctx context.Context, friend string) ([]GetFri
 	return items, nil
 }
 
+const getMutualFriends = `-- name: GetMutualFriends :many
+SELECT DISTINCT("friends".user_id), "users".username, "users"."profilePricture"
+	FROM public.friends 
+	INNER JOIN public.users
+	ON "friends".user_id = "users".id
+	WHERE "friends"."status" = 1 AND ("friends".friend = $1 
+	OR "friends".friend = $2) AND ("friends".user_id != $1 AND "friends".user_id != $2)
+`
+
+type GetMutualFriendsParams struct {
+	Friend   string
+	Friend_2 string
+}
+
+type GetMutualFriendsRow struct {
+	UserID          string
+	Username        string
+	ProfilePricture sql.NullString
+}
+
+func (q *Queries) GetMutualFriends(ctx context.Context, arg GetMutualFriendsParams) ([]GetMutualFriendsRow, error) {
+	rows, err := q.db.QueryContext(ctx, getMutualFriends, arg.Friend, arg.Friend_2)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetMutualFriendsRow
+	for rows.Next() {
+		var i GetMutualFriendsRow
+		if err := rows.Scan(&i.UserID, &i.Username, &i.ProfilePricture); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getServerChannels = `-- name: GetServerChannels :many
 SELECT id, "serverId", "channelName", type
 	FROM public.channels WHERE "serverId" = $1

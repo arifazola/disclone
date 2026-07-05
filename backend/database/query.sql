@@ -74,3 +74,11 @@ DELETE FROM public.friends
 
 -- name: GetUserByUsername :one
 SELECT * FROM public.users WHERE username = $1;
+
+-- name: GetMutualFriends :many
+SELECT DISTINCT("friends".user_id), "users".username, "users"."profilePricture"
+	FROM public.friends 
+	INNER JOIN public.users
+	ON "friends".user_id = "users".id
+	WHERE "friends"."status" = 1 AND ("friends".friend = $1 
+	OR "friends".friend = $2) AND ("friends".user_id != $1 AND "friends".user_id != $2);
