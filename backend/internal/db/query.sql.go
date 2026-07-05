@@ -271,6 +271,49 @@ func (q *Queries) GetMutualFriends(ctx context.Context, arg GetMutualFriendsPara
 	return items, nil
 }
 
+const getMutualServers = `-- name: GetMutualServers :many
+SELECT DISTINCT("servers".id), "servers"."name", "servers".picture
+FROM "userServers"
+INNER JOIN "servers"
+ON "servers"."id" = "userServers"."serverId"
+WHERE "userServers"."userId" = $1
+OR "userServers"."userId" = $2
+`
+
+type GetMutualServersParams struct {
+	UserId   string
+	UserId_2 string
+}
+
+type GetMutualServersRow struct {
+	ID      string
+	Name    string
+	Picture sql.NullString
+}
+
+func (q *Queries) GetMutualServers(ctx context.Context, arg GetMutualServersParams) ([]GetMutualServersRow, error) {
+	rows, err := q.db.QueryContext(ctx, getMutualServers, arg.UserId, arg.UserId_2)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetMutualServersRow
+	for rows.Next() {
+		var i GetMutualServersRow
+		if err := rows.Scan(&i.ID, &i.Name, &i.Picture); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getServerChannels = `-- name: GetServerChannels :many
 SELECT id, "serverId", "channelName", type
 	FROM public.channels WHERE "serverId" = $1

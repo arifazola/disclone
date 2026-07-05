@@ -2,12 +2,15 @@ package controllers
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 	"log"
 	"net/http"
 	"time"
 
+	custom_errors "github.com/arifazola/disclone/backend/errors"
 	"github.com/arifazola/disclone/backend/internal/db"
+	"github.com/arifazola/disclone/backend/models"
 	"github.com/arifazola/disclone/backend/services"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -103,4 +106,58 @@ func (c *ServerController) JoinServer(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, gin.H{"message": "joined server"})
+}
+
+func (controller *ServerController) GetMutualServers(context *gin.Context){
+	userid, exist := context.Get("userID")
+	username := context.Param("username")
+	if !exist {
+		responseModel := models.ResponseModel[any]{
+			Message: "Unauthorized",
+		}
+
+		context.JSON(http.StatusUnauthorized, responseModel)
+	}
+
+	mutualServers, err := controller.ServerService.GetMutualServers(context, userid.(string), username)
+
+	if err != nil {
+		if err.Error() == custom_errors.ErrInvalidUsername.Error(){
+			responseModel := models.ResponseModel[any] {
+				Message: "User doesn't exist",
+			}
+
+			context.JSON(http.StatusBadRequest, responseModel)
+
+			return
+		}
+
+		if errors.Is(err, sql.ErrNoRows){
+			responseModel := models.ResponseModel[[]any] {
+				Message: "No mutual servers",
+				Data: []any{},
+			}
+
+			context.JSON(http.StatusNoContent, responseModel)
+
+			return
+		}
+
+		log.Println("Error getting mutual servers", err)
+
+		responseModel := models.ResponseModel[any] {
+			Message: "Internal server error",
+		}
+
+		context.JSON(http.StatusInternalServerError, responseModel)
+
+		return
+	}
+
+	responseModel := models.ResponseModel[[]db.GetMutualServersRow] {
+		Message: "Success",
+		Data: mutualServers,
+	}
+
+	context.JSON(http.StatusOK, responseModel)
 }

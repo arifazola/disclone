@@ -26,3 +26,7 @@ func (repo *UserServerRepositoryImpl) CreateUserServer(userID string, serverID s
 func (repo *UserServerRepositoryImpl) CountUserServerByUserID(ctx context.Context, userServerParam db.CountUserServerByUserIdParams) (int64, error) {
 	return repo.Queries.CountUserServerByUserId(ctx, userServerParam)
 }
+
+func (repo *UserServerRepositoryImpl) GetMutualServers(ctx context.Context, arg db.GetMutualServersParams) ([]db.GetMutualServersRow, error){
+	return repo.Queries.GetMutualServers(ctx, arg)
+}

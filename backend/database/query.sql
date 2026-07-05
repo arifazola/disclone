@@ -82,3 +82,11 @@ SELECT DISTINCT("friends".user_id), "users".username, "users"."profilePricture"
 	ON "friends".user_id = "users".id
 	WHERE "friends"."status" = 1 AND ("friends".friend = $1 
 	OR "friends".friend = $2) AND ("friends".user_id != $1 AND "friends".user_id != $2);
+
+-- name: GetMutualServers :many
+SELECT DISTINCT("servers".id), "servers"."name", "servers".picture
+FROM "userServers"
+INNER JOIN "servers"
+ON "servers"."id" = "userServers"."serverId"
+WHERE "userServers"."userId" = $1
+OR "userServers"."userId" = $2;

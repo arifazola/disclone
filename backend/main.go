@@ -96,6 +96,7 @@ func main() {
 		TransactionManager:   &store,
 		ServerRepository:     &serverRepository,
 		UserServerRepository: &userServerRepository,
+		UserRepository: &userRepository,
 	}
 
 	serverController := controllers.ServerController{
@@ -161,6 +162,7 @@ func main() {
 
 	router.GET("/users/:username/profile", auth.AuthMiddleware(), userController.GetUserByUsername)
 	router.GET("/users/:username/mutual-friends", auth.AuthMiddleware(), friendController.GetMutualFriends)
+	router.GET("/users/:username/mutual-servers", auth.AuthMiddleware(), serverController.GetMutualServers)
 
 	router.POST("/servers", auth.AuthMiddleware(), serverController.CreateServer)
 	router.POST("/servers/:server_id/join", auth.AuthMiddleware(), serverController.JoinServer)

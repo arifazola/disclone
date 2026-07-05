@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 
+	custom_errors "github.com/arifazola/disclone/backend/errors"
 	"github.com/arifazola/disclone/backend/internal"
 	"github.com/arifazola/disclone/backend/internal/db"
 	"github.com/arifazola/disclone/backend/repositories"
@@ -12,8 +13,7 @@ import (
 type ServerService struct {
 	ServerRepository     repositories.ServerRepository
 	UserServerRepository repositories.UserServerRepository
-	// UserServerRepository repositories.UserServerRepository
-	// SQLDB                *sql.DB
+	UserRepository repositories.UserRepository
 	TransactionManager internal.TransactionManager
 }
 
@@ -57,4 +57,27 @@ func (s *ServerService) GetServerChannels(context context.Context, serverid, use
 
 func (service *ServerService) JoinServer(userid, serverid string, context context.Context) error {
 	return service.UserServerRepository.CreateUserServer(userid, serverid, context)
+}
+
+func (service *ServerService) GetMutualServers(ctx context.Context, userid, friendUsername string) ([]db.GetMutualServersRow, error){
+	friendUserId, err := service.UserRepository.GetUserIDByUsername(ctx, friendUsername)
+	if err != nil {
+		return []db.GetMutualServersRow{}, &custom_errors.InvalidUsernameError{
+			Message: "Invalid username",
+			Err: err,
+		}
+	}
+
+	arg := db.GetMutualServersParams{
+		UserId: userid,
+		UserId_2: friendUserId,
+	}
+
+	mutualServers, err := service.UserServerRepository.GetMutualServers(ctx, arg)
+
+	if err != nil {
+		return []db.GetMutualServersRow{}, err
+	}
+
+	return mutualServers, err
 }

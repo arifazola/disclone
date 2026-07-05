@@ -2,13 +2,15 @@ import { IoIosArrowForward } from "react-icons/io";
 import type { UserModel } from "../models/userModel";
 import { unixSecondTimeStampToDate } from "../helpers/timeHelper";
 import type { FriendModel } from "../models/friendModel";
+import type { ServerModel } from "../models/serverModel";
 
 interface RightContentChatProps {
     userData: UserModel | undefined
     mutualFriends: FriendModel[] | undefined
+    mutualServers: ServerModel[] | undefined
 }
 
-const RightContentChat = ({ userData, mutualFriends }: RightContentChatProps) => {
+const RightContentChat = ({ userData, mutualFriends, mutualServers }: RightContentChatProps) => {
     const renderMutualFriend = () => {
         if (mutualFriends === undefined) {
             return
@@ -16,6 +18,16 @@ const RightContentChat = ({ userData, mutualFriends }: RightContentChatProps) =>
 
         return (
             <span className='font-semibold text-sm'>Mutual Friends &mdash; {mutualFriends.length}</span>
+        )
+    }
+
+    const renderMutualServer = () => {
+        if (mutualServers === undefined) {
+            return
+        }
+
+        return (
+            <span className='font-semibold text-sm'>Mutual Servers &mdash; {mutualServers.length}</span>
         )
     }
     return (
@@ -31,7 +43,7 @@ const RightContentChat = ({ userData, mutualFriends }: RightContentChatProps) =>
 
                 <div className='flex flex-col gap-3 border border-slate-300 p-3 rounded-lg'>
                     <div className="flex justify-between items-center">
-                        <span className='font-semibold text-sm'>Mutual Servers &mdash; 9</span>
+                        {renderMutualServer()}
                         <IoIosArrowForward />
                     </div>
 
