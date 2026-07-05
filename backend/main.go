@@ -151,6 +151,25 @@ func main() {
 		UserService: &userService,
 	}
 
+	chatParticipantRepo := repositories.ChatParticipantRepositoryImpl{
+		Queries: queries,
+	}
+
+	chatRepo := repositories.ChatRepositoryImpl{
+		Queries: queries,
+	}
+	
+
+	chatService := services.ChatService{
+		ChatParticipantRepo: &chatParticipantRepo,
+		UserRepo: &userRepository,
+		ChatRepo: &chatRepo,
+	}
+
+	chatController := controllers.ChatController{
+		ChatService: &chatService,
+	}
+
 	router.GET("/test", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
 			"message": "Hello, World!",
@@ -180,6 +199,9 @@ func main() {
 	router.GET("/friends/received", auth.AuthMiddleware(), friendController.GetFriendRequest)
 	router.POST("/friends/update", auth.AuthMiddleware(), friendController.UpdateFriendRequest)
 
+	router.GET("/chats/:username/id", auth.AuthMiddleware(), chatController.GetChatIDFromParticipants)
+	router.POST("/chats", auth.AuthMiddleware(), chatController.AddMessage)
+
 	router.GET("/stream/:user_id", func(c *gin.Context) {
 		fmt.Println("SSE connected")
 
@@ -197,7 +219,6 @@ func main() {
 		hub.Add(client)
 		defer hub.Remove(client.ID)
 
-		// 2. Start the infinite loop event stream
 		c.Stream(func(w io.Writer) bool {
 			select{
 			case <- c.Request.Context().Done():

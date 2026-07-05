@@ -12,8 +12,10 @@ interface RightContentChatProps {
 
 const RightContentChat = ({ userData, mutualFriends, mutualServers }: RightContentChatProps) => {
     const renderMutualFriend = () => {
-        if (mutualFriends === undefined) {
-            return
+        if (mutualFriends === undefined || mutualFriends === null) {
+            return (
+                <span className='font-semibold text-sm'>Mutual Friends &mdash; 0</span>
+            )
         }
 
         return (
@@ -22,8 +24,10 @@ const RightContentChat = ({ userData, mutualFriends, mutualServers }: RightConte
     }
 
     const renderMutualServer = () => {
-        if (mutualServers === undefined) {
-            return
+        if (mutualServers === undefined || mutualServers === null) {
+            return (
+                <span className='font-semibold text-sm'>Mutual Servers &mdash; 0</span>
+            )
         }
 
         return (

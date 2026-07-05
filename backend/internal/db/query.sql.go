@@ -29,6 +29,31 @@ func (q *Queries) AddFriend(ctx context.Context, arg AddFriendParams) error {
 	return err
 }
 
+const addMessage = `-- name: AddMessage :exec
+INSERT INTO public.messages(
+	id, chat_id, sender, message, "timestamp")
+	VALUES ($1, $2, $3, $4, $5)
+`
+
+type AddMessageParams struct {
+	ID        string
+	ChatID    string
+	Sender    string
+	Message   string
+	Timestamp int64
+}
+
+func (q *Queries) AddMessage(ctx context.Context, arg AddMessageParams) error {
+	_, err := q.db.ExecContext(ctx, addMessage,
+		arg.ID,
+		arg.ChatID,
+		arg.Sender,
+		arg.Message,
+		arg.Timestamp,
+	)
+	return err
+}
+
 const addUserToServer = `-- name: AddUserToServer :exec
 INSERT INTO public."userServers"(
 	"userId", "serverId")
@@ -144,6 +169,35 @@ type DeleteFriendRequestParams struct {
 func (q *Queries) DeleteFriendRequest(ctx context.Context, arg DeleteFriendRequestParams) error {
 	_, err := q.db.ExecContext(ctx, deleteFriendRequest, arg.UserID, arg.Friend)
 	return err
+}
+
+const getChatIDFromOneParticipant = `-- name: GetChatIDFromOneParticipant :one
+SELECT DISTINCT(chat_id) FROM public."chatParticipants" 
+WHERE participants = $1
+`
+
+func (q *Queries) GetChatIDFromOneParticipant(ctx context.Context, participants string) (string, error) {
+	row := q.db.QueryRowContext(ctx, getChatIDFromOneParticipant, participants)
+	var chat_id string
+	err := row.Scan(&chat_id)
+	return chat_id, err
+}
+
+const getChatIDFromParticipants = `-- name: GetChatIDFromParticipants :one
+SELECT DISTINCT(chat_id) FROM public."chatParticipants" 
+WHERE participants = $1 OR participants = $2
+`
+
+type GetChatIDFromParticipantsParams struct {
+	Participants   string
+	Participants_2 string
+}
+
+func (q *Queries) GetChatIDFromParticipants(ctx context.Context, arg GetChatIDFromParticipantsParams) (string, error) {
+	row := q.db.QueryRowContext(ctx, getChatIDFromParticipants, arg.Participants, arg.Participants_2)
+	var chat_id string
+	err := row.Scan(&chat_id)
+	return chat_id, err
 }
 
 const getFriendList = `-- name: GetFriendList :many

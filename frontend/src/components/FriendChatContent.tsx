@@ -2,37 +2,75 @@ import { IoSend } from "react-icons/io5";
 import RightContent from './RightContent'
 import RightContentChat from "./RightContentChat";
 import { useParams } from "react-router";
-import { useQuery } from "@tanstack/react-query";
-import { apiGet } from "../handlers/apiHandler";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { apiGet, apiPost, type ApiPostParam } from "../handlers/apiHandler";
 import { BASE_URL } from "../consts/const";
 import type { ResponseModel } from "../models/responseModel";
 import type { UserModel } from "../models/userModel";
 import type { FriendModel } from "../models/friendModel";
 import type { ServerModel } from "../models/serverModel";
+import { useRef, useState } from "react";
 
 const FriendChatContent = () => {
     const { username } = useParams()
+    const chatIDRef = useRef("")
+    const userid = window.localStorage.getItem("userid")
+    const [message, setMessage] = useState("")
 
     const { data, isLoading, error } = useQuery({
         queryKey: ["friendData"],
         queryFn: async () => {
-            const [profile, mutualFriends, mutualServers] = await Promise.all(
+            const [profile, mutualFriends, mutualServers, chatID] = await Promise.all(
                 [
                     apiGet(`${BASE_URL}/users/${username}/profile`),
                     apiGet(`${BASE_URL}/users/${username}/mutual-friends`),
-                    apiGet(`${BASE_URL}/users/${username}/mutual-servers`)
+                    apiGet(`${BASE_URL}/users/${username}/mutual-servers`),
+                    apiGet(`${BASE_URL}/chats/${username}/id`),
                 ]
             )
 
             const profileData = await profile.json() as ResponseModel<UserModel>
             const mutualFriendData = await mutualFriends.json() as ResponseModel<FriendModel[]>
             const mutualServersData = await mutualServers.json() as ResponseModel<ServerModel[]>
+            const chatIDData = await chatID.json() as ResponseModel<string>
 
             console.log("mutual servers", mutualServersData)
 
-            return { profileData, mutualFriendData, mutualServersData }
+            chatIDRef.current = chatIDData.Data
+
+            return { profileData, mutualFriendData, mutualServersData, chatIDData }
         }
     })
+
+    const { mutate } = useMutation({
+        mutationKey: ["messages"],
+        mutationFn: apiPost,
+        onSuccess: (data) => {
+            console.log("message sent", data)
+        },
+        onError: (error) => {
+            console.log("error sending message", error)
+        }
+    })
+
+    const handleSendMessage = () => {
+        const formData = new FormData()
+        if (username === undefined) {
+            return
+        }
+
+
+        formData.append("username", username)
+        formData.append("chatID", chatIDRef.current)
+        formData.append("message", message)
+
+        const param: ApiPostParam = {
+            formData: formData,
+            url: `${BASE_URL}/chats`
+        }
+
+        mutate(param)
+    }
 
     return (
         <div id='content' className='w-3/4 h-[calc(100vh-40px)] bg-slate-100 flex flex-col'>
@@ -61,14 +99,14 @@ const FriendChatContent = () => {
 
                             <div className='h-1 border-t w-full border-slate-300'></div>
 
-                            {[...Array(20)].map((item, index) => (
+                            {/* {[...Array(20)].map((item, index) => (
                                 <span>{index}</span>
-                            ))}
+                            ))} */}
                         </div>
 
                         <div className='h-16 bg-slate-100 border border-slate-300 rounded-lg shadow-lg p-3 flex items-center'>
-                            <input placeholder={`Message ${username}`} className='w-full h-full outline-0' />
-                            <IoSend />
+                            <input placeholder={`Message ${username}`} className='w-full h-full outline-0' onChange={(e) => setMessage(e.target.value)} />
+                            <IoSend onClick={handleSendMessage} />
                         </div>
                     </div>
                     <RightContentChat

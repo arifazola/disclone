@@ -100,4 +100,22 @@ CREATE TABLE IF NOT EXISTS public."chatParticipants"
         REFERENCES public.users (id) MATCH SIMPLE
         ON UPDATE NO ACTION
         ON DELETE NO ACTION
-)
+);
+
+CREATE TABLE IF NOT EXISTS public.messages
+(
+    id text COLLATE pg_catalog."default" NOT NULL,
+    chat_id text COLLATE pg_catalog."default" NOT NULL,
+    sender text COLLATE pg_catalog."default" NOT NULL,
+    message text COLLATE pg_catalog."default" NOT NULL,
+    "timestamp" bigint NOT NULL,
+    CONSTRAINT messages_pkey PRIMARY KEY (id),
+    CONSTRAINT messages_chat_id_fk FOREIGN KEY (chat_id)
+        REFERENCES public.chats (id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION,
+    CONSTRAINT messages_sender_fk FOREIGN KEY (sender)
+        REFERENCES public.users (id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION
+);

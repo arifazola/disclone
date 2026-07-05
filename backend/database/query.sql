@@ -100,3 +100,16 @@ INSERT INTO public.chats(
 INSERT INTO public."chatParticipants"(
 	chat_id, participants)
 	VALUES ($1, $2), ($1, $3);
+
+-- name: GetChatIDFromParticipants :one
+SELECT DISTINCT(chat_id) FROM public."chatParticipants" 
+WHERE participants = $1 OR participants = $2;
+
+-- name: AddMessage :exec
+INSERT INTO public.messages(
+	id, chat_id, sender, message, "timestamp")
+	VALUES ($1, $2, $3, $4, $5);
+
+-- name: GetChatIDFromOneParticipant :one
+SELECT DISTINCT(chat_id) FROM public."chatParticipants" 
+WHERE participants = $1;

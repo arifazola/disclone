@@ -32,6 +32,14 @@ type Friend struct {
 	Status int16
 }
 
+type Message struct {
+	ID        string
+	ChatID    string
+	Sender    string
+	Message   string
+	Timestamp int64
+}
+
 type RefreshToken struct {
 	ID        uuid.UUID
 	UserId    string
