@@ -430,6 +430,34 @@ func (q *Queries) GetUserJoinedServers(ctx context.Context, userid string) ([]Ge
 	return items, nil
 }
 
+const initChat = `-- name: InitChat :exec
+INSERT INTO public.chats(
+	id)
+	VALUES ($1)
+`
+
+func (q *Queries) InitChat(ctx context.Context, id string) error {
+	_, err := q.db.ExecContext(ctx, initChat, id)
+	return err
+}
+
+const initChatParticipants = `-- name: InitChatParticipants :exec
+INSERT INTO public."chatParticipants"(
+	chat_id, participants)
+	VALUES ($1, $2), ($1, $3)
+`
+
+type InitChatParticipantsParams struct {
+	ChatID         string
+	Participants   string
+	Participants_2 string
+}
+
+func (q *Queries) InitChatParticipants(ctx context.Context, arg InitChatParticipantsParams) error {
+	_, err := q.db.ExecContext(ctx, initChatParticipants, arg.ChatID, arg.Participants, arg.Participants_2)
+	return err
+}
+
 const insertRefreshToken = `-- name: InsertRefreshToken :exec
 INSERT INTO public."refreshTokens"(
 	id, "userId", "createdAt", "expiresAt", token)

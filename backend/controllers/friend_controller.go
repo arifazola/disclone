@@ -183,6 +183,7 @@ func (c *FriendController) UpdateFriendRequest(context *gin.Context){
 	err := c.FriendService.UpdateFriendRequestStatus(context, arg)
 
 	if err != nil {
+		log.Println("error accepting friend request", err)
 		responseModel := models.ResponseModel[any]{
 			Message: "Something went wrong",
 			Data: nil,

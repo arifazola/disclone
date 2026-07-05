@@ -80,3 +80,24 @@ CREATE TABLE IF NOT EXISTS public.friends
         ON UPDATE NO ACTION
         ON DELETE NO ACTION
 );
+
+CREATE TABLE IF NOT EXISTS public.chats
+(
+    id text COLLATE pg_catalog."default" NOT NULL,
+    CONSTRAINT chats_pkey PRIMARY KEY (id)
+);
+
+CREATE TABLE IF NOT EXISTS public."chatParticipants"
+(
+    chat_id text COLLATE pg_catalog."default" NOT NULL,
+    participants text COLLATE pg_catalog."default" NOT NULL,
+    CONSTRAINT "chatParticipants_chat_id_fk" FOREIGN KEY (chat_id)
+        REFERENCES public.chats (id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION
+        NOT VALID,
+    CONSTRAINT "chatParticipants_participant_fk" FOREIGN KEY (participants)
+        REFERENCES public.users (id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION
+)

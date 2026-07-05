@@ -90,3 +90,13 @@ INNER JOIN "servers"
 ON "servers"."id" = "userServers"."serverId"
 WHERE "userServers"."userId" = $1
 OR "userServers"."userId" = $2;
+
+-- name: InitChat :exec 
+INSERT INTO public.chats(
+	id)
+	VALUES ($1);
+
+-- name: InitChatParticipants :exec
+INSERT INTO public."chatParticipants"(
+	chat_id, participants)
+	VALUES ($1, $2), ($1, $3);

@@ -3,10 +3,12 @@ package handlers
 import (
 	"context"
 	"fmt"
+	"log"
 
 	"github.com/arifazola/disclone/backend/internal"
 	"github.com/arifazola/disclone/backend/internal/db"
 	"github.com/arifazola/disclone/backend/repositories"
+	"github.com/google/uuid"
 )
 
 type AcceptFriendRequest struct {
@@ -20,9 +22,32 @@ func (handler *AcceptFriendRequest) Handle(ctx context.Context, arg db.UpdateFri
 		// err := tr.ServerRepo.CreateServer(server, context)
 		// err := tr.FriendRepository.UpdateFriendRequestStatus(ctx, arg)
 
-		err := handler.FriendRepository.UpdateFriendRequestStatus(ctx, arg)
+		err := tr.FriendRepository.UpdateFriendRequestStatus(ctx, arg)
 
 		if err != nil {
+			log.Println("Error updating friend status", err)
+			return err
+		}
+
+		id := uuid.New().String()
+
+		err = tr.ChatRepository.InitChat(ctx, id)
+
+		if err != nil {
+			log.Println("Error creating init chat", err)
+			return err
+		}
+
+		chatParticipantArg := db.InitChatParticipantsParams{
+			ChatID: id,
+			Participants: arg.UserID,
+			Participants_2: arg.Friend,
+		}
+
+		err = tr.ChatParticipantRepository.InitChatParticipants(ctx, chatParticipantArg)
+
+		if err != nil {
+			log.Println("Error initiating chat participants", err)
 			return err
 		}
 		
@@ -31,6 +56,7 @@ func (handler *AcceptFriendRequest) Handle(ctx context.Context, arg db.UpdateFri
 			Friend: arg.UserID,
 			Status: int16(1),
 		}
+
 		return tr.FriendRepository.AddFriend(ctx, friendModel)
 	})
 	

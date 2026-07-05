@@ -30,6 +30,8 @@ func (s *Store) ExecTx(
 		ServerRepo:     repositories.NewServerRepository(qtx),
 		UserServerRepo: repositories.NewUserServerRepository(qtx),
 		FriendRepository: repositories.NewFriendRepository(qtx),
+		ChatRepository: repositories.NewChatRepository(qtx),
+		ChatParticipantRepository: repositories.NewChatParticipantRepository(qtx),
 	}
 
 	if err := fn(repos); err != nil {
