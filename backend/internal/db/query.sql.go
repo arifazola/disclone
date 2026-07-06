@@ -282,6 +282,40 @@ func (q *Queries) GetFriendRequest(ctx context.Context, friend string) ([]GetFri
 	return items, nil
 }
 
+const getMessages = `-- name: GetMessages :many
+SELECT id, chat_id, sender, message, timestamp FROM public.messages WHERE chat_id = $1
+ORDER BY timestamp ASC
+`
+
+func (q *Queries) GetMessages(ctx context.Context, chatID string) ([]Message, error) {
+	rows, err := q.db.QueryContext(ctx, getMessages, chatID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Message
+	for rows.Next() {
+		var i Message
+		if err := rows.Scan(
+			&i.ID,
+			&i.ChatID,
+			&i.Sender,
+			&i.Message,
+			&i.Timestamp,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getMutualFriends = `-- name: GetMutualFriends :many
 SELECT DISTINCT("friends".user_id), "users".username, "users"."profilePricture"
 	FROM public.friends 
@@ -563,4 +597,21 @@ type UpdateFriendRequestStatusParams struct {
 func (q *Queries) UpdateFriendRequestStatus(ctx context.Context, arg UpdateFriendRequestStatusParams) error {
 	_, err := q.db.ExecContext(ctx, updateFriendRequestStatus, arg.Status, arg.UserID, arg.Friend)
 	return err
+}
+
+const validateChatAccess = `-- name: ValidateChatAccess :one
+SELECT chat_id, participants FROM public."chatParticipants"
+WHERE chat_id = $1 AND participants = $2
+`
+
+type ValidateChatAccessParams struct {
+	ChatID       string
+	Participants string
+}
+
+func (q *Queries) ValidateChatAccess(ctx context.Context, arg ValidateChatAccessParams) (ChatParticipant, error) {
+	row := q.db.QueryRowContext(ctx, validateChatAccess, arg.ChatID, arg.Participants)
+	var i ChatParticipant
+	err := row.Scan(&i.ChatID, &i.Participants)
+	return i, err
 }

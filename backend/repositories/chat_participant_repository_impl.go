@@ -27,3 +27,7 @@ func (repo *ChatParticipantRepositoryImpl) GetChatIDFromParticipants(ctx context
 func (repo *ChatParticipantRepositoryImpl) GetChatIDFromOneParticipant(ctx context.Context, participants string) (string, error) {
 	return repo.Queries.GetChatIDFromOneParticipant(ctx, participants)
 }
+
+func (repo *ChatParticipantRepositoryImpl) ValidateChatAccess(ctx context.Context, arg db.ValidateChatAccessParams) (db.ChatParticipant, error){
+	return repo.Queries.ValidateChatAccess(ctx, arg)
+}

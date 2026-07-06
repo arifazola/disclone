@@ -113,3 +113,11 @@ INSERT INTO public.messages(
 -- name: GetChatIDFromOneParticipant :one
 SELECT DISTINCT(chat_id) FROM public."chatParticipants" 
 WHERE participants = $1;
+
+-- name: GetMessages :many
+SELECT * FROM public.messages WHERE chat_id = $1
+ORDER BY timestamp ASC;
+
+-- name: ValidateChatAccess :one
+SELECT * FROM public."chatParticipants"
+WHERE chat_id = $1 AND participants = $2;

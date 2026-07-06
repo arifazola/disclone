@@ -15,6 +15,7 @@ type ChatService struct {
 	ChatParticipantRepo repositories.ChatParticipantRepository
 	UserRepo repositories.UserRepository
 	ChatRepo repositories.ChatRepository
+	MessageRepo repositories.MessageRepository
 }
 
 func (service *ChatService) GetChatIDFromParticipants(ctx context.Context, userid, friendUsername string) (string, error) {
@@ -80,4 +81,30 @@ func (service *ChatService) AddMessage(ctx context.Context, arg db.AddMessagePar
 	}
 
 	return service.ChatRepo.AddMessage(ctx, arg)
+}
+
+func (service *ChatService) GetMessages(ctx context.Context, userID, chatID string) ([]db.Message, error) {
+	validateChatAccessParam := db.ValidateChatAccessParams{
+		ChatID: chatID,
+		Participants: userID,
+	}
+	_, err := service.ChatParticipantRepo.ValidateChatAccess(ctx, validateChatAccessParam)
+
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows){
+			return []db.Message{}, &custom_errors.UnauthorizedChatAccessError{
+				Message: "Unauthorized",
+			}
+		}
+
+		return []db.Message{}, err 
+	}
+
+	messages, err := service.MessageRepo.GetMessages(ctx, chatID)
+
+	if err != nil {
+		return []db.Message{}, err
+	}
+
+	return messages, nil
 }

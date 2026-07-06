@@ -158,12 +158,17 @@ func main() {
 	chatRepo := repositories.ChatRepositoryImpl{
 		Queries: queries,
 	}
+
+	messageRepo := repositories.MessageRepositoryImpl{
+		Queries: queries,
+	}
 	
 
 	chatService := services.ChatService{
 		ChatParticipantRepo: &chatParticipantRepo,
 		UserRepo: &userRepository,
 		ChatRepo: &chatRepo,
+		MessageRepo: &messageRepo,
 	}
 
 	chatController := controllers.ChatController{
@@ -199,8 +204,32 @@ func main() {
 	router.GET("/friends/received", auth.AuthMiddleware(), friendController.GetFriendRequest)
 	router.POST("/friends/update", auth.AuthMiddleware(), friendController.UpdateFriendRequest)
 
-	router.GET("/chats/:username/id", auth.AuthMiddleware(), chatController.GetChatIDFromParticipants)
+	// router.GET("/chats/:username/id", auth.AuthMiddleware(), chatController.GetChatIDFromParticipants)
+	// router.GET("/chats/:chat_id/messages", auth.AuthMiddleware(), chatController.GetMessages)
+	
+	router.GET("chats/:param/*action", auth.AuthMiddleware(), func(c *gin.Context) {
+		action := c.Param("action")
+		param := c.Param("param")
+
+		switch action {
+		case "/id":
+			c.Params = gin.Params{
+				{Key: "username", Value: param},
+			}
+			chatController.GetChatIDFromParticipants(c)
+			
+		case "/messages":
+			c.Params = gin.Params{
+				{Key: "chat_id", Value: param},
+			}
+			chatController.GetMessages(c)
+			
+		default:
+			c.JSON(404, gin.H{"error": "Page not found"})
+		}
+	})
 	router.POST("/chats", auth.AuthMiddleware(), chatController.AddMessage)
+	
 
 	router.GET("/stream/:user_id", func(c *gin.Context) {
 		fmt.Println("SSE connected")

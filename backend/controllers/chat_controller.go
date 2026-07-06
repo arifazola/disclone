@@ -127,3 +127,59 @@ func (controller *ChatController) AddMessage(context *gin.Context) {
 
 	context.JSON(http.StatusOK, responseModel)
 }
+
+func (controller *ChatController) GetMessages(context *gin.Context){
+	userid, exist := context.Get("userID")
+	chatID := context.Param("chat_id")
+
+	if !exist {
+		responseModel := models.ResponseModel[any]{
+			Message: "Unauthorized",
+		}
+
+		context.JSON(http.StatusUnauthorized, responseModel)
+
+		return
+	}
+
+	messages, err := controller.ChatService.GetMessages(context, userid.(string), chatID)
+
+	if err != nil {
+		if err.Error() == custom_errors.ErrUnauthorizedChatAccess.Error(){
+				responseModel := models.ResponseModel[any]{
+				Message: "Unauthorized",
+			}
+
+			context.JSON(http.StatusUnauthorized, responseModel)
+
+			return
+		}
+
+		if errors.Is(err, sql.ErrNoRows){
+			responseModel := models.ResponseModel[[]any]{
+				Message: "No messages",
+				Data: []any{},
+			}
+
+			context.JSON(http.StatusNoContent, responseModel)
+
+			return
+		}
+
+		log.Println("Error getting messages for id ", chatID, ": ", err)
+		responseModel := models.ResponseModel[any]{
+			Message: "Internal server error",
+		}
+
+		context.JSON(http.StatusInternalServerError, responseModel)
+
+		return
+	}
+
+	responseModel := models.ResponseModel[[]db.Message]{
+		Message: "Success",
+		Data: messages,
+	}
+
+	context.JSON(http.StatusOK, responseModel)
+}

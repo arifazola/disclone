@@ -10,4 +10,5 @@ type ChatParticipantRepository interface {
 	InitChatParticipants(ctx context.Context, arg db.InitChatParticipantsParams) error
 	GetChatIDFromParticipants(ctx context.Context, arg db.GetChatIDFromParticipantsParams) (string, error)
 	GetChatIDFromOneParticipant(ctx context.Context, participants string) (string, error)
+	ValidateChatAccess(ctx context.Context, arg db.ValidateChatAccessParams) (db.ChatParticipant, error)
 }

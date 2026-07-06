@@ -10,6 +10,7 @@ import type { UserModel } from "../models/userModel";
 import type { FriendModel } from "../models/friendModel";
 import type { ServerModel } from "../models/serverModel";
 import { useRef, useState } from "react";
+import MessagesComponent from "./MessagesComponent";
 
 const FriendChatContent = () => {
     const { username } = useParams()
@@ -17,7 +18,7 @@ const FriendChatContent = () => {
     const userid = window.localStorage.getItem("userid")
     const [message, setMessage] = useState("")
 
-    const { data, isLoading, error } = useQuery({
+    const { data, isLoading, isFetched, error } = useQuery({
         queryKey: ["friendData"],
         queryFn: async () => {
             const [profile, mutualFriends, mutualServers, chatID] = await Promise.all(
@@ -102,6 +103,10 @@ const FriendChatContent = () => {
                             {/* {[...Array(20)].map((item, index) => (
                                 <span>{index}</span>
                             ))} */}
+                            {isFetched && (
+                                <MessagesComponent chatID={chatIDRef.current} />
+                            )}
+
                         </div>
 
                         <div className='h-16 bg-slate-100 border border-slate-300 rounded-lg shadow-lg p-3 flex items-center'>
