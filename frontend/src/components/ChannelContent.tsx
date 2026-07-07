@@ -40,7 +40,7 @@ const ChannelContent = ({ channelID }: ChannelContentProps) => {
             console.log("local stream is not ready")
             return
         }
-        const ws = new WebSocket(`${BASE_WS}/ws/${channelID}/${userid}`)
+        const ws = new WebSocket(`${BASE_WS}/ws/call/${channelID}/${userid}`)
 
         ws.onopen = (event) => {
             ws.onmessage = async (event) => {

@@ -3,10 +3,16 @@ package controllers
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
+	"slices"
+	"time"
 
+	"github.com/arifazola/disclone/backend/internal/db"
 	"github.com/arifazola/disclone/backend/models"
+	"github.com/arifazola/disclone/backend/services"
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
 )
 
@@ -23,7 +29,14 @@ var clients = make(map[string]*models.WebsocketClientModel)
 
 var userMap = make(map[string]*models.Clients)
 
-func HandleWebSocket(c *gin.Context) {
+var chatClients = make(map[string][]*websocket.Conn)
+
+
+type WebsocketController struct {
+	ChatService *services.ChatService
+}
+
+func(controller *WebsocketController) HandleWebSocketCall(c *gin.Context) {
 	channelID := c.Param("channel_id")
 	userID := c.Param("user_id")
 
@@ -223,4 +236,110 @@ func HandleWebSocket(c *gin.Context) {
 			}
 		}
 	}
+}
+
+func(controller *WebsocketController) HandleWebSocketChat(c *gin.Context) {
+	chatID := c.Param("chat_id")
+	friendUsername := c.Param("username")
+
+	fmt.Println("websocket channel ID", chatID)
+	conn, err := wsupgrader.Upgrade(c.Writer, c.Request, nil)
+	existingClient := chatClients[chatID]
+
+	if existingClient == nil {
+		fmt.Println("No existing client")
+		newClient := []*websocket.Conn{conn}
+		
+		chatClients[chatID] = newClient
+	} else {
+		fmt.Println("has existing client")
+		existingClient = append(existingClient, conn)
+
+		chatClients[chatID] = existingClient
+	}
+
+	if err != nil {
+		fmt.Println("Failed to upgrade connection to websocket:", err)
+		return
+	}
+
+	fmt.Println("Upper chat clients", len(chatClients[chatID]))
+	defer closeConnection(conn, chatID)
+
+	err = conn.WriteMessage(websocket.TextMessage, []byte("connected")) 
+
+	if err != nil {
+		fmt.Println("Failed to write message to:", chatID , err)
+		return
+	}
+
+	for {
+		messageType, p, err := conn.ReadMessage()
+		if err != nil {
+			fmt.Println("Failed to read message:", err)
+			break
+		}
+
+
+		var websocketChatModel models.WebsocketChatModel
+
+		err = json.Unmarshal(p, &websocketChatModel)
+
+		if err != nil {
+			fmt.Println("Failed to read message:", err)
+			break
+		}
+
+		fmt.Println("websocket message received from", websocketChatModel.UserID, ": ", websocketChatModel.Message)
+
+		fmt.Println("chat client", len(chatClients[chatID]))
+
+		id := uuid.New().String()
+		addMessageParam := db.AddMessageParams{
+			ChatID: chatID,
+			ID: id,
+			Sender: websocketChatModel.UserID,
+			Message: websocketChatModel.Message,
+			Timestamp: time.Now().Unix(),
+
+		}
+
+		err = controller.ChatService.AddMessage(c, addMessageParam, friendUsername)
+
+		if err != nil {
+			fmt.Println("failed to save message", err)
+			conn.WriteMessage(messageType, []byte("FAILED"))
+			break
+		}
+
+		for _, client := range chatClients[chatID] {
+			if(conn != client){
+				stringifyMessage, err := json.Marshal(websocketChatModel)
+				
+				if err == nil {
+					log.Println("Failed to stringify websocket chat data", err)
+				}
+				err = client.WriteMessage(messageType, stringifyMessage)
+
+				if err != nil {
+					fmt.Println("Failed to write message to:", chatID, err)
+					break
+				}
+			}
+		}
+	}
+}
+
+func closeConnection(conn *websocket.Conn, chatID string){
+	existing := chatClients[chatID]
+	fmt.Println("connection closed")
+	existing = slices.DeleteFunc(existing, func(client *websocket.Conn) bool {
+		return client == conn
+	})
+
+	fmt.Println("len after close", len(clients))
+
+	chatClients[chatID] = existing
+
+	conn.Close()
 }

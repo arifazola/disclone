@@ -1,17 +1,22 @@
-import { useQuery } from '@tanstack/react-query'
-import React from 'react'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
+import React, { useEffect, useRef } from 'react'
 import { apiGet } from '../handlers/apiHandler'
-import { BASE_URL } from '../consts/const'
+import { BASE_URL, BASE_WS } from '../consts/const'
 import type { ResponseModel } from '../models/responseModel'
 import type { MessageModel } from '../models/messageModel'
 import Tooltip from './Tooltip'
+import type { WebsocketChatModel } from '../models/websocketChatModel'
+import { updateMessageDataQuery } from '../helpers/queryClientHelper'
 
 interface MessagesComponentProps {
     chatID: string
+    websocket: React.RefObject<WebSocket | null>
+    messageContainerRef: React.RefObject<HTMLDivElement | null>
 }
 
-const MessagesComponent = ({ chatID }: MessagesComponentProps) => {
-    const { data, error } = useQuery({
+const MessagesComponent = ({ chatID, websocket, messageContainerRef }: MessagesComponentProps) => {
+    const queryClient = useQueryClient()
+    const { data, error, isFetched } = useQuery({
         queryKey: ["messages"],
         queryFn: async () => {
             const messages = await apiGet(`${BASE_URL}/chats/${chatID}/messages`)
@@ -25,6 +30,41 @@ const MessagesComponent = ({ chatID }: MessagesComponentProps) => {
             return res
         }
     })
+
+    useEffect(() => {
+        if (websocket.current === null) {
+            console.log("websocket is null")
+            return
+        }
+
+        websocket.current.onmessage = (event) => {
+            console.log("ws message", event.data)
+
+            const parsedMessage = JSON.parse(event.data) as WebsocketChatModel
+
+            const newMessageModel: MessageModel = {
+                ID: "",
+                ChatID: parsedMessage.chatid,
+                Message: parsedMessage.message,
+                Sender: parsedMessage.userid,
+                Timestamp: 1234
+            }
+
+            updateMessageDataQuery(queryClient, newMessageModel)
+        }
+    }, [])
+
+    useEffect(() => {
+        if (!isFetched) {
+            return
+        }
+
+        if (messageContainerRef.current !== null) {
+            console.log("should scrool")
+            messageContainerRef.current.scrollTop = messageContainerRef.current?.scrollHeight
+        }
+    }, [isFetched])
+
 
     const renderOutgoingMessage = (message: string, messageID: string) => {
         return (
@@ -69,9 +109,6 @@ const MessagesComponent = ({ chatID }: MessagesComponentProps) => {
             return
         }
 
-        console.log("userid", userid)
-        console.log("sender", sender)
-
         if (sender === userid) {
             return renderOutgoingMessage(message, messageID)
         } else {
@@ -79,8 +116,8 @@ const MessagesComponent = ({ chatID }: MessagesComponentProps) => {
         }
     }
     return (
-        <div className='flex flex-col gap-3'>
-            {data?.Data.map((item) => (
+        <div className='flex flex-col gap-3 pb-5'>
+            {data?.Data !== null && data?.Data.map((item) => (
                 renderMessage(item.Sender, item.Message, item.ID)
             ))}
         </div>

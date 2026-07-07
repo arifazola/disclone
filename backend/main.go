@@ -175,6 +175,10 @@ func main() {
 		ChatService: &chatService,
 	}
 
+	websocketController := controllers.WebsocketController{
+		ChatService: &chatService,
+	}
+
 	router.GET("/test", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
 			"message": "Hello, World!",
@@ -197,7 +201,8 @@ func main() {
 
 	router.POST("/upload", auth.AuthMiddleware(), uploadController.GenerateUploadURL)
 
-	router.GET("/ws/:channel_id/:user_id", auth.AuthMiddleware(), controllers.HandleWebSocket)
+	router.GET("/ws/call/:channel_id/:user_id", auth.AuthMiddleware(), websocketController.HandleWebSocketCall)
+	router.GET("/ws/chat/:chat_id/:username", auth.AuthMiddleware(), websocketController.HandleWebSocketChat)
 
 	router.POST("/friends", auth.AuthMiddleware(), friendController.AddFriend)
 	router.GET("/friends", auth.AuthMiddleware(), friendController.GetFriendList)

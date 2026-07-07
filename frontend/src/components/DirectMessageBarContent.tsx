@@ -1,7 +1,7 @@
 import ButtonPrimary from './ButtonPrimary'
 import Button from './Button'
 import { IoIosAdd } from "react-icons/io";
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { apiGet } from '../handlers/apiHandler';
 import type { ResponseModel } from '../models/responseModel';
 import type { FriendModel } from '../models/friendModel';
@@ -18,6 +18,7 @@ interface DirectMessageBarContentProps {
 
 const DirectMessageBarContent = ({ children }: DirectMessageBarContentProps) => {
     const navigate = useNavigate()
+    const queryClient = useQueryClient()
     const { data, error, isFetched } = useQuery({
         queryKey: ["friendsfgfs"],
         queryFn: async () => {
@@ -32,6 +33,7 @@ const DirectMessageBarContent = ({ children }: DirectMessageBarContentProps) => 
     })
 
     const onFriendClicked = (username: string) => {
+        queryClient.invalidateQueries({ queryKey: ['messages'] })
         navigate(`/friend/${username}`)
     }
 

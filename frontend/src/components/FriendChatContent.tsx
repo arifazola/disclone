@@ -2,21 +2,28 @@ import { IoSend } from "react-icons/io5";
 import RightContent from './RightContent'
 import RightContentChat from "./RightContentChat";
 import { useParams } from "react-router";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { QueryClient, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiGet, apiPost, type ApiPostParam } from "../handlers/apiHandler";
-import { BASE_URL } from "../consts/const";
+import { BASE_URL, BASE_WS } from "../consts/const";
 import type { ResponseModel } from "../models/responseModel";
 import type { UserModel } from "../models/userModel";
 import type { FriendModel } from "../models/friendModel";
 import type { ServerModel } from "../models/serverModel";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import MessagesComponent from "./MessagesComponent";
+import type { WebsocketChatModel } from "../models/websocketChatModel";
+import { updateMessageDataQuery } from "../helpers/queryClientHelper";
+import type { MessageModel } from "../models/messageModel";
 
 const FriendChatContent = () => {
     const { username } = useParams()
     const chatIDRef = useRef("")
     const userid = window.localStorage.getItem("userid")
     const [message, setMessage] = useState("")
+    const ws = useRef<WebSocket | null>(null)
+    const [isWebsocketConnected, setIsWebsocketConnected] = useState(false)
+    const queryClient = useQueryClient()
+    const messageContainerRef = useRef<HTMLDivElement | null>(null)
 
     const { data, isLoading, isFetched, error } = useQuery({
         queryKey: ["friendData"],
@@ -43,34 +50,63 @@ const FriendChatContent = () => {
         }
     })
 
-    const { mutate } = useMutation({
-        mutationKey: ["messages"],
-        mutationFn: apiPost,
-        onSuccess: (data) => {
-            console.log("message sent", data)
-        },
-        onError: (error) => {
-            console.log("error sending message", error)
-        }
-    })
-
-    const handleSendMessage = () => {
-        const formData = new FormData()
-        if (username === undefined) {
+    useEffect(() => {
+        if (!isFetched) {
             return
         }
 
+        ws.current = new WebSocket(`${BASE_WS}/ws/chat/${data?.chatIDData.Data}/${username}`)
 
-        formData.append("username", username)
-        formData.append("chatID", chatIDRef.current)
-        formData.append("message", message)
-
-        const param: ApiPostParam = {
-            formData: formData,
-            url: `${BASE_URL}/chats`
+        ws.current.onopen = () => {
+            console.log("websocket connected")
+            setIsWebsocketConnected(true)
         }
 
-        mutate(param)
+        ws.current.onerror = (error) => {
+            console.log("ws error", error)
+        }
+
+        return () => {
+            ws.current?.close()
+        }
+    }, [isFetched])
+
+    const handleSendMessage = () => {
+
+        const chatModel: WebsocketChatModel = {
+            chatid: data!.chatIDData.Data,
+            message: message,
+            userid: userid ? userid : ""
+        }
+
+        ws.current?.send(JSON.stringify(chatModel))
+
+        const newMessageModel: MessageModel = {
+            ChatID: data!.chatIDData.Data,
+            ID: "",
+            Message: message,
+            Sender: userid ? userid : "",
+            Timestamp: Math.floor(Date.now() / 1000)
+        }
+
+        updateMessageDataQuery(queryClient, newMessageModel)
+
+        // window.scrollTo({
+        //     top: messageContainerRef.current?.scrollHeight,
+        //     behavior: "smooth"
+        // })
+
+        if (messageContainerRef.current !== null) {
+            messageContainerRef.current.scrollTop = messageContainerRef.current?.scrollHeight
+        }
+    }
+
+    const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+        if (event.key === "Enter") {
+            setMessage("")
+            event.preventDefault()
+            handleSendMessage()
+        }
     }
 
     return (
@@ -78,7 +114,7 @@ const FriendChatContent = () => {
             <div id='content-container' className='w-full h-full py-5 px-7 flex flex-col'>
                 <div id='sub-content-container' className='flex w-full h-full mt-5'>
                     <div id='left-content' className='w-[70%] h-full border-r border-slate-300 flex flex-col justify-between p-3'>
-                        <div className='flex flex-col h-11/12 gap-5 overflow-y-auto scrollbar-none'>
+                        <div className='flex flex-col h-11/12 gap-5 overflow-y-auto scrollbar-none' ref={messageContainerRef}>
                             <div className='h-16 w-16 bg-primary rounded-full shrink-0'></div>
 
                             <span className='font-bold text-3xl'>{username}</span>
@@ -100,17 +136,14 @@ const FriendChatContent = () => {
 
                             <div className='h-1 border-t w-full border-slate-300'></div>
 
-                            {/* {[...Array(20)].map((item, index) => (
-                                <span>{index}</span>
-                            ))} */}
-                            {isFetched && (
-                                <MessagesComponent chatID={chatIDRef.current} />
+                            {isFetched && isWebsocketConnected && (
+                                <MessagesComponent chatID={chatIDRef.current} websocket={ws} messageContainerRef={messageContainerRef} />
                             )}
 
                         </div>
 
                         <div className='h-16 bg-slate-100 border border-slate-300 rounded-lg shadow-lg p-3 flex items-center'>
-                            <input placeholder={`Message ${username}`} className='w-full h-full outline-0' onChange={(e) => setMessage(e.target.value)} />
+                            <input placeholder={`Message ${username}`} className='w-full h-full outline-0' value={message} onChange={(e) => setMessage(e.target.value)} onKeyDown={handleKeyDown} />
                             <IoSend onClick={handleSendMessage} />
                         </div>
                     </div>
