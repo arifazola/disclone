@@ -26,7 +26,7 @@ const FriendChatContent = () => {
     const messageContainerRef = useRef<HTMLDivElement | null>(null)
 
     const { data, isLoading, isFetched, error } = useQuery({
-        queryKey: ["friendData"],
+        queryKey: [`friendData-${username}`],
         queryFn: async () => {
             const [profile, mutualFriends, mutualServers, chatID] = await Promise.all(
                 [
@@ -47,7 +47,7 @@ const FriendChatContent = () => {
             chatIDRef.current = chatIDData.Data
 
             return { profileData, mutualFriendData, mutualServersData, chatIDData }
-        }
+        },
     })
 
     useEffect(() => {

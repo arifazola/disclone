@@ -3,6 +3,7 @@ package controllers
 import (
 	"database/sql"
 	"errors"
+	"fmt"
 	"log"
 	"net/http"
 	"time"
@@ -22,6 +23,7 @@ type ChatController struct {
 func (controller *ChatController) GetChatIDFromParticipants(context *gin.Context){
 	userid, exist := context.Get("userID")
 	username := context.Param("username")
+	fmt.Println("get chat id from participants", username)
 	if !exist {
 		responseModel := models.ResponseModel[any]{
 			Message: "Unauthorized",

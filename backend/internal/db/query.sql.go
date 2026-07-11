@@ -184,8 +184,11 @@ func (q *Queries) GetChatIDFromOneParticipant(ctx context.Context, participants 
 }
 
 const getChatIDFromParticipants = `-- name: GetChatIDFromParticipants :one
-SELECT DISTINCT(chat_id) FROM public."chatParticipants" 
-WHERE participants = $1 OR participants = $2
+SELECT chat_id
+FROM "chatParticipants"
+WHERE participants IN ($1, $2)
+GROUP BY chat_id
+HAVING COUNT(DISTINCT participants) = 2
 `
 
 type GetChatIDFromParticipantsParams struct {
