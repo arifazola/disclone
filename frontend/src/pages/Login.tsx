@@ -44,13 +44,11 @@ const Login = () => {
                 window.localStorage.setItem("userid", res.user.ID)
                 navigate("/")
             } else {
-                console.log("error res", res)
                 throw new Error(JSON.stringify(res))
             }
         } catch (error: any) {
             const err = error as Error
             const parsedError = JSON.parse(err.message) as ResponseModel<any>
-            console.log("error login", parsedError)
             setToastMessage(parsedError.Message)
         } finally {
             setLoading(false)

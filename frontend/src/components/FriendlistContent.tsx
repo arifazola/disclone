@@ -21,9 +21,6 @@ const FriendlistContent = ({ friends, friendRequest }: FriedlistProps) => {
     const { mutate, data, error, isError } = useMutation({
         mutationKey: ["accept_friend_request"],
         mutationFn: apiPost,
-        onError: (err) => {
-            console.log("error accepting friend request", err)
-        },
         onSuccess(data, variables, onMutateResult, context) {
             setShowLoading(false)
             queryClient.invalidateQueries({

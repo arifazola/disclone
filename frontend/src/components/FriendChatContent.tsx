@@ -42,8 +42,6 @@ const FriendChatContent = () => {
             const mutualServersData = await mutualServers.json() as ResponseModel<ServerModel[]>
             const chatIDData = await chatID.json() as ResponseModel<string>
 
-            console.log("mutual servers", mutualServersData)
-
             chatIDRef.current = chatIDData.Data
 
             return { profileData, mutualFriendData, mutualServersData, chatIDData }
@@ -58,7 +56,6 @@ const FriendChatContent = () => {
         ws.current = new WebSocket(`${BASE_WS}/ws/chat/${data?.chatIDData.Data}/${username}`)
 
         ws.current.onopen = () => {
-            console.log("websocket connected")
             setIsWebsocketConnected(true)
         }
 

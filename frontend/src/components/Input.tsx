@@ -4,15 +4,16 @@ interface InputProps {
   label: string,
   type?: string,
   onInputChanged: (text: string) => void
-  onEnterButtonPressed: () => void
+  onEnterButtonPressed?: () => void
 }
 const Input = ({ label, type = "text", onInputChanged, onEnterButtonPressed }: InputProps) => {
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === "Enter") {
-      console.log("enter pressed")
       event.preventDefault()
-      onEnterButtonPressed()
+      if (onEnterButtonPressed !== undefined) {
+        onEnterButtonPressed()
+      }
     }
   }
 

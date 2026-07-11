@@ -14,7 +14,6 @@ const AddFriendContent = () => {
     const { mutate, isPending, error, isError, data } = useMutation({
         mutationFn: apiPost,
         onError: (err) => {
-            console.log("error fetch", err)
             const parseData = JSON.parse(err.message) as ResponseModel<any>
             setToastMessage(parseData.Message)
         },

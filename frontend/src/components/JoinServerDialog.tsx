@@ -10,7 +10,6 @@ interface JoinServerDialogProps {
 const JoinServerDialog = ({ closeDialog }: JoinServerDialogProps) => {
     const [serverID, setServerID] = useState("")
     const joinServer = async () => {
-        console.log("clicked")
         try {
             const join = await fetch(`${BASE_URL}/servers/${serverID}/join`, {
                 method: "POST",
@@ -22,8 +21,6 @@ const JoinServerDialog = ({ closeDialog }: JoinServerDialogProps) => {
             }
 
             const res = await join.json()
-
-            console.log("result", res)
         } catch (error: any) {
             console.log("error join server", error)
         } finally {
@@ -33,7 +30,7 @@ const JoinServerDialog = ({ closeDialog }: JoinServerDialogProps) => {
     return (
         <div id='content' className='w-1/3 bg-white rounded-lg flex flex-col items-center p-10 gap-5'>
             <span className='font-bold text-2xl text-center'>Join a server</span>
-            <Input label='Server ID' onInputChanged={setServerID} />
+            <Input label='Server ID' onInputChanged={setServerID} onEnterButtonPressed={() => ""} />
 
             <div className='w-full flex justify-between items-center'>
                 <span onClick={() => closeDialog()}>Back</span>

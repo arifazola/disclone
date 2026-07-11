@@ -75,15 +75,10 @@ const CreateServerDialog = ({ isOpened, closeDialog }: CreateServerDialogProps) 
                     "Content-Type": "image/jpeg",
                 },
             })
-
-            console.log("is upload success", uploadImage.ok)
         } catch (error: any) {
 
         }
 
-
-        console.log(file.name)
-        console.log(file.type)
     }
 
     const renderDialogContent = () => {
@@ -102,7 +97,7 @@ const CreateServerDialog = ({ isOpened, closeDialog }: CreateServerDialogProps) 
                     </svg>
                         <input onChange={(e) => onFileChanged(e.target.files)} className="file-input" tabIndex={0} accept=".jpg,.jpeg,.jfif,.png,.gif,.webp,.avif" aria-label="Upload a Server Icon" type="file" style={{ position: "absolute", top: "0px", left: "0px", width: "100%", height: "100%", opacity: "0", cursor: "pointer", fontSize: "0px" }} />
                     </div>
-                    <Input label='Server Name' onInputChanged={setServerName} />
+                    <Input label='Server Name' onInputChanged={setServerName} onEnterButtonPressed={() => ""} />
 
                     <span className='font-bold text-2xl text-center'>Have an invite already?</span>
                     <Button text='Join a server' btnClass='bg-slate-200 text-slate-700 border border-slate-300 font-semibold' onClick={() => setContent("join")} />

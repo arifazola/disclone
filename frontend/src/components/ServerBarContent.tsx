@@ -9,7 +9,6 @@ const ServerBarContent = () => {
     const { channel, server } = useParams()
     const navigate = useNavigate()
 
-    console.log("server id", server)
     const { data, error, isFetched, isError } = useQuery({
         queryKey: [server],
         queryFn: async () => {

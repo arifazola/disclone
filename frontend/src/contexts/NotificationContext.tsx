@@ -22,7 +22,6 @@ const Notification = ({ children }: ContextProps) => {
 
     eventSource.onmessage = (event) => {
         setNotificationMessage(event.data)
-        console.log("event message", event.data)
     }
 
     eventSource.onerror = (error) => {

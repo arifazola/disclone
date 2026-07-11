@@ -33,12 +33,10 @@ const MessagesComponent = ({ chatID, websocket, messageContainerRef }: MessagesC
 
     useEffect(() => {
         if (websocket.current === null) {
-            console.log("websocket is null")
             return
         }
 
         websocket.current.onmessage = (event) => {
-            console.log("ws message", event.data)
 
             const parsedMessage = JSON.parse(event.data) as WebsocketChatModel
 
@@ -60,7 +58,6 @@ const MessagesComponent = ({ chatID, websocket, messageContainerRef }: MessagesC
         }
 
         if (messageContainerRef.current !== null) {
-            console.log("should scrool")
             messageContainerRef.current.scrollTop = messageContainerRef.current?.scrollHeight
         }
     }, [isFetched])

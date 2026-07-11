@@ -4,7 +4,6 @@ import type { ResponseModel } from "../models/responseModel";
 
 export function updateMessageDataQuery(queryClient: QueryClient, newMessageModel: MessageModel) {
     queryClient.setQueryData(['messages'], (oldMessage: ResponseModel<MessageModel[]>) => {
-        console.log("old data", oldMessage)
         const newData = oldMessage.Data ? [...oldMessage.Data, newMessageModel] : [newMessageModel]
 
         const newResponse: ResponseModel<MessageModel[]> = {

@@ -27,7 +27,6 @@ const Register = () => {
 
             const res = await register.json()
 
-            console.log("login result", res)
         } catch (error: any) {
 
         } finally {

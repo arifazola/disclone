@@ -30,9 +30,8 @@ const CreateChannelDialog = ({ isOpened, closeDialog }: CreateChannelDialogProps
         throw new Error("internal server error")
       }
 
-      const res = await create.json()
+      // const res = await create.json()
 
-      console.log("result", res)
     } catch (error: any) {
       console.log("error", error)
     } finally {
@@ -43,7 +42,7 @@ const CreateChannelDialog = ({ isOpened, closeDialog }: CreateChannelDialogProps
     <div id='dialog' className={`${isOpened ? "flex" : "hidden"} absolute top-0 left-0 w-full h-full backdrop-brightness-50 backdrop-blur-xs items-center justify-center p-10`}>
       <div id='content' className='w-1/3 bg-white rounded-lg flex flex-col items-center p-10 gap-5'>
         <span className='font-bold text-2xl text-center'>Create Channel</span>
-        <Input label='Channel Name' onInputChanged={setChannelName} />
+        <Input label='Channel Name' onInputChanged={setChannelName} onEnterButtonPressed={() => ""} />
 
         <div className='w-full flex justify-between items-center'>
           <span onClick={() => closeDialog()}>Back</span>

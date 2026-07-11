@@ -37,7 +37,6 @@ const ChannelContent = ({ channelID }: ChannelContentProps) => {
 
     const onStart = () => {
         if (localStream.current === undefined) {
-            console.log("local stream is not ready")
             return
         }
         const ws = new WebSocket(`${BASE_WS}/ws/call/${channelID}/${userid}`)
@@ -47,7 +46,6 @@ const ChannelContent = ({ channelID }: ChannelContentProps) => {
                 const data = JSON.parse(event.data) as WebsocketResponseModel
                 if (data.Type == "should_call") {
                     // participants.current = data.Participants
-                    console.log("should call")
                     setParticipants(data.Participants)
                     data.Participants.forEach((participant) => {
                         makeCall(participant)
@@ -55,12 +53,9 @@ const ChannelContent = ({ channelID }: ChannelContentProps) => {
                 }
 
                 if (data.Type === "offer") {
-                    console.log("accept offer data", data)
-                    console.log("current participant", participants)
                     participantRef.current.push(data.Sender)
                     setParticipants(prev => [...prev, data.Sender])
                     acceptOffer(data)
-                    console.log("total participants", participants)
                 }
 
                 if (data.Type === "answer") {
@@ -112,11 +107,9 @@ const ChannelContent = ({ channelID }: ChannelContentProps) => {
         // }
 
         peerConnection.ontrack = (event) => {
-            console.log("remote user", user)
             const [remoteStream] = event.streams
             const remoteVideo = remoteVideoMap.current.get(user)
             if (remoteVideo === undefined) {
-                console.log("no remote video for ", user)
                 return
             }
 
@@ -129,7 +122,6 @@ const ChannelContent = ({ channelID }: ChannelContentProps) => {
         localVideoRef.current!.srcObject = localStream.current
         // localVideoRef.current!.play()
         localStream.current?.getTracks().forEach((track) => {
-            console.log("local track id", track.id)
             peerConnection.addTrack(track, localStream.current!)
         })
         return peerConnection
