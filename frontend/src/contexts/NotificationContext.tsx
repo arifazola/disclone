@@ -16,17 +16,19 @@ interface ContextProps {
 const Notification = ({ children }: ContextProps) => {
     const [notificationMessage, setNotificationMessage] = useState("")
     const userid = window.localStorage.getItem("userid")
-    const eventSource = new EventSource(`${BASE_URL}/stream/${userid}`)
     const queryClient = useQueryClient()
     const { setShowLoading } = useLoading()
 
-    eventSource.onmessage = (event) => {
-        setNotificationMessage(event.data)
-    }
+    useEffect(() => {
+        const eventSource = new EventSource(`${BASE_URL}/stream/${userid}`)
+        eventSource.onmessage = (event) => {
+            setNotificationMessage(event.data)
+        }
 
-    eventSource.onerror = (error) => {
-        console.log("ERROR SSE", error)
-    }
+        eventSource.onerror = (error) => {
+            console.log("ERROR SSE", error)
+        }
+    }, [])
 
     useEffect(() => {
         if (notificationMessage === "") {
