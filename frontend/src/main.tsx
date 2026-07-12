@@ -18,6 +18,7 @@ import Toast from './contexts/ToastContext.tsx'
 import Notification from './contexts/NotificationContext.tsx'
 import FriendsContent from './components/FriendsContent.tsx'
 import FriendChatContent from './components/FriendChatContent.tsx'
+import User from './contexts/UserContext.tsx'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -36,7 +37,9 @@ createRoot(document.getElementById('root')!).render(
           <Routes>
             <Route element={
               <Notification>
-                <LobbyLayout />
+                <User>
+                  <LobbyLayout />
+                </User>
               </Notification>
             }>
               <Route path='/' element={<DirectMessageBarContent>

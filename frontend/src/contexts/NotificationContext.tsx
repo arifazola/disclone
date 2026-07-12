@@ -11,7 +11,7 @@ interface NotificationContextType {
 
 const NotificationContext = createContext<NotificationContextType | undefined>(undefined)
 
-interface ContextProps {
+export interface ContextProps {
     children: React.ReactNode
 }
 const Notification = ({ children }: ContextProps) => {

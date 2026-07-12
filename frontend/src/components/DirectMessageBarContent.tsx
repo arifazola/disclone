@@ -11,6 +11,7 @@ import { BASE_URL } from '../consts/const';
 import { useState } from 'react';
 import { BsPersonRaisedHand } from "react-icons/bs";
 import { useNavigate } from 'react-router';
+import { useUser } from '../contexts/UserContext';
 
 interface DirectMessageBarContentProps {
     children: React.ReactNode
@@ -18,6 +19,8 @@ interface DirectMessageBarContentProps {
 
 const DirectMessageBarContent = ({ children }: DirectMessageBarContentProps) => {
     const navigate = useNavigate()
+    const { userRef } = useUser()
+    console.log("context user", userRef.current)
     const queryClient = useQueryClient()
     const { data, error, isFetched } = useQuery({
         queryKey: ["friendsfgfs"],

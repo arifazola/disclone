@@ -44,6 +44,7 @@ const Login = () => {
                 setToastMessage("")
                 window.localStorage.setItem("userid", res.Data.ID)
                 window.localStorage.setItem("username", res.Data.Username)
+                window.localStorage.setItem("user", JSON.stringify(res.Data))
                 navigate("/")
             } else {
                 throw new Error(JSON.stringify(res))
