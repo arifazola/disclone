@@ -70,17 +70,6 @@ const DirectMessageBarContent = ({ children }: DirectMessageBarContentProps) => 
                                 </div>
                             </div>
                         ))}
-
-                        {[...Array(20)].map((item, index) => (
-                            <div className='w-full py-2 px-2 flex items-center justify-center rounded-lg hover:cursor-pointer hover:bg-slate-300' onClick={() => onFriendClicked(item.Username)}>
-                                <div className='w-full h-full flex items-center gap-5'>
-                                    <div id='profile-picture' className='w-8 h-8 rounded-full bg-blue-500'>
-
-                                    </div>
-                                    <span className='text-lg'>{index}</span>
-                                </div>
-                            </div>
-                        ))}
                     </div>
                 </div>
             </div>

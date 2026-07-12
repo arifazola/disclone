@@ -48,12 +48,6 @@ const ServerList = ({ onAddServerClicked }: ServerListProps) => {
                 </div>
             )) : false}
 
-            {[...Array(20)].map((item, index) => (
-                <div className='w-full h-12 shrink-0' key={index} onClick={() => onServerClicked("")}>
-                    <ServerIcon path="/fdsf" />
-                </div>
-            ))}
-
             <div className='w-full h-12 shrink-0'>
                 <AddServerIcon onAddServerClicked={onAddServerClicked} />
             </div>
