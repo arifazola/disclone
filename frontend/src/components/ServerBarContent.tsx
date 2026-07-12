@@ -53,15 +53,6 @@ const ServerBarContent = () => {
                                 <span className='font-semibold'>{item.ChannelName}</span>
                             </div>
                         )) : false}
-
-                        {[...Array(20)].map((item, index) => (
-                            <div
-                                className={`w-full h-10 flex items-center rounded-lg px-5 ${channel === "" ? "bg-slate-300 text-slate-900" : "text-slate-500"} hover:cursor-pointer hover:bg-slate-300`}
-                                key={index}
-                                onClick={() => onChannelClicked(index.toString())}>
-                                <span className='font-semibold'>{index}</span>
-                            </div>
-                        ))}
                     </div>
                 </div>
             </div>
