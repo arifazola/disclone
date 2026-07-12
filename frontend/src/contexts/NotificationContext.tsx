@@ -3,9 +3,10 @@ import { IoIosClose } from "react-icons/io";
 import { BASE_URL } from "../consts/const";
 import { useQueryClient } from "@tanstack/react-query";
 import { useLoading } from "../components/Loading";
+import type { ResponseModel } from "../models/responseModel";
 
 interface NotificationContextType {
-    setNotificationMessage: React.Dispatch<React.SetStateAction<string>>
+    setNotification: React.Dispatch<React.SetStateAction<ResponseModel<string> | null>>
 }
 
 const NotificationContext = createContext<NotificationContextType | undefined>(undefined)
@@ -14,7 +15,7 @@ interface ContextProps {
     children: React.ReactNode
 }
 const Notification = ({ children }: ContextProps) => {
-    const [notificationMessage, setNotificationMessage] = useState("")
+    const [notification, setNotification] = useState<ResponseModel<string> | null>(null)
     const userid = window.localStorage.getItem("userid")
     const queryClient = useQueryClient()
     const { setShowLoading } = useLoading()
@@ -22,7 +23,9 @@ const Notification = ({ children }: ContextProps) => {
     useEffect(() => {
         const eventSource = new EventSource(`${BASE_URL}/stream/${userid}`)
         eventSource.onmessage = (event) => {
-            setNotificationMessage(event.data)
+            const data = JSON.parse(event.data) as ResponseModel<string>
+            console.log("notification data", data)
+            setNotification(data)
         }
 
         eventSource.onerror = (error) => {
@@ -31,7 +34,7 @@ const Notification = ({ children }: ContextProps) => {
     }, [])
 
     useEffect(() => {
-        if (notificationMessage === "") {
+        if (notification === null) {
             return
         }
 
@@ -42,18 +45,18 @@ const Notification = ({ children }: ContextProps) => {
         })
 
         const timerID = setTimeout(() => {
-            setNotificationMessage("")
+            setNotification(null)
         }, 5000)
 
         return () => clearTimeout(timerID)
-    }, [notificationMessage])
+    }, [notification])
     return (
-        <NotificationContext.Provider value={{ setNotificationMessage }}>
-            {notificationMessage !== "" && (
-                <div className="fixed bottom-3 right-3 pl-3 pr-2 py-3 rounded-lg bg-slate-400 text-white flex items-center justify-between gap-10">
+        <NotificationContext.Provider value={{ setNotification }}>
+            {notification !== null && (
+                <div className="fixed bottom-3 right-3 pl-3 pr-2 py-3 rounded-lg bg-slate-100 border border-slate-300 flex items-center justify-between gap-10">
                     <div className="flex flex-col justify-center">
-                        <span className="font-bold">New Friend!</span>
-                        <span>{notificationMessage} just accepted your friend request</span>
+                        <span className="font-bold">{notification.Message}</span>
+                        <span>{notification.Data}</span>
                     </div>
                 </div>
             )}

@@ -320,10 +320,22 @@ func(controller *WebsocketController) HandleWebSocketChat(c *gin.Context) {
 			username, exist := c.Get("username")
 			if !exist {
 				fmt.Println("username doesn't exist")
-				return
+				break
 			}
 
-			client.Events <- username.(string) + " sent you a message"
+			responseModel := models.ResponseModel[string] {
+				Message: "New chat",
+				Data: username.(string) + " sent you a message",
+			}
+
+			stringifyModel, err := json.Marshal(responseModel)
+
+			if err != nil {
+				fmt.Println("Error stringify websocket chat model", err)
+				break
+			}
+
+			client.Events <- string(stringifyModel)
 		}
 
 		for _, client := range chatClients[chatID] {

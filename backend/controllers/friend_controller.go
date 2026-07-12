@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"database/sql"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"log"
@@ -208,7 +209,19 @@ func (c *FriendController) UpdateFriendRequest(context *gin.Context){
 			return
 		}
 
-		client.Events <- username.(string)
+		responseModel := models.ResponseModel[string] {
+			Message: "New friend request",
+			Data: username.(string) + " sent you a friend request",
+		}
+
+		stringifyModel, err := json.Marshal(responseModel)
+
+		if err != nil {
+			fmt.Println("Error stringify websocket chat model", err)
+			return
+		}
+
+		client.Events <- stringifyModel
 	}
 
 	context.JSON(http.StatusOK, responseModel)
