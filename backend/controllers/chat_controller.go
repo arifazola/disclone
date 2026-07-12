@@ -101,7 +101,7 @@ func (controller *ChatController) AddMessage(context *gin.Context) {
 		Timestamp: time.Now().Unix(),
 
 	}
-	err := controller.ChatService.AddMessage(context, addMessageParam, username)
+	_, err := controller.ChatService.AddMessage(context, addMessageParam, username)
 
 	if err != nil {
 		if err.Error() == custom_errors.ErrInvalidChat.Error(){

@@ -8,6 +8,7 @@ import (
 	"slices"
 	"time"
 
+	"github.com/arifazola/disclone/backend/handlers"
 	"github.com/arifazola/disclone/backend/internal/db"
 	"github.com/arifazola/disclone/backend/models"
 	"github.com/arifazola/disclone/backend/services"
@@ -34,6 +35,7 @@ var chatClients = make(map[string][]*websocket.Conn)
 
 type WebsocketController struct {
 	ChatService *services.ChatService
+	Hub *handlers.Hub
 }
 
 func(controller *WebsocketController) HandleWebSocketCall(c *gin.Context) {
@@ -304,12 +306,24 @@ func(controller *WebsocketController) HandleWebSocketChat(c *gin.Context) {
 
 		}
 
-		err = controller.ChatService.AddMessage(c, addMessageParam, friendUsername)
+		friendUserID, err := controller.ChatService.AddMessage(c, addMessageParam, friendUsername)
 
 		if err != nil {
 			fmt.Println("failed to save message", err)
 			conn.WriteMessage(messageType, []byte("FAILED"))
 			break
+		}
+
+		client := controller.Hub.Clients[friendUserID]
+
+		if client != nil {
+			username, exist := c.Get("username")
+			if !exist {
+				fmt.Println("username doesn't exist")
+				return
+			}
+
+			client.Events <- username.(string) + " sent you a message"
 		}
 
 		for _, client := range chatClients[chatID] {

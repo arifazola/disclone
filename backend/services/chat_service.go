@@ -49,38 +49,43 @@ func (service *ChatService) GetChatIDFromParticipants(ctx context.Context, useri
 	return chatID, nil
 }
 
-func (service *ChatService) AddMessage(ctx context.Context, arg db.AddMessageParams, friendUsername string) error {
+func (service *ChatService) AddMessage(ctx context.Context, arg db.AddMessageParams, friendUsername string) (string,error) {
 	friendUserID, err := service.UserRepo.GetUserIDByUsername(ctx, friendUsername)
 	
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows){
-			return &custom_errors.InvalidUsernameError{
+			return "", &custom_errors.InvalidUsernameError{
 				Message: "Invalid username",
 			}
 		}
 
 		log.Println("error getting user id for adding chat", err)
 
-		return err
+		return "", err
 	}
 
-	chatID, err := service.ChatParticipantRepo.GetChatIDFromOneParticipant(ctx, friendUserID)
+	// chatID, err := service.ChatParticipantRepo.GetChatIDFromOneParticipant(ctx, friendUserID)
+	chatParticipantsArg := db.GetChatIDFromParticipantsParams {
+		Participants: arg.Sender,
+		Participants_2: friendUserID,
+	}
+	chatID, err := service.ChatParticipantRepo.GetChatIDFromParticipants(ctx, chatParticipantsArg)
 
-	log.Println("chat ID result", chatID)
+	log.Println("chat ID result", chatID, friendUserID)
 
 	if err != nil {
 		log.Println("error getting chat ID when adding message", err)
-		return err
+		return "", err
 	}
 
 	if chatID != arg.ChatID {
-		log.Println("invalid chat ID", chatID)
-		return &custom_errors.InvalidChatError{
+		log.Println("invalid chat ID", chatID, arg.ChatID)
+		return "", &custom_errors.InvalidChatError{
 			Message: "Invalid chat ID",
 		}
 	}
 
-	return service.ChatRepo.AddMessage(ctx, arg)
+	return friendUserID, service.ChatRepo.AddMessage(ctx, arg)
 }
 
 func (service *ChatService) GetMessages(ctx context.Context, userID, chatID string) ([]db.Message, error) {

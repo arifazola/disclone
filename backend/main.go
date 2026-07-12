@@ -177,6 +177,7 @@ func main() {
 
 	websocketController := controllers.WebsocketController{
 		ChatService: &chatService,
+		Hub: hub,
 	}
 
 	router.GET("/test", func(c *gin.Context) {
