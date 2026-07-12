@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/arifazola/disclone/backend/auth"
+	"github.com/arifazola/disclone/backend/helpers"
 	"github.com/arifazola/disclone/backend/internal/db"
 	"github.com/arifazola/disclone/backend/models"
 	"github.com/arifazola/disclone/backend/services"
@@ -94,5 +95,14 @@ func (service *AuthController) Login(c *gin.Context) {
 		Path:     "/",
 	})
 
-	c.JSON(200, gin.H{"message": "Login successful", "user": user})
+	var userModel models.UserModel
+
+	helpers.AssignValues(user, &userModel)
+
+	responseModel := models.ResponseModel[models.UserModel] {
+		Message: "Login successfull",
+		Data: userModel,
+	}
+
+	c.JSON(200, responseModel)
 }
