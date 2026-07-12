@@ -8,6 +8,7 @@ import Loading from '../components/Loading'
 import { BASE_URL } from '../consts/const'
 import { useToast } from '../contexts/ToastContext'
 import type { ResponseModel } from '../models/responseModel'
+import type { UserModel } from '../models/userModel'
 
 const Login = () => {
     const [email, setEmail] = useState("")
@@ -37,11 +38,12 @@ const Login = () => {
                 body: formData
             })
 
-            const res = await login.json()
+            const res = await login.json() as ResponseModel<UserModel>
 
             if (login.ok) {
                 setToastMessage("")
-                window.localStorage.setItem("userid", res.user.ID)
+                window.localStorage.setItem("userid", res.Data.ID)
+                window.localStorage.setItem("username", res.Data.Username)
                 navigate("/")
             } else {
                 throw new Error(JSON.stringify(res))
