@@ -177,6 +177,7 @@ func main() {
 
 	websocketController := controllers.WebsocketController{
 		ChatService: &chatService,
+		UserService: &userService,
 		Hub: hub,
 	}
 

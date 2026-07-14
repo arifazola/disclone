@@ -20,3 +20,7 @@ func (service *UserService) GetUserByUsername(ctx context.Context, username stri
 
 	return user, nil
 }
+
+func (service *UserService) GetUsersByIDs(ctx context.Context, dollar_1 []string) ([]db.GetUsersByIDsRow, error){
+	return service.Repo.GetUsersByIDs(ctx, dollar_1)
+}

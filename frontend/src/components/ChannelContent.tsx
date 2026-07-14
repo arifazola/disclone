@@ -2,11 +2,13 @@ import React, { createRef, use, useEffect, useRef, useState } from 'react'
 import type { WebsocketResponseModel } from '../models/websocketResponseModel'
 import type { IceCandidateModel } from '../models/IceCandidateModel'
 import { BASE_WS } from '../consts/const'
+import type { UserModel } from '../models/userModel'
 
 interface ChannelContentProps {
     channelID: string
+    onParticipantJoined: (users: UserModel[], channelID: string) => void
 }
-const ChannelContent = ({ channelID }: ChannelContentProps) => {
+const ChannelContent = ({ channelID, onParticipantJoined }: ChannelContentProps) => {
     const wsRef = useRef<WebSocket | null>(null)
     const peerConnectionRecord = useRef<Map<string, RTCPeerConnection>>(new Map())
     // const peerConnection = useRef<RTCPeerConnection | null>(null)
@@ -46,10 +48,15 @@ const ChannelContent = ({ channelID }: ChannelContentProps) => {
                 const data = JSON.parse(event.data) as WebsocketResponseModel
                 if (data.Type == "should_call") {
                     // participants.current = data.Participants
-                    setParticipants(data.Participants)
+                    const participantIDs = data.Participants.map((item) => item.ID)
+                    setParticipants(participantIDs)
                     data.Participants.forEach((participant) => {
-                        makeCall(participant)
+                        makeCall(participant.ID)
                     })
+
+                    console.log("ws data", data)
+                    console.log("calling on participant joined callback")
+                    onParticipantJoined(data.Participants, channelID)
                 }
 
                 if (data.Type === "offer") {

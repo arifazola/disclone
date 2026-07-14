@@ -10,6 +10,7 @@ import (
 	"database/sql"
 
 	"github.com/google/uuid"
+	"github.com/lib/pq"
 )
 
 const addFriend = `-- name: AddFriend :exec
@@ -508,6 +509,49 @@ func (q *Queries) GetUserJoinedServers(ctx context.Context, userid string) ([]Ge
 	for rows.Next() {
 		var i GetUserJoinedServersRow
 		if err := rows.Scan(&i.ID, &i.Name, &i.Picture); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getUsersByIDs = `-- name: GetUsersByIDs :many
+SELECT id, email, username, "profilePricture", "joinedDate"
+	FROM public.users
+	WHERE id = ANY($1::text[])
+`
+
+type GetUsersByIDsRow struct {
+	ID              string
+	Email           string
+	Username        string
+	ProfilePricture sql.NullString
+	JoinedDate      int64
+}
+
+func (q *Queries) GetUsersByIDs(ctx context.Context, dollar_1 []string) ([]GetUsersByIDsRow, error) {
+	rows, err := q.db.QueryContext(ctx, getUsersByIDs, pq.Array(dollar_1))
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetUsersByIDsRow
+	for rows.Next() {
+		var i GetUsersByIDsRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.Email,
+			&i.Username,
+			&i.ProfilePricture,
+			&i.JoinedDate,
+		); err != nil {
 			return nil, err
 		}
 		items = append(items, i)

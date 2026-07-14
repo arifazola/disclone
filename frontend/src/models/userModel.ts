@@ -3,6 +3,11 @@ export interface UserModel {
     Email: string
     Username: string
     Password: string
-    ProfilePricture?: string
+    ProfilePricture?: string | ProfilePicture
     JoinedDate: number
+}
+
+interface ProfilePicture {
+    String: string,
+    Valid: boolean
 }

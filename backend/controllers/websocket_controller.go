@@ -35,6 +35,7 @@ var chatClients = make(map[string][]*websocket.Conn)
 
 type WebsocketController struct {
 	ChatService *services.ChatService
+	UserService *services.UserService
 	Hub *handlers.Hub
 }
 
@@ -73,6 +74,7 @@ func(controller *WebsocketController) HandleWebSocketCall(c *gin.Context) {
 	}
 	defer conn.Close()
 
+	//hold participants in memory. For improvement, it could be stored in database
 	var participants []string
 
 	if(len(clients[channelID].User) <= 1){
@@ -99,9 +101,17 @@ func(controller *WebsocketController) HandleWebSocketCall(c *gin.Context) {
 			}
 			participants = append(participants, user)
 		}
+
+		users, err := controller.UserService.GetUsersByIDs(c, participants)
+
+		if err != nil {
+			fmt.Println("Failed to get participants data:", err)
+			return
+		}
+
 		websocketResponseModel := &models.WebsocketIceCandidateResponseModel{
 			Type: "should_call",
-			Participants: &participants,
+			Participants: &users,
 		}
 
 		stringifyResponse, err := json.Marshal(websocketResponseModel)

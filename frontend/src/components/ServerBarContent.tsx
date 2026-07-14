@@ -4,10 +4,13 @@ import { useQuery } from '@tanstack/react-query'
 import ChannelContent from './ChannelContent'
 import { apiGet } from '../handlers/apiHandler'
 import { BASE_URL } from '../consts/const'
+import { useState } from 'react'
+import type { UserModel } from '../models/userModel'
 
 const ServerBarContent = () => {
     const { channel, server } = useParams()
     const navigate = useNavigate()
+    const [participants, setParticipants] = useState<Map<string, UserModel[]>>(new Map())
 
     const { data, error, isFetched, isError } = useQuery({
         queryKey: [server],
@@ -20,11 +23,18 @@ const ServerBarContent = () => {
 
     const renderContent = () => {
         if (channel === "browser") return <BrowseChannelContent channels={data.channels} />
-        if (channel !== "browser") return <ChannelContent channelID={channel!!} />
+        if (channel !== "browser") return <ChannelContent channelID={channel!!} onParticipantJoined={onParticipantJoined} />
     }
 
     const onChannelClicked = (channelID: string) => {
         navigate(`/server/${server}/${channelID}`)
+    }
+
+    const onParticipantJoined = (users: UserModel[], channelID: string) => {
+        const participantMap = new Map<string, UserModel[]>()
+        participantMap.set(channelID, users)
+        setParticipants(participantMap)
+        console.log("user joined", users)
     }
 
     return (
@@ -47,10 +57,15 @@ const ServerBarContent = () => {
                     <div className='w-full flex flex-col'>
                         {!isError && isFetched && data.channels !== null ? (data.channels as any[]).map((item, index) => (
                             <div
-                                className={`w-full h-10 flex items-center rounded-lg px-5 ${channel === item.ID ? "bg-slate-300 text-slate-900" : "text-slate-500"} hover:cursor-pointer hover:bg-slate-300`}
+                                className={`w-full min-h-10 flex flex-col justify-center rounded-lg px-5 ${channel === item.ID ? "bg-slate-300 text-slate-900" : "text-slate-500"} hover:cursor-pointer hover:bg-slate-300`}
                                 key={index}
                                 onClick={() => onChannelClicked(item.ID)}>
                                 <span className='font-semibold'>{item.ChannelName}</span>
+                                <div className='flex flex-col'>
+                                    {participants?.get(item.ID)?.map((userItem) => (
+                                        <span>{userItem.Username}</span>
+                                    ))}
+                                </div>
                             </div>
                         )) : false}
                     </div>

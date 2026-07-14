@@ -57,3 +57,11 @@ func (m *MockUserRepository) GetUserByUsername(ctx context.Context, username str
 
 	return db.User{}, nil
 }
+
+func (m *MockUserRepository) GetUsersByIDs(ctx context.Context, dollar_1 []string) ([]db.GetUsersByIDsRow, error){
+	if m.Err != nil {
+		return []db.GetUsersByIDsRow{}, m.Err
+	}
+
+	return []db.GetUsersByIDsRow{}, nil
+}

@@ -12,4 +12,5 @@ type UserRepository interface {
 	GetUserByEmailAndPassword(email string, password string, context context.Context) (db.User, error)
 	GetUserIDByUsername(ctx context.Context, username string) (string, error)
 	GetUserByUsername(ctx context.Context, username string) (db.User, error)
+	GetUsersByIDs(ctx context.Context, dollar_1 []string) ([]db.GetUsersByIDsRow, error)
 }

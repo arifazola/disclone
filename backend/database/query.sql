@@ -124,3 +124,8 @@ ORDER BY timestamp ASC;
 -- name: ValidateChatAccess :one
 SELECT * FROM public."chatParticipants"
 WHERE chat_id = $1 AND participants = $2;
+
+-- name: GetUsersByIDs :many
+SELECT id, email, username, "profilePricture", "joinedDate"
+	FROM public.users
+	WHERE id = ANY($1::text[]);

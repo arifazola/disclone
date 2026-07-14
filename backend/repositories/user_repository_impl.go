@@ -35,3 +35,7 @@ func (repo *UserRepositoryImpl) GetUserIDByUsername(ctx context.Context, usernam
 func (repo *UserRepositoryImpl) GetUserByUsername(ctx context.Context, username string) (db.User, error) {
 	return repo.Queries.GetUserByUsername(ctx, username)
 }
+
+func (repo *UserRepositoryImpl) GetUsersByIDs(ctx context.Context, dollar_1 []string) ([]db.GetUsersByIDsRow, error){
+	return repo.Queries.GetUsersByIDs(ctx, dollar_1)
+}
