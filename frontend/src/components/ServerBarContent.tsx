@@ -6,11 +6,13 @@ import { apiGet } from '../handlers/apiHandler'
 import { BASE_URL } from '../consts/const'
 import { useState } from 'react'
 import type { UserModel } from '../models/userModel'
+import { useUser } from '../contexts/UserContext'
 
 const ServerBarContent = () => {
     const { channel, server } = useParams()
     const navigate = useNavigate()
     const [participants, setParticipants] = useState<Map<string, UserModel[]>>(new Map())
+    const { userRef } = useUser()
 
     const { data, error, isFetched, isError } = useQuery({
         queryKey: [server],
@@ -27,14 +29,41 @@ const ServerBarContent = () => {
     }
 
     const onChannelClicked = (channelID: string) => {
+        if (userRef.current === null) {
+            return
+        }
+        setParticipants((prev) => {
+            const newMap = new Map(prev)
+            const users = newMap.get(channelID)
+            if (users === undefined) {
+                console.log("on channel clicked users undefined", users)
+                const newUsers: UserModel[] = [userRef.current!]
+                newMap.set(channelID, newUsers)
+            } else {
+                console.log("on channel clicked users", users)
+                users?.push(userRef.current!)
+            }
+
+            return newMap
+        })
         navigate(`/server/${server}/${channelID}`)
     }
 
     const onParticipantJoined = (users: UserModel[], channelID: string) => {
-        const participantMap = new Map<string, UserModel[]>()
-        participantMap.set(channelID, users)
-        setParticipants(participantMap)
-        console.log("user joined", users)
+        setParticipants((prev) => {
+            const newMap = new Map(prev)
+            const users = newMap.get(channelID)
+            if (users === undefined) {
+                console.log("on participant joined users undefined", users)
+                const newUsers: UserModel[] = [userRef.current!]
+                newMap.set(channelID, newUsers)
+            } else {
+                console.log("on participant joined users", users)
+                users?.push(userRef.current!)
+            }
+
+            return newMap
+        })
     }
 
     return (

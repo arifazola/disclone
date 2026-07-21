@@ -35,6 +35,11 @@ const ChannelContent = ({ channelID, onParticipantJoined }: ChannelContentProps)
         }
 
         getLocalStream()
+
+        return () => {
+            console.log("clean up")
+            localStream.current?.getTracks().forEach(track => track.stop())
+        }
     }, [])
 
     const onStart = () => {
