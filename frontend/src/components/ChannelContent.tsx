@@ -34,7 +34,12 @@ const ChannelContent = ({ channelID, onParticipantJoined }: ChannelContentProps)
 
         }
 
-        getLocalStream()
+        const setup = async () => {
+            await getLocalStream()
+            onStart()
+        }
+
+        setup()
 
         return () => {
             console.log("clean up")
