@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/arifazola/disclone/backend/handlers"
+	"github.com/arifazola/disclone/backend/helpers"
 	"github.com/arifazola/disclone/backend/internal/db"
 	"github.com/arifazola/disclone/backend/models"
 	"github.com/arifazola/disclone/backend/services"
@@ -84,6 +85,41 @@ func(controller *WebsocketController) HandleWebSocketCall(c *gin.Context) {
 	if err != nil {
 		fmt.Println("Failed to add participant to channel participant:", err)
 		return
+	}
+
+	hubClient := controller.Hub.Clients[userID]
+
+	if hubClient != nil {
+		ids := []string{
+			userID,
+		}
+		user, err := controller.UserService.GetUsersByIDs(c, ids)
+		if err != nil {
+			log.Println("User not found (websocket call)", err)
+			return
+		}
+
+		var userModel models.UserModel
+
+		helpers.AssignValues(user[0], &userModel)
+		model := models.ChannelParticipantJoinedModel {
+			ChannelID: channelID,
+			User: userModel,
+		}
+
+		responseModel := models.ResponseModel[models.ChannelParticipantJoinedModel] {
+			Message: "user_joined",
+			Data: model,
+		}
+
+		stringifyModel, err := json.Marshal(responseModel)
+
+		if err != nil {
+			fmt.Println("Error stringify websocket chat model", err)
+			return
+		}
+
+		hubClient.Events <- stringifyModel
 	}
 
 	defer controller.closeWebsocketCall(channelID, userID, c)

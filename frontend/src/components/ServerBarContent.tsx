@@ -4,18 +4,21 @@ import { useQuery } from '@tanstack/react-query'
 import ChannelContent from './ChannelContent'
 import { apiGet, apiPost, type ApiPostParam } from '../handlers/apiHandler'
 import { BASE_URL } from '../consts/const'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import type { UserModel } from '../models/userModel'
 import { useUser } from '../contexts/UserContext'
 import type { ChannelModel } from '../models/channelModel'
 import type { ResponseModel } from '../models/responseModel'
 import type { Participants } from '../models/channelParticipantModel'
+import { useToast } from '../contexts/NotificationContext'
+import type { NotificationParticipantJoinedModel } from '../models/notificationParticipantJoinedModel'
 
 const ServerBarContent = () => {
     const { channel, server } = useParams()
     const navigate = useNavigate()
-    const [participants, setParticipants] = useState<Map<string, UserModel[]>>(new Map())
+    const [participants, setParticipants] = useState<Participants | null>(null)
     const { userRef } = useUser()
+    const { notification } = useToast()
 
     const { data, error, isFetched, isError } = useQuery({
         queryKey: [server],
@@ -33,7 +36,9 @@ const ServerBarContent = () => {
             }
             const channelParticipants = await apiPost(param) as ResponseModel<Participants>
 
-            console.log("participants", channelParticipants.Data.Participants["fdsf"])
+            console.log("participants", channelParticipants.Data.Participants)
+
+            setParticipants(channelParticipants.Data)
 
             return { res, channelParticipants }
         },
@@ -49,39 +54,66 @@ const ServerBarContent = () => {
         if (userRef.current === null) {
             return
         }
-        setParticipants((prev) => {
-            const newMap = new Map(prev)
-            const users = newMap.get(channelID)
-            if (users === undefined) {
-                console.log("on channel clicked users undefined", users)
-                const newUsers: UserModel[] = [userRef.current!]
-                newMap.set(channelID, newUsers)
-            } else {
-                console.log("on channel clicked users", users)
-                users?.push(userRef.current!)
-            }
+        // setParticipants((prev) => {
+        //     const newMap = new Map(prev)
+        //     const users = newMap.get(channelID)
+        //     if (users === undefined) {
+        //         console.log("on channel clicked users undefined", users)
+        //         const newUsers: UserModel[] = [userRef.current!]
+        //         newMap.set(channelID, newUsers)
+        //     } else {
+        //         console.log("on channel clicked users", users)
+        //         users?.push(userRef.current!)
+        //     }
 
-            return newMap
-        })
+        //     return newMap
+        // })
         navigate(`/server/${server}/${channelID}`)
     }
 
     const onParticipantJoined = (users: UserModel[], channelID: string) => {
-        setParticipants((prev) => {
-            const newMap = new Map(prev)
-            const users = newMap.get(channelID)
-            if (users === undefined) {
-                console.log("on participant joined users undefined", users)
-                const newUsers: UserModel[] = [userRef.current!]
-                newMap.set(channelID, newUsers)
-            } else {
-                console.log("on participant joined users", users)
-                users?.push(userRef.current!)
+        // setParticipants((prev) => {
+        //     const newMap = new Map(prev)
+        //     const users = newMap.get(channelID)
+        //     if (users === undefined) {
+        //         console.log("on participant joined users undefined", users)
+        //         const newUsers: UserModel[] = [userRef.current!]
+        //         newMap.set(channelID, newUsers)
+        //     } else {
+        //         console.log("on participant joined users", users)
+        //         users?.push(userRef.current!)
+        //     }
+
+        //     return newMap
+        // })
+    }
+
+    useEffect(() => {
+        const data = notification?.Data as NotificationParticipantJoinedModel
+
+        setParticipants(prev => {
+
+            const participantRecord: Record<string, UserModel[]> = {}
+            const partipantsModel: Participants = {
+                Participants: participantRecord
+            }
+            const existingParticipant = prev?.Participants[data.ChannelID]
+
+            if (existingParticipant === undefined) {
+                return partipantsModel
             }
 
-            return newMap
+            existingParticipant.push(data.User)
+
+            participantRecord[data.ChannelID] = existingParticipant
+
+            partipantsModel.Participants = participantRecord
+
+            return partipantsModel
         })
-    }
+
+        console.log("participant state", participants)
+    }, [notification])
 
     return (
         <div className='rounded-lg border border-slate-300 flex'>
@@ -102,17 +134,20 @@ const ServerBarContent = () => {
 
                     <div className='w-full flex flex-col'>
                         {!isError && isFetched && data !== undefined ? data?.res.Data.map((item, index) => (
-                            <div
-                                className={`w-full min-h-10 flex flex-col justify-center rounded-lg px-5 ${channel === item.ID ? "bg-slate-300 text-slate-900" : "text-slate-500"} hover:cursor-pointer hover:bg-slate-300`}
-                                key={index}
-                                onClick={() => onChannelClicked(item.ID)}>
-                                <span className='font-semibold'>{item.ChannelName}</span>
-                                <div className='flex flex-col'>
-                                    {data.channelParticipants.Data.Participants[item.ID]?.map((userItem) => (
+                            <div className='flex flex-col'>
+                                <div
+                                    className={`w-full min-h-10 flex flex-col justify-center rounded-lg px-5 ${channel === item.ID ? "bg-slate-300 text-slate-900" : "text-slate-500"} hover:cursor-pointer hover:bg-slate-300`}
+                                    key={index}
+                                    onClick={() => onChannelClicked(item.ID)}>
+                                    <span className='font-semibold'>{item.ChannelName}</span>
+                                </div>
+                                <div className='flex flex-col px-5'>
+                                    {participants !== undefined ? participants?.Participants[item.ID].map((userItem) => (
                                         <span>{userItem.Username}</span>
-                                    ))}
+                                    )) : false}
                                 </div>
                             </div>
+
                         )) : false}
                     </div>
                 </div>

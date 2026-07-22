@@ -4,9 +4,11 @@ import { BASE_URL } from "../consts/const";
 import { useQueryClient } from "@tanstack/react-query";
 import { useLoading } from "../components/Loading";
 import type { ResponseModel } from "../models/responseModel";
+import type { NotificationParticipantJoinedModel } from "../models/notificationParticipantJoinedModel";
 
 interface NotificationContextType {
-    setNotification: React.Dispatch<React.SetStateAction<ResponseModel<string> | null>>
+    setNotification: React.Dispatch<React.SetStateAction<ResponseModel<string | NotificationParticipantJoinedModel> | null>>
+    notification: ResponseModel<string | NotificationParticipantJoinedModel> | null
 }
 
 const NotificationContext = createContext<NotificationContextType | undefined>(undefined)
@@ -15,7 +17,7 @@ export interface ContextProps {
     children: React.ReactNode
 }
 const Notification = ({ children }: ContextProps) => {
-    const [notification, setNotification] = useState<ResponseModel<string> | null>(null)
+    const [notification, setNotification] = useState<ResponseModel<string | NotificationParticipantJoinedModel> | null>(null)
     const userid = window.localStorage.getItem("userid")
     const queryClient = useQueryClient()
     const { setShowLoading } = useLoading()
@@ -23,7 +25,7 @@ const Notification = ({ children }: ContextProps) => {
     useEffect(() => {
         const eventSource = new EventSource(`${BASE_URL}/stream/${userid}`)
         eventSource.onmessage = (event) => {
-            const data = JSON.parse(event.data) as ResponseModel<string>
+            const data = JSON.parse(event.data) as ResponseModel<string | NotificationParticipantJoinedModel>
             console.log("notification data", data)
             setNotification(data)
         }
@@ -51,12 +53,14 @@ const Notification = ({ children }: ContextProps) => {
         return () => clearTimeout(timerID)
     }, [notification])
     return (
-        <NotificationContext.Provider value={{ setNotification }}>
+        <NotificationContext.Provider value={{ setNotification, notification }}>
             {notification !== null && (
                 <div className="fixed bottom-3 right-3 pl-3 pr-2 py-3 rounded-lg bg-slate-100 border border-slate-300 flex items-center justify-between gap-10">
                     <div className="flex flex-col justify-center">
                         <span className="font-bold">{notification.Message}</span>
-                        <span>{notification.Data}</span>
+                        {typeof notification.Data === "string" && (
+                            <span>{notification.Data}</span>
+                        )}
                     </div>
                 </div>
             )}
