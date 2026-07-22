@@ -9,6 +9,7 @@ import type { UserModel } from '../models/userModel'
 import { useUser } from '../contexts/UserContext'
 import type { ChannelModel } from '../models/channelModel'
 import type { ResponseModel } from '../models/responseModel'
+import type { Participants } from '../models/channelParticipantModel'
 
 const ServerBarContent = () => {
     const { channel, server } = useParams()
@@ -30,7 +31,9 @@ const ServerBarContent = () => {
                 url: `${BASE_URL}/channel-participants`,
                 formData: formData
             }
-            const channelParticipants = await apiPost(param)
+            const channelParticipants = await apiPost(param) as ResponseModel<Participants>
+
+            console.log("participants", channelParticipants.Data.Participants["fdsf"])
 
             return { res, channelParticipants }
         },
@@ -105,7 +108,7 @@ const ServerBarContent = () => {
                                 onClick={() => onChannelClicked(item.ID)}>
                                 <span className='font-semibold'>{item.ChannelName}</span>
                                 <div className='flex flex-col'>
-                                    {participants?.get(item.ID)?.map((userItem) => (
+                                    {data.channelParticipants.Data.Participants[item.ID]?.map((userItem) => (
                                         <span>{userItem.Username}</span>
                                     ))}
                                 </div>

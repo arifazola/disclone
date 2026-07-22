@@ -7,7 +7,6 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/arifazola/disclone/backend/internal/db"
 	"github.com/arifazola/disclone/backend/models"
 	"github.com/arifazola/disclone/backend/services"
 	"github.com/gin-gonic/gin"
@@ -57,7 +56,7 @@ func (controller *ChannelParticipantController) GetAllChannelParticipants(ctx *g
 		ctx.JSON(http.StatusInternalServerError, responseModel)
 	}
 
-	responseModel := models.ResponseModel[[]db.GetAllChannelParticipantsRow]{
+	responseModel := models.ResponseModel[*models.ParticipantModel]{
 		Message: "Success",
 		Data: participants,
 	} 
