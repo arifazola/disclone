@@ -132,5 +132,9 @@ SELECT id, email, username, "profilePricture", "joinedDate"
 
 -- name: AddChannelParticipant :exec
 INSERT INTO public."channelParticipants"(
-	"serverId", "channelId", username)
+	"serverId", "channelId", user_id)
 	VALUES ($1, $2, $3);
+
+-- name: RemoveUserFromChannelParticipant :exec
+DELETE FROM public."channelParticipants"
+	WHERE "channelId" = $1 AND user_id = $2;

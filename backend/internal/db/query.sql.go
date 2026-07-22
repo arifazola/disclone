@@ -15,18 +15,18 @@ import (
 
 const addChannelParticipant = `-- name: AddChannelParticipant :exec
 INSERT INTO public."channelParticipants"(
-	"serverId", "channelId", username)
+	"serverId", "channelId", user_id)
 	VALUES ($1, $2, $3)
 `
 
 type AddChannelParticipantParams struct {
 	ServerId  string
 	ChannelId string
-	Username  string
+	UserID    string
 }
 
 func (q *Queries) AddChannelParticipant(ctx context.Context, arg AddChannelParticipantParams) error {
-	_, err := q.db.ExecContext(ctx, addChannelParticipant, arg.ServerId, arg.ChannelId, arg.Username)
+	_, err := q.db.ExecContext(ctx, addChannelParticipant, arg.ServerId, arg.ChannelId, arg.UserID)
 	return err
 }
 
@@ -632,6 +632,21 @@ func (q *Queries) InsertRefreshToken(ctx context.Context, arg InsertRefreshToken
 		arg.ExpiresAt,
 		arg.Token,
 	)
+	return err
+}
+
+const removeUserFromChannelParticipant = `-- name: RemoveUserFromChannelParticipant :exec
+DELETE FROM public."channelParticipants"
+	WHERE "channelId" = $1 AND user_id = $2
+`
+
+type RemoveUserFromChannelParticipantParams struct {
+	ChannelId string
+	UserID    string
+}
+
+func (q *Queries) RemoveUserFromChannelParticipant(ctx context.Context, arg RemoveUserFromChannelParticipantParams) error {
+	_, err := q.db.ExecContext(ctx, removeUserFromChannelParticipant, arg.ChannelId, arg.UserID)
 	return err
 }
 

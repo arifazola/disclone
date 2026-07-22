@@ -44,7 +44,6 @@ func(controller *WebsocketController) HandleWebSocketCall(c *gin.Context) {
 	channelID := c.Param("channel_id")
 	serverID := c.Param("server_id")
 	userID := c.Param("user_id")
-	username := c.Param("username")
 
 	fmt.Println("websocket channel ID", channelID)
 	conn, err := wsupgrader.Upgrade(c.Writer, c.Request, nil)
@@ -78,7 +77,7 @@ func(controller *WebsocketController) HandleWebSocketCall(c *gin.Context) {
 	arg := db.AddChannelParticipantParams {
 		ServerId: serverID,
 		ChannelId: channelID,
-		Username: username,
+		UserID: userID,
 	}
 	err = controller.ChannelParticipantService.AddChannelParticipant(c, arg)
 
@@ -87,7 +86,7 @@ func(controller *WebsocketController) HandleWebSocketCall(c *gin.Context) {
 		return
 	}
 
-	defer closeWebsocketCall(channelID, userID)
+	defer controller.closeWebsocketCall(channelID, userID, c)
 	// defer conn.Close()
 
 	//hold participants in memory. For improvement, it could be stored in database
@@ -266,7 +265,7 @@ func(controller *WebsocketController) HandleWebSocketCall(c *gin.Context) {
 	}
 }
 
-func closeWebsocketCall(channelID, userID string){
+func (controller *WebsocketController) closeWebsocketCall(channelID, userID string, ctx *gin.Context){
 	existingClients := clients[channelID]
 
 	user := existingClients.User[userID]
@@ -276,6 +275,16 @@ func closeWebsocketCall(channelID, userID string){
 	fmt.Println("len after close", len(clients[channelID].User))
 
 	user.Conn.Close()
+
+	arg := db.RemoveUserFromChannelParticipantParams{
+		ChannelId: channelID,
+		UserID: userID,
+	}
+	err := controller.ChannelParticipantService.RemoveUserFromChannelParticipant(ctx, arg)
+
+	if err != nil {
+		log.Println("failed to remove user from channel participant", err)
+	}
 }
 
 func(controller *WebsocketController) HandleWebSocketChat(c *gin.Context) {

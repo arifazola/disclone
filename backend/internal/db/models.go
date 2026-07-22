@@ -21,7 +21,7 @@ type ChannelParticipant struct {
 	ID        int32
 	ServerId  string
 	ChannelId string
-	Username  string
+	UserID    string
 }
 
 type Chat struct {
