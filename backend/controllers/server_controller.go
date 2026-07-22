@@ -69,7 +69,11 @@ func (c *ServerController) GetServerChannels(ctx *gin.Context) {
 	userid, userIDExist := ctx.Get("userID")
 
 	if !userIDExist {
-		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
+		responseModel := models.ResponseModel[any]{
+			Message: "Unauthorized",
+			Data: nil,
+		} 
+		ctx.JSON(http.StatusUnauthorized, responseModel)
 		log.Println("Context userid not exist")
 		return
 	}
@@ -82,7 +86,12 @@ func (c *ServerController) GetServerChannels(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{"channels": serverChannels})
+	responseModel := models.ResponseModel[[]db.Channel]{
+		Message: "Success",
+		Data: serverChannels,
+	} 
+
+	ctx.JSON(http.StatusOK, responseModel)
 }
 
 func (c *ServerController) JoinServer(ctx *gin.Context) {

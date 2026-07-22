@@ -189,6 +189,50 @@ func (q *Queries) DeleteFriendRequest(ctx context.Context, arg DeleteFriendReque
 	return err
 }
 
+const getAllChannelParticipants = `-- name: GetAllChannelParticipants :many
+SELECT "channelParticipants"."serverId", "channelParticipants"."channelId",
+"users".id, "users".username
+FROM public."channelParticipants"
+INNER JOIN public."users"
+ON "channelParticipants".user_id = "users".id
+WHERE "channelParticipants"."channelId" = ANY($1::text[])
+`
+
+type GetAllChannelParticipantsRow struct {
+	ServerId  string
+	ChannelId string
+	ID        string
+	Username  string
+}
+
+func (q *Queries) GetAllChannelParticipants(ctx context.Context, dollar_1 []string) ([]GetAllChannelParticipantsRow, error) {
+	rows, err := q.db.QueryContext(ctx, getAllChannelParticipants, pq.Array(dollar_1))
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetAllChannelParticipantsRow
+	for rows.Next() {
+		var i GetAllChannelParticipantsRow
+		if err := rows.Scan(
+			&i.ServerId,
+			&i.ChannelId,
+			&i.ID,
+			&i.Username,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getChatIDFromOneParticipant = `-- name: GetChatIDFromOneParticipant :one
 SELECT DISTINCT(chat_id) FROM public."chatParticipants" 
 WHERE participants = $1

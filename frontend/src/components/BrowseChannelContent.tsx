@@ -2,9 +2,10 @@ import React, { useState } from 'react'
 import ButtonPrimary from './ButtonPrimary'
 import Input from './Input'
 import CreateChannelDialog from './CreateChannelDialog'
+import type { ChannelModel } from '../models/channelModel'
 
 interface BrowseChannelContentProps {
-    channels: any[]
+    channels: ChannelModel[]
 }
 const BrowseChannelContent = ({ channels }: BrowseChannelContentProps) => {
     const [createChannelDialogOpened, setCreateChannelDialogOpened] = useState(false)

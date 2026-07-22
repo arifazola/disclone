@@ -2,11 +2,13 @@ import { useNavigate, useParams } from 'react-router'
 import BrowseChannelContent from './BrowseChannelContent'
 import { useQuery } from '@tanstack/react-query'
 import ChannelContent from './ChannelContent'
-import { apiGet } from '../handlers/apiHandler'
+import { apiGet, apiPost, type ApiPostParam } from '../handlers/apiHandler'
 import { BASE_URL } from '../consts/const'
 import { useState } from 'react'
 import type { UserModel } from '../models/userModel'
 import { useUser } from '../contexts/UserContext'
+import type { ChannelModel } from '../models/channelModel'
+import type { ResponseModel } from '../models/responseModel'
 
 const ServerBarContent = () => {
     const { channel, server } = useParams()
@@ -18,13 +20,25 @@ const ServerBarContent = () => {
         queryKey: [server],
         queryFn: async () => {
             const channels = await apiGet(`${BASE_URL}/servers/${server}/channels`)
-            return await channels.json()
+            const res = await channels.json() as ResponseModel<ChannelModel[]>
+
+            const channelIDs = res.Data.map((item) => item.ID)
+
+            const formData = new FormData()
+            formData.append("channelIDs", JSON.stringify(channelIDs))
+            const param: ApiPostParam = {
+                url: `${BASE_URL}/channel-participants`,
+                formData: formData
+            }
+            const channelParticipants = await apiPost(param)
+
+            return { res, channelParticipants }
         },
 
     })
 
     const renderContent = () => {
-        if (channel === "browser") return <BrowseChannelContent channels={data.channels} />
+        if (channel === "browser") return <BrowseChannelContent channels={data!.res.Data} />
         if (channel !== "browser") return <ChannelContent channelID={channel!!} onParticipantJoined={onParticipantJoined} serverID={server!!} />
     }
 
@@ -84,7 +98,7 @@ const ServerBarContent = () => {
                     <div className='w-full border-t border-slate-300'></div>
 
                     <div className='w-full flex flex-col'>
-                        {!isError && isFetched && data.channels !== null ? (data.channels as any[]).map((item, index) => (
+                        {!isError && isFetched && data !== undefined ? data?.res.Data.map((item, index) => (
                             <div
                                 className={`w-full min-h-10 flex flex-col justify-center rounded-lg px-5 ${channel === item.ID ? "bg-slate-300 text-slate-900" : "text-slate-500"} hover:cursor-pointer hover:bg-slate-300`}
                                 key={index}

@@ -190,6 +190,10 @@ func main() {
 		Hub: hub,
 	}
 
+	channelParticipantController := controllers.ChannelParticipantController{
+		ChannelParticipantService: &channelParticipantService,
+	}
+
 	router.GET("/test", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
 			"message": "Hello, World!",
@@ -222,6 +226,12 @@ func main() {
 
 	// router.GET("/chats/:username/id", auth.AuthMiddleware(), chatController.GetChatIDFromParticipants)
 	// router.GET("/chats/:chat_id/messages", auth.AuthMiddleware(), chatController.GetMessages)
+
+	/*
+	** This method below is used to GET data
+	** I use HTTP post method so that I can send data array in request body
+	*/
+	router.POST("/channel-participants", auth.AuthMiddleware(), channelParticipantController.GetAllChannelParticipants)
 	
 	router.GET("chats/:param/*action", auth.AuthMiddleware(), func(c *gin.Context) {
 		action := c.Param("action")

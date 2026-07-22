@@ -17,3 +17,7 @@ func (repo *ChannelParticipantRepositoryImpl) AddChannelParticipant(ctx context.
 func (repo *ChannelParticipantRepositoryImpl) RemoveUserFromChannelParticipant(ctx context.Context, arg db.RemoveUserFromChannelParticipantParams) error{
 	return repo.Queries.RemoveUserFromChannelParticipant(ctx, arg)
 }
+
+func (repo *ChannelParticipantRepositoryImpl) GetAllChannelParticipants(ctx context.Context, channelIDs []string) ([]db.GetAllChannelParticipantsRow, error){
+	return repo.Queries.GetAllChannelParticipants(ctx, channelIDs)
+}

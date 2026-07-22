@@ -138,3 +138,11 @@ INSERT INTO public."channelParticipants"(
 -- name: RemoveUserFromChannelParticipant :exec
 DELETE FROM public."channelParticipants"
 	WHERE "channelId" = $1 AND user_id = $2;
+
+-- name: GetAllChannelParticipants :many
+SELECT "channelParticipants"."serverId", "channelParticipants"."channelId",
+"users".id, "users".username
+FROM public."channelParticipants"
+INNER JOIN public."users"
+ON "channelParticipants".user_id = "users".id
+WHERE "channelParticipants"."channelId" = ANY($1::text[]);
