@@ -3,24 +3,23 @@ import type { WebsocketResponseModel } from '../models/websocketResponseModel'
 import type { IceCandidateModel } from '../models/IceCandidateModel'
 import { BASE_WS } from '../consts/const'
 import type { UserModel } from '../models/userModel'
+import { useUser } from '../contexts/UserContext'
 
 interface ChannelContentProps {
+    serverID: string
     channelID: string
     onParticipantJoined: (users: UserModel[], channelID: string) => void
 }
-const ChannelContent = ({ channelID, onParticipantJoined }: ChannelContentProps) => {
+const ChannelContent = ({ serverID, channelID, onParticipantJoined }: ChannelContentProps) => {
     const wsRef = useRef<WebSocket | null>(null)
     const peerConnectionRecord = useRef<Map<string, RTCPeerConnection>>(new Map())
-    // const peerConnection = useRef<RTCPeerConnection | null>(null)
     const localVideoRef = useRef<HTMLVideoElement | null>(null)
-    const remoteVideoRef = useRef<HTMLVideoElement | null>(null)
     const remoteVideoMap = useRef<Map<string, HTMLVideoElement>>(new Map())
     const role = useRef("caller")
     const localStream = useRef<MediaStream | null>(null)
-    const [socketMsg, setSocketMsg] = useState("")
-    const userid = window.localStorage.getItem("userid")
     const [participants, setParticipants] = useState<string[]>([])
     const participantRef = useRef<string[]>([])
+    const { userRef } = useUser()
 
     useEffect(() => {
         const getLocalStream = async () => {
@@ -44,6 +43,7 @@ const ChannelContent = ({ channelID, onParticipantJoined }: ChannelContentProps)
         return () => {
             console.log("clean up")
             localStream.current?.getTracks().forEach(track => track.stop())
+            wsRef.current?.close()
         }
     }, [])
 
@@ -51,7 +51,7 @@ const ChannelContent = ({ channelID, onParticipantJoined }: ChannelContentProps)
         if (localStream.current === undefined) {
             return
         }
-        const ws = new WebSocket(`${BASE_WS}/ws/call/${channelID}/${userid}`)
+        const ws = new WebSocket(`${BASE_WS}/ws/call/${serverID}/${channelID}/${userRef.current?.ID}/${userRef.current?.Username}`)
 
         ws.onopen = (event) => {
             ws.onmessage = async (event) => {
@@ -113,7 +113,7 @@ const ChannelContent = ({ channelID, onParticipantJoined }: ChannelContentProps)
 
         peerConnection.onicecandidate = (event) => {
             wsRef.current?.send(JSON.stringify({
-                userid: userid,
+                userid: userRef.current?.ID,
                 type: "ice_candidate",
                 ice_candidate_data: event.candidate
             }))
@@ -156,7 +156,7 @@ const ChannelContent = ({ channelID, onParticipantJoined }: ChannelContentProps)
         // const remoteDesc = new RTCSessionDescription(offer)
         // await peerConnection.current?.setRemoteDescription(remoteDesc)
         wsRef.current?.send(JSON.stringify({
-            userid: userid,
+            userid: userRef.current?.ID,
             type: "offer",
             data: offer,
             offerFor: peerPartner
@@ -176,7 +176,7 @@ const ChannelContent = ({ channelID, onParticipantJoined }: ChannelContentProps)
         const answer = await peerConnection.createAnswer();
         await peerConnection.setLocalDescription(answer);
         wsRef.current?.send(JSON.stringify({
-            userid: userid,
+            userid: userRef.current?.ID,
             type: "answer",
             data: answer,
             sender: data.Sender

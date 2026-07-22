@@ -17,6 +17,13 @@ type Channel struct {
 	Type        string
 }
 
+type ChannelParticipant struct {
+	ID        int32
+	ServerId  string
+	ChannelId string
+	Username  string
+}
+
 type Chat struct {
 	ID string
 }

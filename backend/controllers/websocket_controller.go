@@ -36,12 +36,15 @@ var chatClients = make(map[string][]*websocket.Conn)
 type WebsocketController struct {
 	ChatService *services.ChatService
 	UserService *services.UserService
+	ChannelParticipantService *services.ChannelParticipantService
 	Hub *handlers.Hub
 }
 
 func(controller *WebsocketController) HandleWebSocketCall(c *gin.Context) {
 	channelID := c.Param("channel_id")
+	serverID := c.Param("server_id")
 	userID := c.Param("user_id")
+	username := c.Param("username")
 
 	fmt.Println("websocket channel ID", channelID)
 	conn, err := wsupgrader.Upgrade(c.Writer, c.Request, nil)
@@ -59,7 +62,6 @@ func(controller *WebsocketController) HandleWebSocketCall(c *gin.Context) {
 		clients[channelID] = &models.WebsocketClientModel{User: userMap, Queue: newClient}
 	} else {
 		existingClient.User = userMap
-		// existingClient.Clients = append(existingClient.Clients, conn)
 		existingClient.Queue = append(existingClient.Queue, conn)
 	}
 
@@ -72,7 +74,21 @@ func(controller *WebsocketController) HandleWebSocketCall(c *gin.Context) {
 		fmt.Println("Failed to upgrade connection to websocket:", err)
 		return
 	}
-	defer conn.Close()
+
+	arg := db.AddChannelParticipantParams {
+		ServerId: serverID,
+		ChannelId: channelID,
+		Username: username,
+	}
+	err = controller.ChannelParticipantService.AddChannelParticipant(c, arg)
+
+	if err != nil {
+		fmt.Println("Failed to add participant to channel participant:", err)
+		return
+	}
+
+	defer closeWebsocketCall(channelID, userID)
+	// defer conn.Close()
 
 	//hold participants in memory. For improvement, it could be stored in database
 	var participants []string
@@ -248,6 +264,18 @@ func(controller *WebsocketController) HandleWebSocketCall(c *gin.Context) {
 			}
 		}
 	}
+}
+
+func closeWebsocketCall(channelID, userID string){
+	existingClients := clients[channelID]
+
+	user := existingClients.User[userID]
+
+	delete(existingClients.User, userID)
+
+	fmt.Println("len after close", len(clients[channelID].User))
+
+	user.Conn.Close()
 }
 
 func(controller *WebsocketController) HandleWebSocketChat(c *gin.Context) {

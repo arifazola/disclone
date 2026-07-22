@@ -25,7 +25,7 @@ const ServerBarContent = () => {
 
     const renderContent = () => {
         if (channel === "browser") return <BrowseChannelContent channels={data.channels} />
-        if (channel !== "browser") return <ChannelContent channelID={channel!!} onParticipantJoined={onParticipantJoined} />
+        if (channel !== "browser") return <ChannelContent channelID={channel!!} onParticipantJoined={onParticipantJoined} serverID={server!!} />
     }
 
     const onChannelClicked = (channelID: string) => {

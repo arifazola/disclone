@@ -119,3 +119,20 @@ CREATE TABLE IF NOT EXISTS public.messages
         ON UPDATE NO ACTION
         ON DELETE NO ACTION
 );
+
+CREATE TABLE IF NOT EXISTS public."channelParticipants"
+(
+    id integer NOT NULL GENERATED ALWAYS AS IDENTITY ( INCREMENT 1 START 1 MINVALUE 1 MAXVALUE 2147483647 CACHE 1 ),
+    "serverId" text COLLATE pg_catalog."default" NOT NULL,
+    "channelId" text COLLATE pg_catalog."default" NOT NULL,
+    username text COLLATE pg_catalog."default" NOT NULL,
+    CONSTRAINT "channelParticipants_pkey" PRIMARY KEY (id),
+    CONSTRAINT channel_id_fk FOREIGN KEY ("channelId")
+        REFERENCES public.channels (id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION,
+    CONSTRAINT server_id_fk FOREIGN KEY ("serverId")
+        REFERENCES public.servers (id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION
+);

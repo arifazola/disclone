@@ -171,6 +171,14 @@ func main() {
 		MessageRepo: &messageRepo,
 	}
 
+	channelParticipantRepo := repositories.ChannelParticipantRepositoryImpl{
+		Queries: queries,
+	}
+
+	channelParticipantService := services.ChannelParticipantService{
+		ChannelParticipantRepo: &channelParticipantRepo,
+	}
+
 	chatController := controllers.ChatController{
 		ChatService: &chatService,
 	}
@@ -178,6 +186,7 @@ func main() {
 	websocketController := controllers.WebsocketController{
 		ChatService: &chatService,
 		UserService: &userService,
+		ChannelParticipantService: &channelParticipantService,
 		Hub: hub,
 	}
 
@@ -203,7 +212,7 @@ func main() {
 
 	router.POST("/upload", auth.AuthMiddleware(), uploadController.GenerateUploadURL)
 
-	router.GET("/ws/call/:channel_id/:user_id", auth.AuthMiddleware(), websocketController.HandleWebSocketCall)
+	router.GET("/ws/call/:server_id/:channel_id/:user_id/:username", auth.AuthMiddleware(), websocketController.HandleWebSocketCall)
 	router.GET("/ws/chat/:chat_id/:username", auth.AuthMiddleware(), websocketController.HandleWebSocketChat)
 
 	router.POST("/friends", auth.AuthMiddleware(), friendController.AddFriend)

@@ -129,3 +129,8 @@ WHERE chat_id = $1 AND participants = $2;
 SELECT id, email, username, "profilePricture", "joinedDate"
 	FROM public.users
 	WHERE id = ANY($1::text[]);
+
+-- name: AddChannelParticipant :exec
+INSERT INTO public."channelParticipants"(
+	"serverId", "channelId", username)
+	VALUES ($1, $2, $3);

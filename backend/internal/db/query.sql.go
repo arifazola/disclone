@@ -13,6 +13,23 @@ import (
 	"github.com/lib/pq"
 )
 
+const addChannelParticipant = `-- name: AddChannelParticipant :exec
+INSERT INTO public."channelParticipants"(
+	"serverId", "channelId", username)
+	VALUES ($1, $2, $3)
+`
+
+type AddChannelParticipantParams struct {
+	ServerId  string
+	ChannelId string
+	Username  string
+}
+
+func (q *Queries) AddChannelParticipant(ctx context.Context, arg AddChannelParticipantParams) error {
+	_, err := q.db.ExecContext(ctx, addChannelParticipant, arg.ServerId, arg.ChannelId, arg.Username)
+	return err
+}
+
 const addFriend = `-- name: AddFriend :exec
 INSERT INTO public.friends(
 	user_id, friend, status)
