@@ -54,7 +54,7 @@ const Notification = ({ children }: ContextProps) => {
     }, [notification])
     return (
         <NotificationContext.Provider value={{ setNotification, notification }}>
-            {notification !== null && (
+            {notification !== null && notification.Message !== "user_joined" && (
                 <div className="fixed bottom-3 right-3 pl-3 pr-2 py-3 rounded-lg bg-slate-100 border border-slate-300 flex items-center justify-between gap-10">
                     <div className="flex flex-col justify-center">
                         <span className="font-bold">{notification.Message}</span>

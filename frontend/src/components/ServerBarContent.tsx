@@ -18,7 +18,7 @@ const ServerBarContent = () => {
     const navigate = useNavigate()
     const [participants, setParticipants] = useState<Participants | null>(null)
     const { userRef } = useUser()
-    const { notification } = useToast()
+    const { notification, setNotification } = useToast()
 
     const { data, error, isFetched, isError } = useQuery({
         queryKey: [server],
@@ -90,29 +90,40 @@ const ServerBarContent = () => {
 
     useEffect(() => {
         const data = notification?.Data as NotificationParticipantJoinedModel
+        console.log("data notif", data)
+
+        if (data === undefined) {
+            return
+        }
 
         setParticipants(prev => {
 
             const participantRecord: Record<string, UserModel[]> = {}
-            const partipantsModel: Participants = {
+            const participantsModel: Participants = {
                 Participants: participantRecord
             }
-            const existingParticipant = prev?.Participants[data.ChannelID]
 
-            if (existingParticipant === undefined) {
-                return partipantsModel
+            if (prev === null) {
+                return participantsModel
             }
+
+            if (Object.keys(prev.Participants).length === 0) {
+                console.log("empty participant obj")
+                participantRecord[data.ChannelID] = [data.User]
+                participantsModel.Participants = participantRecord
+                return participantsModel
+            }
+
+            const existingParticipant = prev.Participants[data.ChannelID]
 
             existingParticipant.push(data.User)
 
             participantRecord[data.ChannelID] = existingParticipant
 
-            partipantsModel.Participants = participantRecord
-
-            return partipantsModel
+            participantsModel.Participants = participantRecord
+            console.log("updated participants", participantsModel)
+            return participantsModel
         })
-
-        console.log("participant state", participants)
     }, [notification])
 
     return (
@@ -142,7 +153,7 @@ const ServerBarContent = () => {
                                     <span className='font-semibold'>{item.ChannelName}</span>
                                 </div>
                                 <div className='flex flex-col px-5'>
-                                    {participants !== undefined ? participants?.Participants[item.ID].map((userItem) => (
+                                    {Object.keys(participants!.Participants).length > 0 && participants?.Participants[item.ID] !== undefined ? participants?.Participants[item.ID].map((userItem) => (
                                         <span>{userItem.Username}</span>
                                     )) : false}
                                 </div>
