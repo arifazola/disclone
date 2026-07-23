@@ -51,23 +51,8 @@ const ServerBarContent = () => {
     }
 
     const onChannelClicked = (channelID: string) => {
-        if (userRef.current === null) {
-            return
-        }
-        // setParticipants((prev) => {
-        //     const newMap = new Map(prev)
-        //     const users = newMap.get(channelID)
-        //     if (users === undefined) {
-        //         console.log("on channel clicked users undefined", users)
-        //         const newUsers: UserModel[] = [userRef.current!]
-        //         newMap.set(channelID, newUsers)
-        //     } else {
-        //         console.log("on channel clicked users", users)
-        //         users?.push(userRef.current!)
-        //     }
+        removeParticipant(channel!, userRef.current!.ID)
 
-        //     return newMap
-        // })
         navigate(`/server/${server}/${channelID}`)
     }
 
@@ -96,6 +81,18 @@ const ServerBarContent = () => {
             return
         }
 
+        if (notification?.Message === "user_joined") {
+            appendParticipant(data)
+        }
+
+        if (notification?.Message === "user_left") {
+            removeParticipant(data.ChannelID, data.User.ID)
+        }
+
+
+    }, [notification])
+
+    const appendParticipant = (data: NotificationParticipantJoinedModel) => {
         setParticipants(prev => {
 
             const participantRecord: Record<string, UserModel[]> = {}
@@ -124,7 +121,30 @@ const ServerBarContent = () => {
             console.log("updated participants", participantsModel)
             return participantsModel
         })
-    }, [notification])
+    }
+
+    const removeParticipant = (channelID: string, userID: string) => {
+        setParticipants(prev => {
+            const participantRecord: Record<string, UserModel[]> = {}
+            const participantsModel: Participants = {
+                Participants: participantRecord
+            }
+
+            if (prev === null) {
+                return prev
+            }
+
+            const existingParticipant = prev.Participants[channelID]
+
+            const newArr = existingParticipant.filter(item => item.ID !== userID)
+
+            participantRecord[channelID] = newArr
+
+            participantsModel.Participants = participantRecord
+
+            return participantsModel
+        })
+    }
 
     return (
         <div className='rounded-lg border border-slate-300 flex'>

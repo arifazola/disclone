@@ -129,7 +129,7 @@ func(controller *WebsocketController) HandleWebSocketCall(c *gin.Context) {
 			fmt.Println("Error stringify websocket chat model", err)
 			return
 		}
-
+		fmt.Println("Sending user joined info to: ", item)
 		hubClient.Events <- stringifyModel
 	}
 
@@ -330,8 +330,51 @@ func (controller *WebsocketController) closeWebsocketCall(channelID, userID stri
 	}
 	err := controller.ChannelParticipantService.RemoveUserFromChannelParticipant(ctx, arg)
 
+	
 	if err != nil {
 		log.Println("failed to remove user from channel participant", err)
+	}
+
+	channelParticipantUserIds, err := controller.ChannelParticipantService.GetUserIdFromChannelParticipants(ctx, channelID)
+
+	if err != nil {
+		log.Println("failed to fetch user id from channel participants during websocket close", err)
+	}
+
+	for _, item := range channelParticipantUserIds {
+		if item == userID{
+			continue
+		}
+
+		hubClient := controller.Hub.Clients[item]
+
+		if hubClient == nil {
+			continue
+		}
+
+		userModel := models.UserModel {
+			ID: userID,
+		}
+
+		model := models.ChannelParticipantJoinedModel {
+			ChannelID: channelID,
+			User: userModel,
+		}
+
+		responseModel := models.ResponseModel[models.ChannelParticipantJoinedModel] {
+			Message: "user_left",
+			Data: model,
+		}
+
+
+		stringifyModel, err := json.Marshal(responseModel)
+
+		if err != nil {
+			fmt.Println("Error stringify websocket chat model", err)
+			return
+		}
+
+		hubClient.Events <- stringifyModel
 	}
 }
 
