@@ -87,9 +87,20 @@ func(controller *WebsocketController) HandleWebSocketCall(c *gin.Context) {
 		return
 	}
 
-	hubClient := controller.Hub.Clients[userID]
+	channelParticipantUserIds, err := controller.ChannelParticipantService.GetUserIdFromChannelParticipants(c, channelID)
 
-	if hubClient != nil {
+	if err != nil {
+		log.Println("Error getting channel participants user ids", err)
+		return;
+	}
+
+	for _, item := range channelParticipantUserIds{
+		hubClient := controller.Hub.Clients[item]
+
+		if hubClient == nil {
+			continue
+		}
+
 		ids := []string{
 			userID,
 		}
@@ -121,6 +132,7 @@ func(controller *WebsocketController) HandleWebSocketCall(c *gin.Context) {
 
 		hubClient.Events <- stringifyModel
 	}
+
 
 	defer controller.closeWebsocketCall(channelID, userID, c)
 	// defer conn.Close()

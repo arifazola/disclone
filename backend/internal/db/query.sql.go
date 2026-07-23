@@ -548,6 +548,33 @@ func (q *Queries) GetUserIDByUsername(ctx context.Context, username string) (str
 	return id, err
 }
 
+const getUserIdFromChannelParticipants = `-- name: GetUserIdFromChannelParticipants :many
+SELECT user_id FROM public."channelParticipants" WHERE "channelId" = $1
+`
+
+func (q *Queries) GetUserIdFromChannelParticipants(ctx context.Context, channelid string) ([]string, error) {
+	rows, err := q.db.QueryContext(ctx, getUserIdFromChannelParticipants, channelid)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []string
+	for rows.Next() {
+		var user_id string
+		if err := rows.Scan(&user_id); err != nil {
+			return nil, err
+		}
+		items = append(items, user_id)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getUserJoinedServers = `-- name: GetUserJoinedServers :many
 SELECT "servers".id, "servers".name, "servers".picture from "userServers" LEFT JOIN
 public."servers" ON "userServers"."serverId" = "servers"."id"

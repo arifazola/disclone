@@ -146,3 +146,6 @@ FROM public."channelParticipants"
 INNER JOIN public."users"
 ON "channelParticipants".user_id = "users".id
 WHERE "channelParticipants"."channelId" = ANY($1::text[]);
+
+-- name: GetUserIdFromChannelParticipants :many
+SELECT user_id FROM public."channelParticipants" WHERE "channelId" = $1;

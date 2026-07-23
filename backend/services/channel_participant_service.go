@@ -50,3 +50,7 @@ func (service *ChannelParticipantService) GetAllChannelParticipants(ctx context.
 
 	return &participantModel, nil
 }
+
+func (service *ChannelParticipantService) GetUserIdFromChannelParticipants(ctx context.Context, channelid string) ([]string, error){
+	return service.ChannelParticipantRepo.GetUserIdFromChannelParticipants(ctx, channelid)
+}
