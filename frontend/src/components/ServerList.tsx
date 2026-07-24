@@ -27,7 +27,6 @@ const ServerList = ({ onAddServerClicked }: ServerListProps) => {
     }
 
     useEffect(() => {
-        console.log("error", error)
         if (isError && error && error.message === "401") {
             console.error(error);
             navigate('/login');

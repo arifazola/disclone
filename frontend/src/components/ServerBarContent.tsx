@@ -75,7 +75,6 @@ const ServerBarContent = () => {
 
     useEffect(() => {
         const data = notification?.Data as NotificationParticipantJoinedModel
-        console.log("data notif", data)
 
         if (data === undefined) {
             return
@@ -105,14 +104,11 @@ const ServerBarContent = () => {
                 return participantsModel
             }
 
-            console.log("current participant", prev.Participants)
-
             const copiedParticipantsModel = structuredClone(prev)
 
             // participantsModel = copiedMap
 
             if (Object.keys(prev.Participants).length === 0) {
-                console.log("empty participant obj")
                 participantRecord[data.ChannelID] = [data.User]
                 participantsModel.Participants = participantRecord
                 return participantsModel
@@ -121,10 +117,7 @@ const ServerBarContent = () => {
             const existingParticipant = prev.Participants[data.ChannelID]
 
             if (existingParticipant === undefined) {
-                console.log("existing participant is null", copiedParticipantsModel)
                 copiedParticipantsModel.Participants[data.ChannelID] = [data.User]
-                // participantRecord[data.ChannelID] = [data.User]
-                // copiedParticipantsModel.Participants = participantRecord
                 return copiedParticipantsModel
             }
 
@@ -133,7 +126,6 @@ const ServerBarContent = () => {
             participantRecord[data.ChannelID] = existingParticipant
 
             participantsModel.Participants = participantRecord
-            console.log("updated participants", participantsModel)
             return participantsModel
         })
     }
@@ -146,16 +138,12 @@ const ServerBarContent = () => {
             }
 
             if (prev === null) {
-                console.log("prev is null")
                 return prev
             }
-
-            console.log("prev on delete", prev)
 
             const existingParticipant = prev.Participants[channelID]
 
             if (existingParticipant === undefined) {
-                console.log("existing participant is undefined")
                 return participantsModel
             }
             const newArr = existingParticipant.filter(item => item.ID !== userID)

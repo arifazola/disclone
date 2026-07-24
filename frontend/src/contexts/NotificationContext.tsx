@@ -37,24 +37,26 @@ const Notification = ({ children }: ContextProps) => {
 
     useEffect(() => {
         if (notification === null) {
+            console.log("notif null. returned")
             return
         }
 
-        if (notification.Message !== "user_joined" && notification.Message !== "user_left") {
-            setShowLoading(false)
+        // if (notification.Message !== "user_joined" && notification.Message === "user_left") {
+        //     return
+        // }
 
-            queryClient.invalidateQueries({
-                queryKey: ["friends"]
-            })
+        setShowLoading(false)
 
-            const timerID = setTimeout(() => {
-                console.log("setting notif")
-                setNotification(null)
-            }, 5000)
+        queryClient.invalidateQueries({
+            queryKey: ["friends"]
+        })
 
-            return () => clearTimeout(timerID)
-        }
+        const timerID = setTimeout(() => {
+            console.log("setting notif")
+            setNotification(null)
+        }, 5000)
 
+        return () => clearTimeout(timerID)
     }, [notification])
     return (
         <NotificationContext.Provider value={{ setNotification, notification }}>

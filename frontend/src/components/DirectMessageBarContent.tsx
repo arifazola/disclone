@@ -20,7 +20,6 @@ interface DirectMessageBarContentProps {
 const DirectMessageBarContent = ({ children }: DirectMessageBarContentProps) => {
     const navigate = useNavigate()
     const { userRef } = useUser()
-    console.log("context user", userRef.current)
     const queryClient = useQueryClient()
     const { data, error, isFetched } = useQuery({
         queryKey: ["friendsfgfs"],

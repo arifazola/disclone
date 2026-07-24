@@ -8,6 +8,7 @@ interface BrowseChannelContentProps {
     channels: ChannelModel[]
 }
 const BrowseChannelContent = ({ channels }: BrowseChannelContentProps) => {
+    console.log("brow channel content rendered")
     const [createChannelDialogOpened, setCreateChannelDialogOpened] = useState(false)
     return (
         <div id='content-container' className='w-full h-full py-5 px-7 flex flex-col'>

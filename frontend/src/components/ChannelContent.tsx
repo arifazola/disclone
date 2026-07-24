@@ -41,7 +41,6 @@ const ChannelContent = ({ onParticipantJoined }: ChannelContentProps) => {
         setup()
 
         return () => {
-            console.log("clean up")
             localStream.current?.getTracks().forEach(track => track.stop())
             wsRef.current?.close()
         }
@@ -63,9 +62,6 @@ const ChannelContent = ({ onParticipantJoined }: ChannelContentProps) => {
                     data.Participants.forEach((participant) => {
                         makeCall(participant.ID)
                     })
-
-                    console.log("ws data", data)
-                    console.log("calling on participant joined callback")
                     onParticipantJoined(data.Participants, channel!)
                 }
 
