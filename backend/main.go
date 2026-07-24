@@ -188,6 +188,7 @@ func main() {
 		UserService: &userService,
 		ChannelParticipantService: &channelParticipantService,
 		Hub: hub,
+		ServerService: &serverService,
 	}
 
 	channelParticipantController := controllers.ChannelParticipantController{

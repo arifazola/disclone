@@ -11,4 +11,5 @@ type UserServerRepository interface {
 	CreateUserServer(userID string, serverID string, context context.Context) error
 	CountUserServerByUserID(ctx context.Context, userServerParam db.CountUserServerByUserIdParams) (int64, error)
 	GetMutualServers(ctx context.Context, arg db.GetMutualServersParams) ([]db.GetMutualServersRow, error)
+	GetUserIdFromUserServers(ctx context.Context, serverid string) ([]string, error)
 }

@@ -149,3 +149,6 @@ WHERE "channelParticipants"."channelId" = ANY($1::text[]);
 
 -- name: GetUserIdFromChannelParticipants :many
 SELECT user_id FROM public."channelParticipants" WHERE "channelId" = $1;
+
+-- name: GetUserIdFromUserServers :many
+SELECT "userId" FROM public."userServers" WHERE "serverId" = $1;

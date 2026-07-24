@@ -38,6 +38,7 @@ type WebsocketController struct {
 	ChatService *services.ChatService
 	UserService *services.UserService
 	ChannelParticipantService *services.ChannelParticipantService
+	ServerService *services.ServerService
 	Hub *handlers.Hub
 }
 
@@ -87,7 +88,7 @@ func(controller *WebsocketController) HandleWebSocketCall(c *gin.Context) {
 		return
 	}
 
-	channelParticipantUserIds, err := controller.ChannelParticipantService.GetUserIdFromChannelParticipants(c, channelID)
+	channelParticipantUserIds, err := controller.ServerService.GetUserIdFromUserServers(c, serverID)
 
 	if err != nil {
 		log.Println("Error getting channel participants user ids", err)

@@ -81,3 +81,7 @@ func (service *ServerService) GetMutualServers(ctx context.Context, userid, frie
 
 	return mutualServers, err
 }
+
+func (service *ServerService) GetUserIdFromUserServers(ctx context.Context, serverid string) ([]string, error){
+	return service.UserServerRepository.GetUserIdFromUserServers(ctx, serverid)
+}
