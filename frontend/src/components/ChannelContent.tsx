@@ -4,13 +4,13 @@ import type { IceCandidateModel } from '../models/IceCandidateModel'
 import { BASE_WS } from '../consts/const'
 import type { UserModel } from '../models/userModel'
 import { useUser } from '../contexts/UserContext'
+import { useParams } from 'react-router'
 
 interface ChannelContentProps {
-    serverID: string
-    channelID: string
     onParticipantJoined: (users: UserModel[], channelID: string) => void
 }
-const ChannelContent = ({ serverID, channelID, onParticipantJoined }: ChannelContentProps) => {
+const ChannelContent = ({ onParticipantJoined }: ChannelContentProps) => {
+    const { channel, server } = useParams()
     const wsRef = useRef<WebSocket | null>(null)
     const peerConnectionRecord = useRef<Map<string, RTCPeerConnection>>(new Map())
     const localVideoRef = useRef<HTMLVideoElement | null>(null)
@@ -45,15 +45,16 @@ const ChannelContent = ({ serverID, channelID, onParticipantJoined }: ChannelCon
             localStream.current?.getTracks().forEach(track => track.stop())
             wsRef.current?.close()
         }
-    }, [])
+    }, [channel])
 
     const onStart = () => {
         if (localStream.current === undefined) {
             return
         }
-        const ws = new WebSocket(`${BASE_WS}/ws/call/${serverID}/${channelID}/${userRef.current?.ID}/${userRef.current?.Username}`)
+        const ws = new WebSocket(`${BASE_WS}/ws/call/${server}/${channel}/${userRef.current?.ID}/${userRef.current?.Username}`)
 
         ws.onopen = (event) => {
+            console.log("ws connected ", channel)
             ws.onmessage = async (event) => {
                 const data = JSON.parse(event.data) as WebsocketResponseModel
                 if (data.Type == "should_call") {
@@ -66,7 +67,7 @@ const ChannelContent = ({ serverID, channelID, onParticipantJoined }: ChannelCon
 
                     console.log("ws data", data)
                     console.log("calling on participant joined callback")
-                    onParticipantJoined(data.Participants, channelID)
+                    onParticipantJoined(data.Participants, channel!)
                 }
 
                 if (data.Type === "offer") {

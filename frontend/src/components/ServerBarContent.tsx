@@ -19,6 +19,7 @@ const ServerBarContent = () => {
     const [participants, setParticipants] = useState<Participants | null>(null)
     const { userRef } = useUser()
     const { notification, setNotification } = useToast()
+    const [channelComponentKey, setChannelComponentKey] = useState(0)
 
     const { data, error, isFetched, isError } = useQuery({
         queryKey: [server],
@@ -47,11 +48,15 @@ const ServerBarContent = () => {
 
     const renderContent = () => {
         if (channel === "browser") return <BrowseChannelContent channels={data!.res.Data} />
-        if (channel !== "browser") return <ChannelContent channelID={channel!!} onParticipantJoined={onParticipantJoined} serverID={server!!} />
+        if (channel !== "browser") return <ChannelContent onParticipantJoined={onParticipantJoined} key={channelComponentKey} />
     }
 
     const onChannelClicked = (channelID: string) => {
         removeParticipant(channel!, userRef.current!.ID)
+
+        if (channelID !== "browser") {
+            setChannelComponentKey(prev => prev + 1)
+        }
 
         navigate(`/server/${server}/${channelID}`)
     }
@@ -136,6 +141,9 @@ const ServerBarContent = () => {
 
             const existingParticipant = prev.Participants[channelID]
 
+            if (existingParticipant === undefined) {
+                return participantsModel
+            }
             const newArr = existingParticipant.filter(item => item.ID !== userID)
 
             participantRecord[channelID] = newArr

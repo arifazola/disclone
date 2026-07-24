@@ -328,8 +328,10 @@ func (controller *WebsocketController) closeWebsocketCall(channelID, userID stri
 		ChannelId: channelID,
 		UserID: userID,
 	}
-	err := controller.ChannelParticipantService.RemoveUserFromChannelParticipant(ctx, arg)
 
+	fmt.Println("Removing user from channel participant")
+	err := controller.ChannelParticipantService.RemoveUserFromChannelParticipant(ctx, arg)
+	fmt.Println("Removed user from channel participant")
 	
 	if err != nil {
 		log.Println("failed to remove user from channel participant", err)
