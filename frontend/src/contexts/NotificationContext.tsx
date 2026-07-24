@@ -40,21 +40,25 @@ const Notification = ({ children }: ContextProps) => {
             return
         }
 
-        setShowLoading(false)
+        if (notification.Message !== "user_joined" && notification.Message !== "user_left") {
+            setShowLoading(false)
 
-        queryClient.invalidateQueries({
-            queryKey: ["friends"]
-        })
+            queryClient.invalidateQueries({
+                queryKey: ["friends"]
+            })
 
-        const timerID = setTimeout(() => {
-            setNotification(null)
-        }, 5000)
+            const timerID = setTimeout(() => {
+                console.log("setting notif")
+                setNotification(null)
+            }, 5000)
 
-        return () => clearTimeout(timerID)
+            return () => clearTimeout(timerID)
+        }
+
     }, [notification])
     return (
         <NotificationContext.Provider value={{ setNotification, notification }}>
-            {notification !== null && notification.Message !== "user_joined" && (
+            {notification !== null && notification.Message !== "user_joined" && notification.Message !== "user_left" && (
                 <div className="fixed bottom-3 right-3 pl-3 pr-2 py-3 rounded-lg bg-slate-100 border border-slate-300 flex items-center justify-between gap-10">
                     <div className="flex flex-col justify-center">
                         <span className="font-bold">{notification.Message}</span>

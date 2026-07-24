@@ -22,7 +22,6 @@ const ChannelContent = ({ onParticipantJoined }: ChannelContentProps) => {
     const { userRef } = useUser()
 
     useEffect(() => {
-        console.log("channel state", channel)
         const getLocalStream = async () => {
 
             const constraints = {
@@ -55,7 +54,6 @@ const ChannelContent = ({ onParticipantJoined }: ChannelContentProps) => {
         const ws = new WebSocket(`${BASE_WS}/ws/call/${server}/${channel}/${userRef.current?.ID}/${userRef.current?.Username}`)
 
         ws.onopen = (event) => {
-            console.log("ws connected ", channel)
             ws.onmessage = async (event) => {
                 const data = JSON.parse(event.data) as WebsocketResponseModel
                 if (data.Type == "should_call") {

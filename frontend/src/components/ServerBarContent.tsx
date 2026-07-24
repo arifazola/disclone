@@ -36,8 +36,6 @@ const ServerBarContent = () => {
             }
             const channelParticipants = await apiPost(param) as ResponseModel<Participants>
 
-            console.log("participants", channelParticipants.Data.Participants)
-
             setParticipants(channelParticipants.Data)
 
             return { res, channelParticipants }
@@ -88,6 +86,7 @@ const ServerBarContent = () => {
         }
 
         if (notification?.Message === "user_left") {
+            console.log("removing user")
             removeParticipant(data.ChannelID, data.User.ID)
         }
 
