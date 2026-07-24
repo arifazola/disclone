@@ -151,6 +151,8 @@ const ServerBarContent = () => {
                 return prev
             }
 
+            console.log("prev on delete", prev)
+
             const existingParticipant = prev.Participants[channelID]
 
             if (existingParticipant === undefined) {
@@ -159,11 +161,11 @@ const ServerBarContent = () => {
             }
             const newArr = existingParticipant.filter(item => item.ID !== userID)
 
-            participantRecord[channelID] = newArr
+            prev.Participants[channelID] = newArr
 
-            participantsModel.Participants = participantRecord
+            // participantsModel.Participants = participantRecord
 
-            return participantsModel
+            return prev
         })
     }
 

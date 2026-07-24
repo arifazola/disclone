@@ -135,7 +135,7 @@ func(controller *WebsocketController) HandleWebSocketCall(c *gin.Context) {
 	}
 
 
-	defer controller.closeWebsocketCall(channelID, userID, c)
+	defer controller.closeWebsocketCall(channelID, userID, serverID, c,)
 	// defer conn.Close()
 
 	//hold participants in memory. For improvement, it could be stored in database
@@ -314,7 +314,7 @@ func(controller *WebsocketController) HandleWebSocketCall(c *gin.Context) {
 	}
 }
 
-func (controller *WebsocketController) closeWebsocketCall(channelID, userID string, ctx *gin.Context){
+func (controller *WebsocketController) closeWebsocketCall(channelID, userID, serverID string, ctx *gin.Context){
 	existingClients := clients[channelID]
 
 	user := existingClients.User[userID]
@@ -338,16 +338,16 @@ func (controller *WebsocketController) closeWebsocketCall(channelID, userID stri
 		log.Println("failed to remove user from channel participant", err)
 	}
 
-	channelParticipantUserIds, err := controller.ChannelParticipantService.GetUserIdFromChannelParticipants(ctx, channelID)
+	channelParticipantUserIds, err := controller.ServerService.GetUserIdFromUserServers(ctx, serverID)
 
 	if err != nil {
 		log.Println("failed to fetch user id from channel participants during websocket close", err)
 	}
 
 	for _, item := range channelParticipantUserIds {
-		if item == userID{
-			continue
-		}
+		// if item == userID{
+		// 	continue
+		// }
 
 		hubClient := controller.Hub.Clients[item]
 
