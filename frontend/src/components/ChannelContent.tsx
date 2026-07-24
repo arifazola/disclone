@@ -22,6 +22,7 @@ const ChannelContent = ({ onParticipantJoined }: ChannelContentProps) => {
     const { userRef } = useUser()
 
     useEffect(() => {
+        console.log("channel state", channel)
         const getLocalStream = async () => {
 
             const constraints = {
