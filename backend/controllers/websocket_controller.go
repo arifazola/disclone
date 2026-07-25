@@ -131,7 +131,7 @@ func(controller *WebsocketController) HandleWebSocketCall(c *gin.Context) {
 			return
 		}
 		fmt.Println("Sending user joined info to: ", item)
-		hubClient.Events <- stringifyModel
+		hubClient.UserJoinEvents <- stringifyModel
 	}
 
 
@@ -345,9 +345,6 @@ func (controller *WebsocketController) closeWebsocketCall(channelID, userID, ser
 	}
 
 	for _, item := range channelParticipantUserIds {
-		// if item == userID{
-		// 	continue
-		// }
 
 		hubClient := controller.Hub.Clients[item]
 
@@ -377,7 +374,7 @@ func (controller *WebsocketController) closeWebsocketCall(channelID, userID, ser
 			return
 		}
 
-		hubClient.Events <- stringifyModel
+		hubClient.UserJoinEvents <- stringifyModel
 	}
 }
 
@@ -476,7 +473,7 @@ func(controller *WebsocketController) HandleWebSocketChat(c *gin.Context) {
 				break
 			}
 
-			client.Events <- string(stringifyModel)
+			client.NotifEvents <- string(stringifyModel)
 		}
 
 		for _, client := range chatClients[chatID] {

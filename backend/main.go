@@ -268,19 +268,68 @@ func main() {
 		c.Writer.Header().Set("Connection", "keep-alive")
 		c.Writer.Header().Set("Transfer-Encoding", "chunked")
 
-		client := &handlers.Client{
-			ID: userid,
-			Events: make(chan any, 10),
+		existingClient := hub.Clients[userid]
+
+		if existingClient == nil {
+			client := &handlers.Client{
+				ID: userid,
+				UserJoinEvents: make(chan any, 10),
+			}
+			hub.Add(client)
+			existingClient = client
+		} else {
+			existingClient.UserJoinEvents = make(chan any, 10)
+			hub.Add(existingClient)
 		}
-		hub.Add(client)
-		defer hub.Remove(client.ID)
+
+		
+		defer hub.Remove(existingClient.ID, handlers.USERJOINEVENTS)
 
 		c.Stream(func(w io.Writer) bool {
 			select{
 			case <- c.Request.Context().Done():
 				return false
-			case event := <-client.Events:
-				fmt.Println("sending message stream")
+			case event := <-existingClient.NotifEvents:
+				fmt.Println("sending message stream notif")
+				c.SSEvent("message", event)
+				return true
+			}
+		})
+	})
+
+	router.GET("/stream/channel/:user_id", func(c *gin.Context) {
+		fmt.Println("SSE connected")
+
+		userid := c.Param("user_id")
+
+		c.Writer.Header().Set("Content-Type", "text/event-stream")
+		c.Writer.Header().Set("Cache-Control", "no-cache")
+		c.Writer.Header().Set("Connection", "keep-alive")
+		c.Writer.Header().Set("Transfer-Encoding", "chunked")
+
+		existingClient := hub.Clients[userid]
+
+		if existingClient == nil {
+			client := &handlers.Client{
+				ID: userid,
+				UserJoinEvents: make(chan any, 10),
+			}
+			hub.Add(client)
+			existingClient = client
+		} else {
+			existingClient.UserJoinEvents = make(chan any, 10)
+			hub.Add(existingClient)
+		}
+
+		
+		defer hub.Remove(existingClient.ID, handlers.USERJOINEVENTS)
+
+		c.Stream(func(w io.Writer) bool {
+			select{
+			case <- c.Request.Context().Done():
+				return false
+			case event := <-existingClient.UserJoinEvents:
+				fmt.Println("sending message stream channel")
 				c.SSEvent("message", event)
 				return true
 			}

@@ -221,7 +221,7 @@ func (c *FriendController) UpdateFriendRequest(context *gin.Context){
 			return
 		}
 
-		client.Events <- stringifyModel
+		client.NotifEvents <- stringifyModel
 	}
 
 	context.JSON(http.StatusOK, responseModel)

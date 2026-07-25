@@ -2,9 +2,13 @@ package handlers
 
 import "sync"
 
+var NOTIFEVENTS string = "notif_event"
+var USERJOINEVENTS string = "user_join_event"
+
 type Client struct {
 	ID     string
-	Events chan any
+	NotifEvents chan any
+	UserJoinEvents chan any
 }
 
 type Hub struct {
@@ -25,9 +29,18 @@ func (h *Hub) Add(client *Client) {
 	h.Clients[client.ID] = client
 }
 
-func (h *Hub) Remove(id string) {
+func (h *Hub) Remove(id, clientType string) {
 	h.mu.Lock()
 	defer h.mu.Unlock()
 
-	delete(h.Clients, id)
+	client := h.Clients[id]
+	if clientType == NOTIFEVENTS{
+		client.NotifEvents = nil
+	} else {
+		client.UserJoinEvents = nil
+	}
+
+	if client.NotifEvents == nil && client.UserJoinEvents == nil {
+		delete(h.Clients, id)
+	}
 }

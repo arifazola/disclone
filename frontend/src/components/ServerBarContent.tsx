@@ -18,7 +18,6 @@ const ServerBarContent = () => {
     const navigate = useNavigate()
     const [participants, setParticipants] = useState<Participants | null>(null)
     const { userRef } = useUser()
-    const { notification, setNotification } = useToast()
 
     const { data, error, isFetched, isError } = useQuery({
         queryKey: [server],
@@ -74,23 +73,47 @@ const ServerBarContent = () => {
     }
 
     useEffect(() => {
-        const data = notification?.Data as NotificationParticipantJoinedModel
+        const eventSource = new EventSource(`${BASE_URL}/stream/channel/${userRef.current?.ID}`)
+        eventSource.onmessage = (event) => {
+            console.log("receiving message from channel stream")
+            const data = JSON.parse(event.data) as ResponseModel<NotificationParticipantJoinedModel>
+            if (data === undefined) {
+                return
+            }
 
-        if (data === undefined) {
-            return
+            if (data.Message === "user_joined") {
+                appendParticipant(data.Data)
+            }
+
+            if (data.Message === "user_left") {
+                console.log("removing user")
+                removeParticipant(data.Data.ChannelID, data.Data.User.ID)
+            }
         }
 
-        if (notification?.Message === "user_joined") {
-            appendParticipant(data)
+        eventSource.onerror = (error) => {
+            console.log("ERROR SSE", error)
         }
+    }, [])
 
-        if (notification?.Message === "user_left") {
-            console.log("removing user")
-            removeParticipant(data.ChannelID, data.User.ID)
-        }
+    // useEffect(() => {
+    //     const data = notification?.Data as NotificationParticipantJoinedModel
+
+    //     if (data === undefined) {
+    //         return
+    //     }
+
+    //     if (notification?.Message === "user_joined") {
+    //         appendParticipant(data)
+    //     }
+
+    //     if (notification?.Message === "user_left") {
+    //         console.log("removing user")
+    //         removeParticipant(data.ChannelID, data.User.ID)
+    //     }
 
 
-    }, [notification])
+    // }, [notification])
 
     const appendParticipant = (data: NotificationParticipantJoinedModel) => {
         setParticipants(prev => {

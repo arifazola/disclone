@@ -11,16 +11,26 @@ const UserContext = createContext<UserContextType | undefined>(undefined)
 
 const User = ({ children }: ContextProps) => {
     const userRef = useRef<UserModel | null>(null)
-    useEffect(() => {
-        const user = window.localStorage.getItem("user")
-        if (user === null) {
-            return
-        }
+    console.log("fetching user ref")
+    const user = window.localStorage.getItem("user")
+    if (user === null) {
+        return
+    }
 
-        const parsedUser = JSON.parse(user) as UserModel
+    const parsedUser = JSON.parse(user) as UserModel
 
-        userRef.current = parsedUser
-    }, [])
+    userRef.current = parsedUser
+    // useEffect(() => {
+    //     console.log("fetching user ref")
+    //     const user = window.localStorage.getItem("user")
+    //     if (user === null) {
+    //         return
+    //     }
+
+    //     const parsedUser = JSON.parse(user) as UserModel
+
+    //     userRef.current = parsedUser
+    // }, [])
     return (
         <UserContext.Provider value={{ userRef }}>
             {children}
