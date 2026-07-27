@@ -40,6 +40,7 @@ func main() {
 			"https://192.168.1.4:5173", 
 			"https://192.168.1.182:5173",
 			"https://192.168.1.3:5173",
+			"https://192.168.1.8:5173",
 			"https://192.168.1.11:5173"},
 		AllowHeaders:     []string{"content-type"},
 		AllowCredentials: true,

@@ -20,6 +20,8 @@ const ChannelContent = ({ onParticipantJoined }: ChannelContentProps) => {
     const [participants, setParticipants] = useState<string[]>([])
     const participantRef = useRef<string[]>([])
     const { userRef } = useUser()
+    const isMutedRef = useRef(false)
+    const isVideoOffRef = useRef(false)
 
     useEffect(() => {
         const getLocalStream = async () => {
@@ -185,14 +187,26 @@ const ChannelContent = ({ onParticipantJoined }: ChannelContentProps) => {
         const audioTrack = localStream.current?.getAudioTracks()[0]
 
         if (audioTrack !== undefined) {
-            audioTrack.enabled = false
+            isMutedRef.current = !isMutedRef.current
+            console.log("muting")
+            audioTrack.enabled = !isMutedRef.current
         }
 
+    }
+
+    const turnOffCamera = () => {
+        const videoTrack = localStream.current?.getVideoTracks()[0]
+
+        if (videoTrack !== undefined) {
+            isVideoOffRef.current = !isVideoOffRef.current
+            console.log("muting")
+            videoTrack.enabled = !isVideoOffRef.current
+        }
     }
     return (
         <>
             <button onClick={muteMic}>Mute</button>
-            <button>Toggle camera</button>
+            <button onClick={turnOffCamera}>Toggle camera</button>
             <div className='grid grid-cols-4 gap-5 w-full h-full'>
                 <video autoPlay={true} className='rounded-lg' id='localVideo' ref={localVideoRef}></video>
                 {/* <video autoPlay={true} className='w-1/2 h-full' id='remoteVideo' ref={remoteVideoRef}></video> */}
