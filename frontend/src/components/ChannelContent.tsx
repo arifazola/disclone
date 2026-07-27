@@ -180,18 +180,25 @@ const ChannelContent = ({ onParticipantJoined }: ChannelContentProps) => {
 
         peerConnectionRecord.current.set(data.Sender, peerConnection)
     }
+
+    const muteMic = () => {
+        const audioTrack = localStream.current?.getAudioTracks()[0]
+
+        if (audioTrack !== undefined) {
+            audioTrack.enabled = false
+        }
+
+    }
     return (
         <>
-            <button onClick={onStart}>Startt</button>
-            <div className='flex flex-col gap-5 w-full h-full'>
-                <span>This is local</span>
-                <video autoPlay={true} className='w-1/2 h-full' id='localVideo' ref={localVideoRef}></video>
-                <span>This is remote</span>
+            <button onClick={muteMic}>Mute</button>
+            <button>Toggle camera</button>
+            <div className='grid grid-cols-4 gap-5 w-full h-full'>
+                <video autoPlay={true} className='rounded-lg' id='localVideo' ref={localVideoRef}></video>
                 {/* <video autoPlay={true} className='w-1/2 h-full' id='remoteVideo' ref={remoteVideoRef}></video> */}
                 {participants.map((item) => (
                     <>
-                        <span>loop</span>
-                        <video autoPlay={true} className='w-1/2 h-full' key={item} id='remoteVideo' ref={el => {
+                        <video autoPlay={true} className='rounded-lg' key={item} id='remoteVideo' ref={el => {
                             if (el) {
                                 remoteVideoMap.current.set(item, el)
                             }

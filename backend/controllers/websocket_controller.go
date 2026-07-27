@@ -47,7 +47,6 @@ func(controller *WebsocketController) HandleWebSocketCall(c *gin.Context) {
 	serverID := c.Param("server_id")
 	userID := c.Param("user_id")
 
-	fmt.Println("websocket channel ID", channelID)
 	conn, err := wsupgrader.Upgrade(c.Writer, c.Request, nil)
 	existingClient := clients[channelID]
 
@@ -65,11 +64,6 @@ func(controller *WebsocketController) HandleWebSocketCall(c *gin.Context) {
 		existingClient.User = userMap
 		existingClient.Queue = append(existingClient.Queue, conn)
 	}
-
-	fmt.Println("channelID", channelID)
-	fmt.Println("data", clients[channelID].User)
-
-	fmt.Println("total client upper", len(clients[channelID].User))
 
 	if err != nil {
 		fmt.Println("Failed to upgrade connection to websocket:", err)
@@ -209,10 +203,6 @@ func(controller *WebsocketController) HandleWebSocketCall(c *gin.Context) {
 			break
 		}
 
-		fmt.Println("websocket message received from", websocketMessageModel.UserID)
-
-		fmt.Println("message type", websocketMessageModel.Type)
-
 		cl := clients[channelID]
 
 		if websocketMessageModel.Data != nil {
@@ -258,8 +248,6 @@ func(controller *WebsocketController) HandleWebSocketCall(c *gin.Context) {
 				break
 			}
 
-			fmt.Println("sending ", websocketResponseModel.Type, " to", websocketResponseModel.Sender)
-
 			activeChannel := clients[channelID]
 			offerSender := activeChannel.User[websocketMessageModel.Sender]
 			err = offerSender.Conn.WriteMessage(messageType, []byte(stringifyResponse)) 
@@ -272,17 +260,12 @@ func(controller *WebsocketController) HandleWebSocketCall(c *gin.Context) {
 
 		if(websocketMessageModel.Type == "ice_candidate"){
 			for userids, clients := range cl.User {
-				fmt.Println("message is ice candidate")
 				var iceCandidateData models.IceCandidateModel
 				stringifyData, err := json.Marshal(websocketMessageModel.ICECandidateData)
 				if err != nil {
 					fmt.Println("error stringify ice candidate data", err)
 					break
 				}
-
-				fmt.Println("message data", websocketMessageModel.ICECandidateData)
-				fmt.Println("stringify data", string(stringifyData))
-
 
 				err = json.Unmarshal(stringifyData, &iceCandidateData)
 				if err != nil {

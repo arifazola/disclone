@@ -75,7 +75,7 @@ const ServerBarContent = () => {
     useEffect(() => {
         const eventSource = new EventSource(`${BASE_URL}/stream/channel/${userRef.current?.ID}`)
         eventSource.onmessage = (event) => {
-            console.log("receiving message from channel stream")
+            console.log("receiving message from channel stream", event.data)
             const data = JSON.parse(event.data) as ResponseModel<NotificationParticipantJoinedModel>
             if (data === undefined) {
                 return
@@ -95,25 +95,6 @@ const ServerBarContent = () => {
             console.log("ERROR SSE", error)
         }
     }, [])
-
-    // useEffect(() => {
-    //     const data = notification?.Data as NotificationParticipantJoinedModel
-
-    //     if (data === undefined) {
-    //         return
-    //     }
-
-    //     if (notification?.Message === "user_joined") {
-    //         appendParticipant(data)
-    //     }
-
-    //     if (notification?.Message === "user_left") {
-    //         console.log("removing user")
-    //         removeParticipant(data.ChannelID, data.User.ID)
-    //     }
-
-
-    // }, [notification])
 
     const appendParticipant = (data: NotificationParticipantJoinedModel) => {
         setParticipants(prev => {
@@ -169,13 +150,16 @@ const ServerBarContent = () => {
             if (existingParticipant === undefined) {
                 return participantsModel
             }
+
             const newArr = existingParticipant.filter(item => item.ID !== userID)
 
             prev.Participants[channelID] = newArr
 
-            // participantsModel.Participants = participantRecord
+            const participants: Participants = {
+                Participants: prev.Participants
+            }
 
-            return prev
+            return participants
         })
     }
 

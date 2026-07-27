@@ -1,6 +1,9 @@
 package handlers
 
-import "sync"
+import (
+	"fmt"
+	"sync"
+)
 
 var NOTIFEVENTS string = "notif_event"
 var USERJOINEVENTS string = "user_join_event"
@@ -30,10 +33,17 @@ func (h *Hub) Add(client *Client) {
 }
 
 func (h *Hub) Remove(id, clientType string) {
+	fmt.Println("removing hub")
 	h.mu.Lock()
 	defer h.mu.Unlock()
 
 	client := h.Clients[id]
+	if client == nil {
+		return
+	}
+
+	fmt.Println("client", client.ID)
+
 	if clientType == NOTIFEVENTS{
 		client.NotifEvents = nil
 	} else {

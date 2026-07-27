@@ -39,6 +39,7 @@ func main() {
 			"http://192.168.1.4:5173", 
 			"https://192.168.1.4:5173", 
 			"https://192.168.1.182:5173",
+			"https://192.168.1.3:5173",
 			"https://192.168.1.11:5173"},
 		AllowHeaders:     []string{"content-type"},
 		AllowCredentials: true,
@@ -273,14 +274,16 @@ func main() {
 		if existingClient == nil {
 			client := &handlers.Client{
 				ID: userid,
-				UserJoinEvents: make(chan any, 10),
+				NotifEvents: make(chan any, 10),
 			}
 			hub.Add(client)
 			existingClient = client
 		} else {
-			existingClient.UserJoinEvents = make(chan any, 10)
+			existingClient.NotifEvents = make(chan any, 10)
 			hub.Add(existingClient)
 		}
+
+		fmt.Println("existing notif client", existingClient.UserJoinEvents)
 
 		
 		defer hub.Remove(existingClient.ID, handlers.USERJOINEVENTS)
@@ -295,6 +298,8 @@ func main() {
 				return true
 			}
 		})
+
+		fmt.Println("stream notif ended")
 	})
 
 	router.GET("/stream/channel/:user_id", func(c *gin.Context) {
@@ -316,10 +321,15 @@ func main() {
 			}
 			hub.Add(client)
 			existingClient = client
+
+			fmt.Println("channel event stream client is null")
 		} else {
 			existingClient.UserJoinEvents = make(chan any, 10)
 			hub.Add(existingClient)
+			fmt.Println("channel event stream client is not null")
 		}
+
+		fmt.Println("existing channel client", existingClient)
 
 		
 		defer hub.Remove(existingClient.ID, handlers.USERJOINEVENTS)
@@ -334,6 +344,8 @@ func main() {
 				return true
 			}
 		})
+
+		fmt.Println("stream channel ended")
 	})
 
 	err = router.RunTLS(
