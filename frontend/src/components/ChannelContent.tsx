@@ -5,6 +5,11 @@ import { BASE_WS } from '../consts/const'
 import type { UserModel } from '../models/userModel'
 import { useUser } from '../contexts/UserContext'
 import { useParams } from 'react-router'
+import { IoMic } from "react-icons/io5";
+import { IoMicOff } from "react-icons/io5";
+import { BsFillCameraVideoFill } from "react-icons/bs";
+import { BsFillCameraVideoOffFill } from "react-icons/bs";
+
 
 interface ChannelContentProps {
     onParticipantJoined: (users: UserModel[], channelID: string) => void
@@ -20,8 +25,8 @@ const ChannelContent = ({ onParticipantJoined }: ChannelContentProps) => {
     const [participants, setParticipants] = useState<string[]>([])
     const participantRef = useRef<string[]>([])
     const { userRef } = useUser()
-    const isMutedRef = useRef(false)
-    const isVideoOffRef = useRef(false)
+    const [isMuted, setIsMuted] = useState(false)
+    const [isVideoOff, setIsVideoOff] = useState(false)
 
     useEffect(() => {
         const getLocalStream = async () => {
@@ -41,6 +46,8 @@ const ChannelContent = ({ onParticipantJoined }: ChannelContentProps) => {
         }
 
         setup()
+
+        console.log("setup is run")
 
         return () => {
             localStream.current?.getTracks().forEach(track => track.stop())
@@ -187,9 +194,9 @@ const ChannelContent = ({ onParticipantJoined }: ChannelContentProps) => {
         const audioTrack = localStream.current?.getAudioTracks()[0]
 
         if (audioTrack !== undefined) {
-            isMutedRef.current = !isMutedRef.current
+            setIsMuted(!isMuted)
             console.log("muting")
-            audioTrack.enabled = !isMutedRef.current
+            audioTrack.enabled = !isMuted
         }
 
     }
@@ -198,15 +205,13 @@ const ChannelContent = ({ onParticipantJoined }: ChannelContentProps) => {
         const videoTrack = localStream.current?.getVideoTracks()[0]
 
         if (videoTrack !== undefined) {
-            isVideoOffRef.current = !isVideoOffRef.current
+            setIsVideoOff(!isVideoOff)
             console.log("muting")
-            videoTrack.enabled = !isVideoOffRef.current
+            videoTrack.enabled = isVideoOff
         }
     }
     return (
         <>
-            <button onClick={muteMic}>Mute</button>
-            <button onClick={turnOffCamera}>Toggle camera</button>
             <div className='grid grid-cols-4 gap-5 w-full h-full'>
                 <video autoPlay={true} className='rounded-lg' id='localVideo' ref={localVideoRef}></video>
                 {/* <video autoPlay={true} className='w-1/2 h-full' id='remoteVideo' ref={remoteVideoRef}></video> */}
@@ -219,6 +224,22 @@ const ChannelContent = ({ onParticipantJoined }: ChannelContentProps) => {
                         }}></video>
                     </>
                 ))}
+            </div>
+
+            <div className='absolute bottom-12 w-full flex justify-center'>
+                <div className='p-5 border border-slate-300 rounded-lg flex justify-center items-center gap-10'>
+                    {isMuted ? (
+                        <IoMic className='text-xl hover:cursor-pointer' onClick={muteMic} />
+                    ) : (
+                        <IoMicOff className='text-xl hover:cursor-pointer' onClick={muteMic} />
+                    )}
+
+                    {isVideoOff ? (
+                        <BsFillCameraVideoFill className='text-xl hover:cursor-pointer' onClick={turnOffCamera} />
+                    ) : (
+                        <BsFillCameraVideoOffFill className='text-xl hover:cursor-pointer' onClick={turnOffCamera} />
+                    )}
+                </div>
             </div>
         </>
     )

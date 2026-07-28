@@ -200,7 +200,7 @@ const ServerBarContent = () => {
                     </div>
                 </div>
             </div>
-            <div id='content' className='w-3/4 h-dvh bg-slate-100 flex flex-col'>
+            <div id='content' className='w-3/4 h-dvh bg-slate-100 flex flex-col relative'>
                 {isFetched ? renderContent() : false}
 
             </div>
