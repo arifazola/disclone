@@ -13,8 +13,10 @@ import { BsFillCameraVideoOffFill } from "react-icons/bs";
 
 interface ChannelContentProps {
     onParticipantJoined: (users: UserModel[], channelID: string) => void
+    userLeftChannel: string
+    onUserLeftCompleted: () => void
 }
-const ChannelContent = ({ onParticipantJoined }: ChannelContentProps) => {
+const ChannelContent = ({ onParticipantJoined, userLeftChannel, onUserLeftCompleted }: ChannelContentProps) => {
     const { channel, server } = useParams()
     const wsRef = useRef<WebSocket | null>(null)
     const peerConnectionRecord = useRef<Map<string, RTCPeerConnection>>(new Map())
@@ -28,7 +30,7 @@ const ChannelContent = ({ onParticipantJoined }: ChannelContentProps) => {
     const [isMuted, setIsMuted] = useState(false)
     const [isVideoOff, setIsVideoOff] = useState(false)
 
-    useEffect(() => {
+    useEffect(function setupVideoCall() {
         const getLocalStream = async () => {
 
             const constraints = {
@@ -54,6 +56,20 @@ const ChannelContent = ({ onParticipantJoined }: ChannelContentProps) => {
             wsRef.current?.close()
         }
     }, [channel])
+
+    useEffect(function removeVideoParticipant() {
+        console.log("participant left")
+
+        if (userLeftChannel === "") {
+            return
+        }
+
+        setParticipants(prev => {
+            return prev.filter(i => i !== userLeftChannel)
+        })
+
+        onUserLeftCompleted()
+    }, [userLeftChannel])
 
     const onStart = () => {
         if (localStream.current === undefined) {
@@ -210,6 +226,7 @@ const ChannelContent = ({ onParticipantJoined }: ChannelContentProps) => {
             videoTrack.enabled = isVideoOff
         }
     }
+
     return (
         <>
             <div className='grid grid-cols-4 gap-5 w-full h-full'>

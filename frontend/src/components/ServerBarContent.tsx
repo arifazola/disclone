@@ -18,6 +18,7 @@ const ServerBarContent = () => {
     const navigate = useNavigate()
     const [participants, setParticipants] = useState<Participants | null>(null)
     const { userRef } = useUser()
+    const [leftUser, setLeftUser] = useState("")
 
     const { data, error, isFetched, isError } = useQuery({
         queryKey: [server],
@@ -44,7 +45,7 @@ const ServerBarContent = () => {
 
     const renderContent = () => {
         if (channel === "browser") return <BrowseChannelContent channels={data!.res.Data} />
-        if (channel !== "browser") return <ChannelContent onParticipantJoined={onParticipantJoined} />
+        if (channel !== "browser") return <ChannelContent onParticipantJoined={onParticipantJoined} userLeftChannel={leftUser} onUserLeftCompleted={onUserLeftCompleted} />
     }
 
     const onChannelClicked = (channelID: string) => {
@@ -88,6 +89,7 @@ const ServerBarContent = () => {
             if (data.Message === "user_left") {
                 console.log("removing user")
                 removeParticipant(data.Data.ChannelID, data.Data.User.ID)
+                setLeftUser(data.Data.User.ID)
             }
         }
 
@@ -161,6 +163,10 @@ const ServerBarContent = () => {
 
             return participants
         })
+    }
+
+    const onUserLeftCompleted = () => {
+        setLeftUser("")
     }
 
     return (
