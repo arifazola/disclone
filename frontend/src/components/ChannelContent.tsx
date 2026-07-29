@@ -12,11 +12,10 @@ import { BsFillCameraVideoOffFill } from "react-icons/bs";
 
 
 interface ChannelContentProps {
-    onParticipantJoined: (users: UserModel[], channelID: string) => void
     userLeftChannel: string
     onUserLeftCompleted: () => void
 }
-const ChannelContent = ({ onParticipantJoined, userLeftChannel, onUserLeftCompleted }: ChannelContentProps) => {
+const ChannelContent = ({ userLeftChannel, onUserLeftCompleted }: ChannelContentProps) => {
     const { channel, server } = useParams()
     const wsRef = useRef<WebSocket | null>(null)
     const peerConnectionRecord = useRef<Map<string, RTCPeerConnection>>(new Map())
@@ -87,7 +86,6 @@ const ChannelContent = ({ onParticipantJoined, userLeftChannel, onUserLeftComple
                     data.Participants.forEach((participant) => {
                         makeCall(participant.ID)
                     })
-                    onParticipantJoined(data.Participants, channel!)
                 }
 
                 if (data.Type === "offer") {

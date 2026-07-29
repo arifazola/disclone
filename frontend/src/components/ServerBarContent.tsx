@@ -45,7 +45,7 @@ const ServerBarContent = () => {
 
     const renderContent = () => {
         if (channel === "browser") return <BrowseChannelContent channels={data!.res.Data} />
-        if (channel !== "browser") return <ChannelContent onParticipantJoined={onParticipantJoined} userLeftChannel={leftUser} onUserLeftCompleted={onUserLeftCompleted} />
+        if (channel !== "browser") return <ChannelContent userLeftChannel={leftUser} onUserLeftCompleted={onUserLeftCompleted} />
     }
 
     const onChannelClicked = (channelID: string) => {
@@ -54,23 +54,6 @@ const ServerBarContent = () => {
         }
 
         navigate(`/server/${server}/${channelID}`)
-    }
-
-    const onParticipantJoined = (users: UserModel[], channelID: string) => {
-        // setParticipants((prev) => {
-        //     const newMap = new Map(prev)
-        //     const users = newMap.get(channelID)
-        //     if (users === undefined) {
-        //         console.log("on participant joined users undefined", users)
-        //         const newUsers: UserModel[] = [userRef.current!]
-        //         newMap.set(channelID, newUsers)
-        //     } else {
-        //         console.log("on participant joined users", users)
-        //         users?.push(userRef.current!)
-        //     }
-
-        //     return newMap
-        // })
     }
 
     useEffect(() => {
