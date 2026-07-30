@@ -2,6 +2,7 @@ package services
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
@@ -16,6 +17,7 @@ type S3Service struct {
 func NewS3Service(ctx context.Context) (*S3Service, error) {
 	cfg, err := config.LoadDefaultConfig(ctx)
 	if err != nil {
+		fmt.Println("error s3 config", err)
 		return nil, err
 	}
 
@@ -43,6 +45,7 @@ func (s *S3Service) GenerateUploadURL(
 	)
 
 	if err != nil {
+		fmt.Println("error creating presign put object", err)
 		return "", err
 	}
 

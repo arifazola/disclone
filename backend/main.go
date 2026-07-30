@@ -25,7 +25,9 @@ func main() {
 	err := godotenv.Load()
 
 	fmt.Printf("region = %q\n", os.Getenv("AWS_REGION"))
-
+	fmt.Printf("access = %q\n", os.Getenv("AWS_ACEESS_KEY_ID"))
+	fmt.Printf("secret = %q\n", os.Getenv("AWS_SECRET_ACCESS_KEY"))
+	
 	if err != nil {
 		log.Fatal("Failed to load environtment variable")
 	}
