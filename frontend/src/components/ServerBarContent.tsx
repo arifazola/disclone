@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query'
 import ChannelContent from './ChannelContent'
 import { apiGet, apiPost, type ApiPostParam } from '../handlers/apiHandler'
 import { BASE_URL } from '../consts/const'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, type ReactNode } from 'react'
 import type { UserModel } from '../models/userModel'
 import { useUser } from '../contexts/UserContext'
 import type { ChannelModel } from '../models/channelModel'
@@ -25,7 +25,9 @@ const ServerBarContent = () => {
         queryFn: async () => {
             const channels = await apiGet(`${BASE_URL}/servers/${server}/channels`)
             const res = await channels.json() as ResponseModel<ChannelModel[]>
-
+            if (res.Data === null) {
+                return res
+            }
             const channelIDs = res.Data.map((item) => item.ID)
 
             const formData = new FormData()
@@ -38,13 +40,21 @@ const ServerBarContent = () => {
 
             setParticipants(channelParticipants.Data)
 
-            return { res, channelParticipants }
+            return res
         },
 
     })
 
     const renderContent = () => {
-        if (channel === "browser") return <BrowseChannelContent channels={data!.res.Data} />
+        if (data === undefined) {
+            return
+        }
+
+        if (data.Data === null) {
+            return
+        }
+
+        if (channel === "browser") return <BrowseChannelContent channels={data.Data} />
         if (channel !== "browser") return <ChannelContent userLeftChannel={leftUser} onUserLeftCompleted={onUserLeftCompleted} />
     }
 
@@ -56,12 +66,58 @@ const ServerBarContent = () => {
         navigate(`/server/${server}/${channelID}`)
     }
 
+    const renderChannelList = () => {
+        if (data === undefined) {
+            return (<div id='no'></div>)
+        }
+
+        if (data.Data === null) {
+            return (<div id='no'></div>)
+        }
+
+        if (!isError && isFetched && data !== undefined && data.Data !== null) {
+            const els = data.Data.map((item, index) => (
+                <div className='flex flex-col mam'>
+                    <div
+                        className={`w-full min-h-10 flex flex-col justify-center rounded-lg px-5 ${channel === item.ID ? "bg-slate-300 text-slate-900" : "text-slate-500"} hover:cursor-pointer hover:bg-slate-300`}
+                        key={index}
+                        onClick={() => onChannelClicked(item.ID)}>
+                        <span className='font-semibold'>{item.ChannelName}</span>
+                    </div>
+
+                    {renderListOfParticipants(item)}
+                </div>
+            ))
+            return els
+        }
+        return []
+    }
+
+
+    const renderListOfParticipants = (item: ChannelModel) => {
+        if (participants === null) {
+            return
+        }
+
+        console.log("render list of participant")
+
+        return (<div className='flex flex-col px-5'>
+            {Object.keys(participants!.Participants).length > 0 && participants?.Participants[item.ID] !== undefined ? participants?.Participants[item.ID].map((userItem) => (
+                <span>{userItem.Username}</span>
+            )) : false}
+        </div>)
+    }
+
     useEffect(() => {
         const eventSource = new EventSource(`${BASE_URL}/stream/channel/${userRef.current?.ID}`)
         eventSource.onmessage = (event) => {
             console.log("receiving message from channel stream", event.data)
             const data = JSON.parse(event.data) as ResponseModel<NotificationParticipantJoinedModel>
             if (data === undefined) {
+                return
+            }
+
+            if (data.Data === null) {
                 return
             }
 
@@ -170,28 +226,12 @@ const ServerBarContent = () => {
                     <div className='w-full border-t border-slate-300'></div>
 
                     <div className='w-full flex flex-col'>
-                        {!isError && isFetched && data !== undefined ? data?.res.Data.map((item, index) => (
-                            <div className='flex flex-col'>
-                                <div
-                                    className={`w-full min-h-10 flex flex-col justify-center rounded-lg px-5 ${channel === item.ID ? "bg-slate-300 text-slate-900" : "text-slate-500"} hover:cursor-pointer hover:bg-slate-300`}
-                                    key={index}
-                                    onClick={() => onChannelClicked(item.ID)}>
-                                    <span className='font-semibold'>{item.ChannelName}</span>
-                                </div>
-                                <div className='flex flex-col px-5'>
-                                    {Object.keys(participants!.Participants).length > 0 && participants?.Participants[item.ID] !== undefined ? participants?.Participants[item.ID].map((userItem) => (
-                                        <span>{userItem.Username}</span>
-                                    )) : false}
-                                </div>
-                            </div>
-
-                        )) : false}
+                        {renderChannelList()}
                     </div>
                 </div>
             </div>
             <div id='content' className='w-3/4 h-dvh bg-slate-100 flex flex-col relative'>
                 {isFetched ? renderContent() : false}
-
             </div>
         </div>
     )
