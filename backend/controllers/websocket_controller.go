@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"slices"
+	"sync"
 	"time"
 
 	"github.com/arifazola/disclone/backend/handlers"
@@ -40,6 +41,7 @@ type WebsocketController struct {
 	ChannelParticipantService *services.ChannelParticipantService
 	ServerService *services.ServerService
 	Hub *handlers.Hub
+	mutex sync.RWMutex
 }
 
 func(controller *WebsocketController) HandleWebSocketCall(c *gin.Context) {
@@ -48,6 +50,7 @@ func(controller *WebsocketController) HandleWebSocketCall(c *gin.Context) {
 	userID := c.Param("user_id")
 
 	conn, err := wsupgrader.Upgrade(c.Writer, c.Request, nil)
+	controller.mutex.Lock()
 	existingClient := clients[channelID]
 
 	client := &models.Clients{
@@ -64,6 +67,8 @@ func(controller *WebsocketController) HandleWebSocketCall(c *gin.Context) {
 		existingClient.User = userMap
 		existingClient.Queue = append(existingClient.Queue, conn)
 	}
+
+	controller.mutex.Unlock()
 
 	if err != nil {
 		fmt.Println("Failed to upgrade connection to websocket:", err)
