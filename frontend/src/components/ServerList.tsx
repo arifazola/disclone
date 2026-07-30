@@ -6,6 +6,8 @@ import ServerIcon from './ServerIcon'
 import { useQueryClient, useQuery, useSuspenseQuery } from '@tanstack/react-query'
 import { apiGet } from '../handlers/apiHandler'
 import { BASE_URL } from '../consts/const'
+import Tooltip from './Tooltip'
+import TooltipLeft from './TooltipLeft'
 
 interface ServerListProps {
     onAddServerClicked: () => void
@@ -43,7 +45,10 @@ const ServerList = ({ onAddServerClicked }: ServerListProps) => {
 
             {!isError && isFetched && data.servers !== null ? (data.servers as any[]).map((item, index) => (
                 <div className='w-full h-12 shrink-0' key={index} onClick={() => onServerClicked(item.ID.String)}>
-                    <ServerIcon path={item.Picture.String} />
+                    <div className='group z-[999999999]'>
+                        <TooltipLeft text={item.Name.String} className='absolute left-[5.5%] translate-y-1 hidden group-has-hover:inline-block' />
+                        <ServerIcon path={item.Picture.String} />
+                    </div>
                 </div>
             )) : false}
 

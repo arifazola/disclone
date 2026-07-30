@@ -1,10 +1,9 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import React, { useEffect, useRef } from 'react'
 import { apiGet } from '../handlers/apiHandler'
-import { BASE_URL, BASE_WS } from '../consts/const'
+import { BASE_URL } from '../consts/const'
 import type { ResponseModel } from '../models/responseModel'
 import type { MessageModel } from '../models/messageModel'
-import Tooltip from './Tooltip'
 import type { WebsocketChatModel } from '../models/websocketChatModel'
 import { updateMessageDataQuery } from '../helpers/queryClientHelper'
 
