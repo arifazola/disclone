@@ -3,6 +3,9 @@ import Input from './Input'
 import ButtonPrimary from './ButtonPrimary'
 import { useParams } from 'react-router'
 import { BASE_URL } from '../consts/const'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { apiPost, type ApiPostParam } from '../handlers/apiHandler'
+import { useToast } from '../contexts/ToastContext'
 
 interface CreateChannelDialogProps {
   isOpened: boolean
@@ -11,33 +14,58 @@ interface CreateChannelDialogProps {
 
 const CreateChannelDialog = ({ isOpened, closeDialog }: CreateChannelDialogProps) => {
   const [channelName, setChannelName] = useState("")
-  const [isLoading, setIsLoading] = useState(false)
   const { server, channel } = useParams()
+  const queryClient = useQueryClient()
+  const { setToastMessage } = useToast()
 
-  const createChannel = async () => {
-    try {
-      setIsLoading(true)
-      const formData = new FormData()
-      formData.append("serverId", server!)
-      formData.append("channelName", channelName)
-      const create = await fetch(`${BASE_URL}/channels`, {
-        method: "POST",
-        credentials: "include",
-        body: formData
-      })
-
-      if (!create.ok) {
-        throw new Error("internal server error")
-      }
-
-      // const res = await create.json()
-
-    } catch (error: any) {
-      console.log("error", error)
-    } finally {
-      setIsLoading(false)
+  const { mutate, isPending, isError } = useMutation({
+    mutationKey: ['createChannel'],
+    mutationFn: apiPost,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [server] })
+      closeDialog()
+    },
+    onError: (error) => {
+      setToastMessage(error.message)
     }
+  })
+
+  const handleCreateChannel = () => {
+    const formData = new FormData()
+    formData.append("serverId", server!)
+    formData.append("channelName", channelName)
+    const apiPostParam: ApiPostParam = {
+      url: `${BASE_URL}/channels`,
+      formData: formData
+    }
+
+    mutate(apiPostParam)
   }
+
+  // const createChannel = async () => {
+  //   try {
+  //     setIsLoading(true)
+  //     const formData = new FormData()
+  //     formData.append("serverId", server!)
+  //     formData.append("channelName", channelName)
+  //     const create = await fetch(`${BASE_URL}/channels`, {
+  //       method: "POST",
+  //       credentials: "include",
+  //       body: formData
+  //     })
+
+  //     if (!create.ok) {
+  //       throw new Error("internal server error")
+  //     }
+
+  //     // const res = await create.json()
+
+  //   } catch (error: any) {
+  //     console.log("error", error)
+  //   } finally {
+  //     setIsLoading(false)
+  //   }
+  // }
   return (
     <div id='dialog' className={`${isOpened ? "flex" : "hidden"} absolute top-0 left-0 w-full h-full backdrop-brightness-50 backdrop-blur-xs items-center justify-center p-10`}>
       <div id='content' className='w-1/3 bg-white rounded-lg flex flex-col items-center p-10 gap-5'>
@@ -47,7 +75,7 @@ const CreateChannelDialog = ({ isOpened, closeDialog }: CreateChannelDialogProps
         <div className='w-full flex justify-between items-center'>
           <span onClick={() => closeDialog()}>Back</span>
           <div className='w-20'>
-            <ButtonPrimary text='Create' onClick={createChannel} />
+            <ButtonPrimary text='Create' onClick={handleCreateChannel} isLoading={isPending} />
           </div>
         </div>
       </div>

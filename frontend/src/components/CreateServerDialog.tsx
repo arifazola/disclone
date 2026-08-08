@@ -4,12 +4,14 @@ import ButtonPrimary from './ButtonPrimary'
 import Button from './Button'
 import JoinServerDialog from './JoinServerDialog'
 import { BASE_URL } from '../consts/const'
+import { useToast } from '../contexts/ToastContext'
 
 interface CreateServerDialogProps {
     isOpened: boolean
     closeDialog: () => void
 }
 const CreateServerDialog = ({ isOpened, closeDialog }: CreateServerDialogProps) => {
+    const { setToastMessage } = useToast()
     const [serverName, setServerName] = useState("")
     const [content, setContent] = useState("create")
     const uploadedFilename = useRef("")
@@ -28,7 +30,7 @@ const CreateServerDialog = ({ isOpened, closeDialog }: CreateServerDialogProps) 
                 throw new Error("failed to create server")
             }
         } catch (error: any) {
-
+            setToastMessage("Somthing went wrong")
         }
     }
 
@@ -75,8 +77,13 @@ const CreateServerDialog = ({ isOpened, closeDialog }: CreateServerDialogProps) 
                     "Content-Type": "image/jpeg",
                 },
             })
-        } catch (error: any) {
 
+            if (!uploadImage.ok) {
+                throw new Error("Failed to upload image")
+            }
+        } catch (error: any) {
+            console.log("error upload mimage", error.message);
+            setToastMessage("Failed to upload image")
         }
 
     }

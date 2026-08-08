@@ -30,6 +30,10 @@ const FriendsContent = () => {
             return
         }
 
+        if (data.Data === null) {
+            return
+        }
+
         if ((data.Data.length == 0 || data.Data.length == 0) && activeSection == "add") {
             return <AddFriendContent />
         } else {

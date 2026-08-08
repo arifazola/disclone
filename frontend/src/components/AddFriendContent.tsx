@@ -11,14 +11,11 @@ import RightContent from './RightContent'
 const AddFriendContent = () => {
     const { setToastMessage } = useToast()
     const [username, setUsername] = useState("")
-    const { mutate, isPending, error, isError, data } = useMutation({
+    const { mutate, isPending, error, isError, data, } = useMutation({
         mutationFn: apiPost,
         onError: (err) => {
             const parseData = JSON.parse(err.message) as ResponseModel<any>
             setToastMessage(parseData.Message)
-        },
-        onSuccess: (data) => {
-
         }
     })
 
@@ -39,11 +36,14 @@ const AddFriendContent = () => {
                     <span>You can add friends with their username</span>
                 </div>
 
-                <div className='w-full h-12 bg-slate-200 rounded-lg flex items-center p-2'>
-                    <input type='text' className='h-full w-[90%] outline-0' placeholder='Enter a username' onChange={(e) => setUsername(e.target.value)}></input>
-                    <div className='w-[35%]'>
-                        <Button text='Send Friend Request' onClick={sendFriendRequest} btnClass='bg-primary text-white text-sm' />
+                <div className='flex flex-col gap-2'>
+                    <div className='w-full h-12 bg-slate-200 rounded-lg flex items-center p-2'>
+                        <input type='text' className='h-full w-[90%] outline-0' placeholder='Enter a username' onChange={(e) => setUsername(e.target.value)}></input>
+                        <div className='w-[35%]'>
+                            <Button text='Send Friend Request' onClick={sendFriendRequest} btnClass='bg-primary text-white text-sm' isLoading={isPending} />
+                        </div>
                     </div>
+                    <span className={`text-xs text-green-700 ${!isPending && !isError ? '' : 'hidden'}`}>Friend request has been sent</span>
                 </div>
 
 
