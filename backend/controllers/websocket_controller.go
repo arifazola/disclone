@@ -30,8 +30,6 @@ var wsupgrader = websocket.Upgrader{
 
 var clients = make(map[string]*models.WebsocketClientModel)
 
-var userMap = make(map[string]*models.Clients)
-
 var chatClients = make(map[string][]*websocket.Conn)
 
 
@@ -57,14 +55,22 @@ func(controller *WebsocketController) HandleWebSocketCall(c *gin.Context) {
 		Conn: conn,
 		SDPOffeer: "",
 	}
-	userMap[userID] = client 
+	
 
 	if existingClient == nil {
+		fmt.Println("Existing client is null")
+		var userMap = make(map[string]*models.Clients)
+		userMap[userID] = client 
 		newClient := []*websocket.Conn{conn}
-		
-		clients[channelID] = &models.WebsocketClientModel{User: userMap, Queue: newClient}
+		newExistingClient := &models.WebsocketClientModel{User: userMap, Queue: newClient}
+		clients[channelID] = newExistingClient
+
+		existingClient = newExistingClient
 	} else {
-		existingClient.User = userMap
+		fmt.Println("Existing client is not null")
+		existingUser := existingClient.User
+		existingUser[userID] = client 
+		existingClient.User = existingUser
 		existingClient.Queue = append(existingClient.Queue, conn)
 	}
 
@@ -140,7 +146,9 @@ func(controller *WebsocketController) HandleWebSocketCall(c *gin.Context) {
 	//hold participants in memory. For improvement, it could be stored in database
 	var participants []string
 
-	if(len(clients[channelID].User) <= 1){
+	fmt.Println("Total user in channel", len(clients[channelID].User))
+
+	if(len(existingClient.User) <= 1){
 
 		websocketResponseModel := &models.WebsocketIceCandidateResponseModel{
 			Type: "waiting",
