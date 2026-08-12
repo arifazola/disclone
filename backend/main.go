@@ -43,6 +43,7 @@ func main() {
 			"https://192.168.1.182:5173",
 			"https://192.168.1.3:5173",
 			"https://192.168.1.8:5173",
+			"https://disclone.afazola.workers.dev",
 			"https://192.168.1.11:5173"},
 		AllowHeaders:     []string{"content-type"},
 		AllowCredentials: true,
@@ -351,16 +352,16 @@ func main() {
 		fmt.Println("stream channel ended")
 	})
 
-	err = router.RunTLS(
-		":8001",
-		`C:\Users\ThinkPad\.vite-plugin-mkcert\cert.pem`,
-		`C:\Users\ThinkPad\.vite-plugin-mkcert\dev.pem`,
-	)
+	// err = router.RunTLS(
+	// 	":8001",
+	// 	`C:\Users\ThinkPad\.vite-plugin-mkcert\cert.pem`,
+	// 	`C:\Users\ThinkPad\.vite-plugin-mkcert\dev.pem`,
+	// )
 
-	if err != nil {
-		log.Fatal("SSL error", err)
-	}
+	// if err != nil {
+	// 	log.Fatal("SSL error", err)
+	// }
 
-	// router.Run(":8001")
+	router.Run(":8001")
 
 }
