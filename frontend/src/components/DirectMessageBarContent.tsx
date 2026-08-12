@@ -6,7 +6,6 @@ import type { ResponseModel } from '../models/responseModel';
 import type { FriendModel } from '../models/friendModel';
 import { BASE_URL } from '../consts/const';
 import { useNavigate } from 'react-router';
-import { useUser } from '../contexts/UserContext';
 
 interface DirectMessageBarContentProps {
     children: React.ReactNode

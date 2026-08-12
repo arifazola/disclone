@@ -119,7 +119,7 @@ const FriendChatContent = () => {
 
                             <div className='flex gap-14 items-center'>
                                 <div className='flex relative'>
-                                    {[...Array(2)].map((item, index) => (
+                                    {[...Array(2)].map((_, index) => (
                                         <div className={`h-8 w-8 border-2 border-slate-100 bg-blue-500 rounded-full ${index == 1 ? "absolute left-5" : ""}`}></div>
                                     ))}
 
