@@ -352,7 +352,7 @@ func main() {
 	})
 
 	err = router.RunTLS(
-		":8080",
+		":8001",
 		`C:\Users\ThinkPad\.vite-plugin-mkcert\cert.pem`,
 		`C:\Users\ThinkPad\.vite-plugin-mkcert\dev.pem`,
 	)
@@ -361,6 +361,6 @@ func main() {
 		log.Fatal("SSL error", err)
 	}
 
-	router.Run(":8080")
+	// router.Run(":8001")
 
 }
