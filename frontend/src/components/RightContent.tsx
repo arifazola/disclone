@@ -1,5 +1,3 @@
-import React from 'react'
-
 const RightContent = () => {
     return (
         <div id='right-content' className='w-[30%] h-full border-r border-t border-slate-300 flex flex-col p-3 gap-5'>

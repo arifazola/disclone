@@ -1,12 +1,11 @@
-import React, { useEffect, useState } from 'react'
-import { useNavigate, type data } from 'react-router'
+import { useEffect } from 'react'
+import { useNavigate } from 'react-router'
 import AddServerIcon from './AddServerIcon'
 import DirectMessageIcon from './DirectMessageIcon'
 import ServerIcon from './ServerIcon'
-import { useQueryClient, useQuery, useSuspenseQuery } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 import { apiGet } from '../handlers/apiHandler'
 import { BASE_URL } from '../consts/const'
-import Tooltip from './Tooltip'
 import TooltipLeft from './TooltipLeft'
 
 interface ServerListProps {
@@ -15,7 +14,7 @@ interface ServerListProps {
 
 const ServerList = ({ onAddServerClicked }: ServerListProps) => {
     const navigate = useNavigate()
-    const { data, isPending, error, isFetched, isError } = useQuery({
+    const { data, error, isFetched, isError } = useQuery({
         queryKey: ['servers'],
         queryFn: async () => {
             const response = await apiGet(`${BASE_URL}/servers`)

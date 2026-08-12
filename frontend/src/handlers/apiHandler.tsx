@@ -1,4 +1,3 @@
-import { BASE_URL } from "../consts/const"
 import type { ResponseModel } from "../models/responseModel"
 
 export async function apiGet(url: string) {

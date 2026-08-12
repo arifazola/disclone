@@ -1,6 +1,4 @@
-import React, { type ReactNode } from 'react'
-import TextLink from './TextLink'
-import ButtonPrimary from './ButtonPrimary'
+import { type ReactNode } from 'react'
 
 interface RegisterLayoutProps {
   children: ReactNode

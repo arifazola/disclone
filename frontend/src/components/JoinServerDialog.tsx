@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import Input from './Input'
 import ButtonPrimary from './ButtonPrimary'
 import { BASE_URL } from '../consts/const'

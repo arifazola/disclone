@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import CreateServerDialog from './CreateServerDialog'
 import ServerList from './ServerList'
 import { Outlet } from 'react-router'

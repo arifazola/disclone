@@ -1,8 +1,7 @@
-import React, { createRef, use, useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import type { WebsocketResponseModel } from '../models/websocketResponseModel'
 import type { IceCandidateModel } from '../models/IceCandidateModel'
 import { BASE_WS } from '../consts/const'
-import type { UserModel } from '../models/userModel'
 import { useUser } from '../contexts/UserContext'
 import { useParams } from 'react-router'
 import { IoMic } from "react-icons/io5";
@@ -76,7 +75,7 @@ const ChannelContent = ({ userLeftChannel, onUserLeftCompleted }: ChannelContent
         }
         const ws = new WebSocket(`${BASE_WS}/ws/call/${server}/${channel}/${userRef.current?.ID}/${userRef.current?.Username}`)
 
-        ws.onopen = (event) => {
+        ws.onopen = () => {
             ws.onmessage = async (event) => {
                 const data = JSON.parse(event.data) as WebsocketResponseModel
                 if (data.Type == "should_call") {
@@ -114,7 +113,7 @@ const ChannelContent = ({ userLeftChannel, onUserLeftCompleted }: ChannelContent
                             usernameFragment: iceCandidate.UserFragment
                         } as RTCLocalIceCandidateInit
 
-                        for (const [key, value] of peerConnectionRecord.current) {
+                        for (const [_, value] of peerConnectionRecord.current) {
                             await value.addIceCandidate(new RTCIceCandidate(candidateInit))
                         }
                         // await peerConnection.addIceCandidate(new RTCIceCandidate(candidateInit))

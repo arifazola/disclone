@@ -1,15 +1,10 @@
-import ButtonPrimary from './ButtonPrimary'
 import Button from './Button'
 import { IoIosAdd } from "react-icons/io";
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { apiGet } from '../handlers/apiHandler';
 import type { ResponseModel } from '../models/responseModel';
 import type { FriendModel } from '../models/friendModel';
-import AddFriendContent from './AddFriendContent';
-import FriendlistContent from './FriendlistContent';
 import { BASE_URL } from '../consts/const';
-import { useState } from 'react';
-import { BsPersonRaisedHand } from "react-icons/bs";
 import { useNavigate } from 'react-router';
 import { useUser } from '../contexts/UserContext';
 
@@ -19,9 +14,8 @@ interface DirectMessageBarContentProps {
 
 const DirectMessageBarContent = ({ children }: DirectMessageBarContentProps) => {
     const navigate = useNavigate()
-    const { userRef } = useUser()
     const queryClient = useQueryClient()
-    const { data, error, isFetched } = useQuery({
+    const { data, isFetched } = useQuery({
         queryKey: ["friendsfgfs"],
         queryFn: async () => {
 
@@ -62,7 +56,7 @@ const DirectMessageBarContent = ({ children }: DirectMessageBarContentProps) => 
                             <span className='font-semibold text-sm text-gray-500'>Direct Messages</span>
                             <IoIosAdd className='text-2xl text-gray-500' />
                         </div>
-                        {isFetched && data?.Data !== undefined && data!.Data.filter(i => i.Status == 1).map((item) => (
+                        {isFetched && (data?.Data !== undefined && data?.Data !== null) && data.Data.filter(i => i.Status == 1).map((item) => (
                             <div className='w-full py-2 px-2 flex items-center justify-center rounded-lg hover:cursor-pointer hover:bg-slate-300' onClick={() => onFriendClicked(item.Username)}>
                                 <div className='w-full h-full flex items-center gap-5'>
                                     <div id='profile-picture' className='w-8 h-8 rounded-full bg-blue-500'>

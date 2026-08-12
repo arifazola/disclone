@@ -1,5 +1,5 @@
 import { useIsFetching } from '@tanstack/react-query'
-import React, { createContext, useContext, useEffect, useRef, useState, type Dispatch, type SetStateAction } from 'react'
+import React, { createContext, useContext, useState } from 'react'
 
 interface LoadingContextType {
     setShowLoading: React.Dispatch<React.SetStateAction<boolean>>

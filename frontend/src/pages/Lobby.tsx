@@ -1,12 +1,3 @@
-import React, { useState } from 'react'
-import ButtonPrimary from '../components/ButtonPrimary'
-import ServerIcon from '../components/ServerIcon'
-import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { useNavigate } from 'react-router'
-import DirectMessageIcon from '../components/DirectMessageIcon'
-import AddServerIcon from '../components/AddServerIcon'
-import Input from '../components/Input'
-import CreateServerDialog from '../components/CreateServerDialog'
 
 const Lobby = () => {
 

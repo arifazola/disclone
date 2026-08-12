@@ -1,5 +1,3 @@
-import React from 'react'
-
 interface TooltipProps {
     text: string,
     className?: string

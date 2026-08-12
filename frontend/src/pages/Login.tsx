@@ -1,10 +1,9 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import ButtonPrimary from '../components/ButtonPrimary'
 import TextLink from '../components/TextLink'
 import RegisterLayout from '../components/RegisterLayout'
 import Input from '../components/Input'
-import { useNavigate, useNavigation } from 'react-router'
-import Loading from '../components/Loading'
+import { useNavigate } from 'react-router'
 import { BASE_URL } from '../consts/const'
 import { useToast } from '../contexts/ToastContext'
 import type { ResponseModel } from '../models/responseModel'
@@ -42,6 +41,10 @@ const Login = () => {
 
             if (login.ok) {
                 setToastMessage("")
+                if (res.Data === null) {
+                    return
+                }
+
                 window.localStorage.setItem("userid", res.Data.ID)
                 window.localStorage.setItem("username", res.Data.Username)
                 window.localStorage.setItem("user", JSON.stringify(res.Data))

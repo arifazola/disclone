@@ -1,5 +1,3 @@
-import React, { useRef } from 'react'
-
 interface ButtonPrimaryProp {
   text: string,
   isLoading?: boolean,

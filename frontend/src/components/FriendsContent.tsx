@@ -1,7 +1,6 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { BsPersonRaisedHand } from 'react-icons/bs'
 import ButtonPrimary from './ButtonPrimary'
-import type { data } from 'react-router'
 import AddFriendContent from './AddFriendContent'
 import FriendlistContent from './FriendlistContent'
 import { useQuery } from '@tanstack/react-query'
@@ -13,7 +12,7 @@ import type { ResponseModel } from '../models/responseModel'
 const FriendsContent = () => {
     const [activeSection, setActiveSection] = useState("add")
 
-    const { data, error, isFetched } = useQuery({
+    const { data } = useQuery({
         queryKey: ["friends"],
         queryFn: async () => {
             const fetchFriendsRequest = await apiGet(`${BASE_URL}/friends/received`)

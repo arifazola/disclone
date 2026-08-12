@@ -1,5 +1,3 @@
-import React from 'react'
-
 const ChannelList = () => {
     return (
         <div id='channel-list' className='w-1/4 h-dvh flex justify-center py-5'>

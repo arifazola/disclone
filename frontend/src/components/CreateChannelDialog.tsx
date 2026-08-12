@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import Input from './Input'
 import ButtonPrimary from './ButtonPrimary'
 import { useParams } from 'react-router'
@@ -14,11 +14,11 @@ interface CreateChannelDialogProps {
 
 const CreateChannelDialog = ({ isOpened, closeDialog }: CreateChannelDialogProps) => {
   const [channelName, setChannelName] = useState("")
-  const { server, channel } = useParams()
+  const { server } = useParams()
   const queryClient = useQueryClient()
   const { setToastMessage } = useToast()
 
-  const { mutate, isPending, isError } = useMutation({
+  const { mutate, isPending } = useMutation({
     mutationKey: ['createChannel'],
     mutationFn: apiPost,
     onSuccess: () => {

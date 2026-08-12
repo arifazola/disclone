@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import ButtonPrimary from './ButtonPrimary'
 import Input from './Input'
 import CreateChannelDialog from './CreateChannelDialog'

@@ -4,13 +4,12 @@ import { useQuery } from '@tanstack/react-query'
 import ChannelContent from './ChannelContent'
 import { apiGet, apiPost, type ApiPostParam } from '../handlers/apiHandler'
 import { BASE_URL } from '../consts/const'
-import { useEffect, useState, type ReactNode } from 'react'
+import { useEffect, useState } from 'react'
 import type { UserModel } from '../models/userModel'
 import { useUser } from '../contexts/UserContext'
 import type { ChannelModel } from '../models/channelModel'
 import type { ResponseModel } from '../models/responseModel'
 import type { Participants } from '../models/channelParticipantModel'
-import { useToast } from '../contexts/NotificationContext'
 import type { NotificationParticipantJoinedModel } from '../models/notificationParticipantJoinedModel'
 
 const ServerBarContent = () => {
@@ -20,7 +19,7 @@ const ServerBarContent = () => {
     const { userRef } = useUser()
     const [leftUser, setLeftUser] = useState("")
 
-    const { data, error, isFetched, isError } = useQuery({
+    const { data, isFetched, isError } = useQuery({
         queryKey: [server],
         queryFn: async () => {
             const channels = await apiGet(`${BASE_URL}/servers/${server}/channels`)

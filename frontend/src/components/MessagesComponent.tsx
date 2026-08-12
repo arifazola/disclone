@@ -1,5 +1,5 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query'
-import React, { useEffect, useRef } from 'react'
+import React, { useEffect } from 'react'
 import { apiGet } from '../handlers/apiHandler'
 import { BASE_URL } from '../consts/const'
 import type { ResponseModel } from '../models/responseModel'
@@ -15,7 +15,7 @@ interface MessagesComponentProps {
 
 const MessagesComponent = ({ chatID, websocket, messageContainerRef }: MessagesComponentProps) => {
     const queryClient = useQueryClient()
-    const { data, error, isFetched } = useQuery({
+    const { data, isFetched } = useQuery({
         queryKey: ["messages"],
         queryFn: async () => {
             const messages = await apiGet(`${BASE_URL}/chats/${chatID}/messages`)

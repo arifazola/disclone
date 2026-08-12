@@ -1,5 +1,4 @@
-import React, { useState } from 'react'
-import ButtonPrimary from './ButtonPrimary'
+import { useState } from 'react'
 import Button from './Button'
 import { BASE_URL } from '../consts/const'
 import { useMutation } from '@tanstack/react-query'
@@ -11,7 +10,7 @@ import RightContent from './RightContent'
 const AddFriendContent = () => {
     const { setToastMessage } = useToast()
     const [username, setUsername] = useState("")
-    const { mutate, isPending, error, isError, data, } = useMutation({
+    const { mutate, isPending, isError, } = useMutation({
         mutationFn: apiPost,
         onError: (err) => {
             const parseData = JSON.parse(err.message) as ResponseModel<any>

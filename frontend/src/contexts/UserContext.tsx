@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useRef } from "react";
+import { createContext, useContext, useRef } from "react";
 import type { ContextProps } from "./NotificationContext";
 import type { UserModel } from "../models/userModel";
 

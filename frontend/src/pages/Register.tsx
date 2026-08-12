@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import RegisterLayout from '../components/RegisterLayout'
 import ButtonPrimary from '../components/ButtonPrimary'
 import TextLink from '../components/TextLink'
@@ -19,13 +19,11 @@ const Register = () => {
             formData.append("email", email)
             formData.append("username", username)
             formData.append("password", password)
-            const register = await fetch(`${BASE_URL}/account`, {
+            await fetch(`${BASE_URL}/account`, {
                 method: "POST",
                 credentials: "include",
                 body: formData
             })
-
-            const res = await register.json()
 
         } catch (error: any) {
 

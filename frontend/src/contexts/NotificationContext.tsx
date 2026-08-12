@@ -1,5 +1,4 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { IoIosClose } from "react-icons/io";
 import { BASE_URL } from "../consts/const";
 import { useQueryClient } from "@tanstack/react-query";
 import { useLoading } from "../components/Loading";

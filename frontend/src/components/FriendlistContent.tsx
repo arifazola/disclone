@@ -1,4 +1,3 @@
-import React from 'react'
 import type { FriendModel } from '../models/friendModel'
 import { FriendStatus } from '../enums/friendStatusEnum'
 import { IoIosClose } from "react-icons/io";
@@ -18,10 +17,10 @@ interface FriedlistProps {
 const FriendlistContent = ({ friends, friendRequest }: FriedlistProps) => {
     const queryClient = useQueryClient()
     const { setShowLoading } = useLoading()
-    const { mutate, data, error, isError } = useMutation({
+    const { mutate } = useMutation({
         mutationKey: ["accept_friend_request"],
         mutationFn: apiPost,
-        onSuccess(data, variables, onMutateResult, context) {
+        onSuccess() {
             setShowLoading(false)
             queryClient.invalidateQueries({
                 queryKey: ["friends"]
